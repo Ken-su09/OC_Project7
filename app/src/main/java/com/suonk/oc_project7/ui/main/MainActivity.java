@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -23,14 +24,16 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityMainBinding;
+import com.suonk.oc_project7.events.OnRestaurantEventListener;
 import com.suonk.oc_project7.ui.maps.MapsFragment;
-import com.suonk.oc_project7.ui.restaurants.ListRestaurantsFragment;
+import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsFragment;
+import com.suonk.oc_project7.ui.restaurants.list.ListRestaurantsFragment;
 import com.suonk.oc_project7.ui.workmates.WorkmatesFragment;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnRestaurantEventListener {
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -190,5 +193,15 @@ public class MainActivity extends AppCompatActivity {
                 getLocationPermission();
             }
         }
+    }
+
+    @Override
+    public void onRestaurantClick(View view, String id) {
+//        binding.bottomNavigation.setVisibility(View.GONE);
+//        binding.drawerLayout.setVisibility(View.GONE);
+        RestaurantDetailsFragment restaurantDetailsFragment = new RestaurantDetailsFragment();
+        FragmentTransaction defaultFragmentTransaction = getSupportFragmentManager().beginTransaction();
+        defaultFragmentTransaction.replace(R.id.fragment_container, restaurantDetailsFragment, "");
+        defaultFragmentTransaction.commit();
     }
 }
