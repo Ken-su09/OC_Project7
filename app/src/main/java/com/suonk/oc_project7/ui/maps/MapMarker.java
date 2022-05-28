@@ -14,6 +14,8 @@ public class MapMarker {
     private final Double longitude;
     @NonNull
     private final String restaurantName;
+    @NonNull
+    private final Float color;
 
     @NonNull
     public String getPlaceId() {
@@ -35,11 +37,18 @@ public class MapMarker {
         return restaurantName;
     }
 
-    public MapMarker(@NonNull String placeId, Double latitude, Double longitude, String restaurantName) {
+    @NonNull
+    public Float getColor() {
+        return color;
+    }
+
+    public MapMarker(@NonNull String placeId, @NonNull Double latitude, @NonNull Double longitude,
+                     @NonNull String restaurantName, @NonNull Float color) {
         this.placeId = placeId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.restaurantName = restaurantName;
+        this.color = color;
     }
 
     @Override
