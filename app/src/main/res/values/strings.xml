@@ -1,3 +1,26 @@
 <resources>
-    <string name="app_name">OC_Project7</string>
+    <string name="app_name">Go4Lunch</string>
+
+    <string name="facebook_button">Sign in with Facebook</string>
+    <string name="google_button">Sign in with Google</string>
+    <string name="search_restaurants">Search restaurants</string>
+
+    <string name="toolbar_search">Search</string>
+
+    <string name="map">Map</string>
+    <string name="restaurants">Restaurants</string>
+    <string name="workmates">Workmates</string>
+
+    <string name="lunch_drawer_item">Your Lunch</string>
+    <string name="settings_drawer_item">Settings</string>
+    <string name="logout_drawer_item">Logout</string>
+
+    <string name="toolbar_title">I\'m Hungry !</string>
+
+    <string name="drawer_opened">Open</string>
+    <string name="drawer_closed">Close</string>
+
+    <string name="location_permission">Location Permission Needed</string>
+    <string name="gps_disabled_msg">Your GPS is disabled, do you want to enable it?</string>
+    <string name="positive_button">Yes</string>
 </resources>
