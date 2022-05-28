@@ -1,6 +1,5 @@
-package com.suonk.oc_project7.repositories.location;
+package com.suonk.oc_project7.repositories.current_location;
 
-import android.location.Location;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
@@ -12,19 +11,24 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
+import com.suonk.oc_project7.model.data.places.CurrentLocation;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class LocationRepositoryImpl implements LocationRepository {
+public class CurrentLocationRepositoryImpl implements CurrentLocationRepository {
 
     @NonNull
-    private final MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<CurrentLocation> locationMutableLiveData = new MutableLiveData<>();
 
     @NonNull
     private final FusedLocationProviderClient locationProviderClient;
 
+    @NonNull
+    private final Looper myLooper;
+
+    // TODO : test with ArgumentCaptor
     @NonNull
     private final LocationRequest locationRequest = LocationRequest.create()
             .setInterval(120_000)
@@ -34,13 +38,15 @@ public class LocationRepositoryImpl implements LocationRepository {
     private LocationCallback locationCallback;
 
     @Inject
-    public LocationRepositoryImpl(@NonNull FusedLocationProviderClient locationProviderClient) {
+    public CurrentLocationRepositoryImpl(@NonNull FusedLocationProviderClient locationProviderClient,
+                                         @NonNull Looper myLooper) {
         this.locationProviderClient = locationProviderClient;
+        this.myLooper = myLooper;
     }
 
     @NonNull
     @Override
-    public LiveData<Location> getLocationMutableLiveData() {
+    public LiveData<CurrentLocation> getLocationMutableLiveData() {
         return locationMutableLiveData;
     }
 
@@ -48,20 +54,24 @@ public class LocationRepositoryImpl implements LocationRepository {
             anyOf = {"android.permission.ACCESS_COARSE_LOCATION", "android.permission.ACCESS_FINE_LOCATION"}
     )
     @Override
-    public void startLocationUpdate() {
+    public void startLocationUpdates() {
         if (locationCallback == null) {
             locationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(@NonNull LocationResult locationResult) {
-                    locationMutableLiveData.setValue(locationResult.getLastLocation());
+
+                    locationMutableLiveData.setValue(new CurrentLocation(
+                            locationResult.getLastLocation().getLatitude(),
+                            locationResult.getLastLocation().getLongitude()
+                    ));
                 }
             };
         }
-        locationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
+        locationProviderClient.requestLocationUpdates(locationRequest, locationCallback, myLooper);
     }
 
     @Override
-    public void stopLocationUpdate() {
+    public void stopLocationUpdates() {
         locationProviderClient.removeLocationUpdates(locationCallback);
     }
 }

@@ -5,18 +5,18 @@ import androidx.annotation.NonNull;
 public class Geometry {
 
     @NonNull
-    private Location location;
+    private CurrentLocation location;
     @NonNull
     private Viewport viewport;
 
-    public Geometry(@NonNull Location location,
+    public Geometry(@NonNull CurrentLocation location,
                     @NonNull Viewport viewport) {
         this.location = location;
         this.viewport = viewport;
     }
 
     @NonNull
-    public Location getLocation() {
+    public CurrentLocation getLocation() {
         return location;
     }
 
