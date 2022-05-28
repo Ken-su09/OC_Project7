@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.di;
 
 import android.content.Context;
+import android.os.Looper;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -39,5 +40,11 @@ public class AppModule {
     @Singleton
     public FusedLocationProviderClient provideFusedLocationClient(@ApplicationContext Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
+    }
+
+    @Provides
+    @Singleton
+    public static Looper provideMainLooper() {
+        return Looper.getMainLooper();
     }
 }
