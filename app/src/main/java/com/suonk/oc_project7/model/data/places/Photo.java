@@ -9,7 +9,7 @@ public class Photo {
     @NonNull
     private int height = 0;
     @NonNull
-    private List<String> html_attributions;
+    private List<String> htmlAttributions;
     @NonNull
     private String photo_reference = "";
     @NonNull
@@ -17,11 +17,11 @@ public class Photo {
 
 
     public Photo(@NonNull int height,
-                 @NonNull List<String> html_attributions,
+                 @NonNull List<String> htmlAttributions,
                  @NonNull String photo_reference,
                  @NonNull int width) {
         this.height = height;
-        this.html_attributions = html_attributions;
+        this.htmlAttributions = htmlAttributions;
         this.photo_reference = photo_reference;
         this.width = width;
     }
@@ -31,12 +31,12 @@ public class Photo {
     }
 
     @NonNull
-    public List<String> getHtml_attributions() {
-        return html_attributions;
+    public List<String> getHtmlAttributions() {
+        return htmlAttributions;
     }
 
     @NonNull
-    public String getPhoto_reference() {
+    public String getPhotoReference() {
         return photo_reference;
     }
 

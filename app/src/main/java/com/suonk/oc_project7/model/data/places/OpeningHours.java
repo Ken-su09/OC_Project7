@@ -2,13 +2,13 @@ package com.suonk.oc_project7.model.data.places;
 
 public class OpeningHours {
 
-    private Boolean openNow = false;
+    private Boolean open_now = false;
 
-    public OpeningHours(Boolean openNow) {
-        this.openNow = openNow;
+    public OpeningHours(Boolean open_now) {
+        this.open_now = open_now;
     }
 
     public Boolean getOpenNow() {
-        return openNow;
+        return open_now;
     }
 }
