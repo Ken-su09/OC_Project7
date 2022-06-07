@@ -3,7 +3,6 @@ package com.suonk.oc_project7.repositories.current_location;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 import android.location.Location;
 import android.os.Looper;
@@ -12,6 +11,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 
@@ -20,12 +20,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public class LocationRepositoryImplTest {
+public class CurrentLocationRepositoryImplTest {
 
     @Rule
     public final InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -79,5 +78,17 @@ public class LocationRepositoryImplTest {
         CurrentLocation currentLocation = currentLocationRepository.getLocationMutableLiveData().getValue();
 
         assertEquals(new CurrentLocation(40.2, 2.8), currentLocation);
+    }
+
+    @Test
+    public void test_location_request() {
+        // GIVEN
+        ArgumentCaptor<LocationRequest> argumentCaptor = ArgumentCaptor.forClass(LocationRequest.class);
+
+        // WHEN
+        currentLocationRepository.startLocationUpdates();
+
+        // THEN
+        Mockito.verify(fusedLocationProviderClientMock).requestLocationUpdates(argumentCaptor.capture(), any(), any());
     }
 }

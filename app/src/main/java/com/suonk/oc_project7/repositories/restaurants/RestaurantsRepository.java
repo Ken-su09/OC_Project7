@@ -11,4 +11,7 @@ public interface RestaurantsRepository {
 
     @NonNull
     LiveData<List<Restaurant>> getNearRestaurants(@NonNull String location);
+
+    @NonNull
+    LiveData<Restaurant> getNearRestaurantById(@NonNull String location, @NonNull String placeId);
 }

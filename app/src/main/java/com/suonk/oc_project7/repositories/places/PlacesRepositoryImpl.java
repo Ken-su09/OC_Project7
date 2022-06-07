@@ -1,7 +1,5 @@
 package com.suonk.oc_project7.repositories.places;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -35,37 +33,36 @@ public class PlacesRepositoryImpl implements PlacesRepository {
     public LiveData<List<Place>> getNearbyPlaceResponse(@NonNull String location) {
         MutableLiveData<List<Place>> placesLiveData = new MutableLiveData<>();
 
-        apiService.getNearbyPlacesResponse(location).enqueue(new Callback<NearbyPlaceResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<NearbyPlaceResponse> call, @NonNull Response<NearbyPlaceResponse> response) {
-                Log.i("NearbyPlaceResponse", "response.isSuccessful() : " + response.isSuccessful());
-                if (response.isSuccessful()) {
-                    List<Place> places = new ArrayList<>();
+        if (apiService.getNearbyPlacesResponse(location) != null) {
+            apiService.getNearbyPlacesResponse(location).enqueue(new Callback<NearbyPlaceResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<NearbyPlaceResponse> call, @NonNull Response<NearbyPlaceResponse> response) {
+                    if (response.isSuccessful()) {
+                        List<Place> places = new ArrayList<>();
 
-                    Log.i("NearbyPlaceResponse", "response.body() : " + response.body());
-                    if (response.body() != null) {
-                        if (response.body().getResults() != null) {
-                            for (Result result : response.body().getResults()) {
-                                Log.i("NearbyPlaceResponse", "result : " + result);
-                                places.add(new Place(
-                                        result.getPlace_id(),
-                                        result.getName(),
-                                        result.getGeometry().getLocation().getLat(),
-                                        result.getGeometry().getLocation().getLng(),
-                                        true));
+                        if (response.body() != null) {
+                            if (response.body().getResults() != null) {
+                                for (Result result : response.body().getResults()) {
+                                    places.add(new Place(
+                                            result.getPlaceId(),
+                                            result.getName(),
+                                            result.getGeometry().getLocation().getLat(),
+                                            result.getGeometry().getLocation().getLng(),
+                                            true));
+                                }
                             }
                         }
+
+                        placesLiveData.setValue(places);
                     }
-
-                    placesLiveData.setValue(places);
                 }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<NearbyPlaceResponse> call, @NonNull Throwable t) {
-                t.printStackTrace();
-            }
-        });
+                @Override
+                public void onFailure(@NonNull Call<NearbyPlaceResponse> call, @NonNull Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        }
 
         return placesLiveData;
     }

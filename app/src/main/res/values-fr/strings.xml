@@ -24,4 +24,8 @@
 
     <string name="gps_disabled_msg">Votre GPS est désactivé, voulez-vous le réactiver ?</string>
     <string name="positive_button">Oui</string>
+
+    <string name="facebook_app_id">679499986497059</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">56789</string>
 </resources>

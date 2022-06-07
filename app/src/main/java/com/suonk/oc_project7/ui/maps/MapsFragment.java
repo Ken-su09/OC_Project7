@@ -15,9 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.suonk.oc_project7.R;
@@ -52,8 +54,18 @@ public class MapsFragment extends SupportMapFragment {
                             .title(mapMaker.getRestaurantName())
                             .snippet("Marker Description")
                             .icon(BitmapDescriptorFactory.fromBitmap(getBitmap(getContext(), R.drawable.ic_custom_google_marker_blue))));
+
+                    CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 }
             });
+
+//            mapsViewModel.getCameraPositionSingleEvent().observe(getViewLifecycleOwner(), currentLatLng -> {
+//                if (currentLatLng != null) {
+//                    CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
+//                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+//                }
+//            });
         });
     }
 

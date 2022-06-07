@@ -1,14 +1,11 @@
 package com.suonk.oc_project7.ui.maps;
 
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.suonk.oc_project7.model.data.places.Place;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
@@ -20,7 +17,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @HiltViewModel
 public class MapsViewModel extends ViewModel {
@@ -28,11 +24,9 @@ public class MapsViewModel extends ViewModel {
     @NonNull
     private final LiveData<List<MapMarker>> mapMarkerLiveData;
 
-//    private final SingleLiveEvent<Int>
-//
-//
-//    CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
-//                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+    private final SingleLiveEvent<LatLng> cameraPositionSingleEvent = new SingleLiveEvent<>();
+
+    private LatLng latLng;
 
     @Inject
     public MapsViewModel(@NonNull CurrentLocationRepository locationRepository,
@@ -40,6 +34,7 @@ public class MapsViewModel extends ViewModel {
 
         LiveData<List<Place>> listPlacesLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
             String latLng = location.getLat() + "," + location.getLng();
+            this.latLng = new LatLng(location.getLat(), location.getLng());
             return placesRepository.getNearbyPlaceResponse(latLng);
         });
 
@@ -73,5 +68,13 @@ public class MapsViewModel extends ViewModel {
     @NonNull
     public LiveData<List<MapMarker>> getMapMakersLiveData() {
         return mapMarkerLiveData;
+    }
+
+    @NonNull
+    public SingleLiveEvent<LatLng> getCameraPositionSingleEvent() {
+        if (cameraPositionSingleEvent.getValue() == null) {
+            cameraPositionSingleEvent.setValue(latLng);
+        }
+        return cameraPositionSingleEvent;
     }
 }

@@ -28,7 +28,6 @@ public class CurrentLocationRepositoryImpl implements CurrentLocationRepository 
     @NonNull
     private final Looper myLooper;
 
-    // TODO : test with ArgumentCaptor
     @NonNull
     private final LocationRequest locationRequest = LocationRequest.create()
             .setInterval(120_000)

@@ -5,6 +5,8 @@ import android.os.Looper;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.api.PlacesApiService;
 
 import javax.inject.Singleton;
@@ -40,6 +42,16 @@ public class AppModule {
     @Singleton
     public FusedLocationProviderClient provideFusedLocationClient(@ApplicationContext Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
+    }
+
+    @Provides
+    public static FirebaseAuth provideFirebaseAuth() {
+        return FirebaseAuth.getInstance();
+    }
+
+    @Provides
+    public static FirebaseFirestore provideFirebaseFirestore() {
+        return FirebaseFirestore.getInstance();
     }
 
     @Provides

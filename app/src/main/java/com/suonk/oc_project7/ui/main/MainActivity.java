@@ -200,6 +200,9 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 //        binding.bottomNavigation.setVisibility(View.GONE);
 //        binding.drawerLayout.setVisibility(View.GONE);
         RestaurantDetailsFragment restaurantDetailsFragment = new RestaurantDetailsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putString("place_id", id);
+        restaurantDetailsFragment.setArguments(bundle);
         FragmentTransaction defaultFragmentTransaction = getSupportFragmentManager().beginTransaction();
         defaultFragmentTransaction.replace(R.id.fragment_container, restaurantDetailsFragment, "");
         defaultFragmentTransaction.commit();

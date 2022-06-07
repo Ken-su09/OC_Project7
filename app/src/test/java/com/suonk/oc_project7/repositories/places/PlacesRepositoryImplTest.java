@@ -1,14 +1,19 @@
 package com.suonk.oc_project7.repositories.places;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import android.location.Location;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.maps.model.LatLng;
 import com.suonk.oc_project7.api.PlacesApiService;
 import com.suonk.oc_project7.model.data.places.Place;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
@@ -31,28 +36,28 @@ public class PlacesRepositoryImplTest {
     public final InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     @NonNull
-    private final PlacesApiService placesApiService = mock(PlacesApiService.class);
+    private final PlacesApiService placesApiServiceMock = mock(PlacesApiService.class);
 
-    private final String defaultLocation = "48.9575329%2C2.5803872";
+    @NonNull
+    private final Location locationMock = mock(Location.class);
 
     private PlacesRepository placesRepository;
 
     @Before
     public void setUp() {
-        placesRepository = new PlacesRepositoryImpl(placesApiService);
+        doReturn(48.9575329).when(locationMock).getLatitude();
+        doReturn(2.5594583).when(locationMock).getLongitude();
+        placesRepository = new PlacesRepositoryImpl(placesApiServiceMock);
     }
 
     @Test
-    public void get_nearby_places_should_not_be_null_or_empty() {
-        List<Place> places = TestUtils.getValueForTesting(placesRepository.getNearbyPlaceResponse(defaultLocation));
+    public void get_nearby_places_with_default_location() {
+        // WHEN
+        String defaultLocation = locationMock.getLatitude() + "," + locationMock.getLongitude();
+        placesRepository.getNearbyPlaceResponse(defaultLocation);
 
-        assertNotNull(places);
-    }
-
-    @Test
-    public void get_nearby_places_should_be_null_with_empty_parameter() {
-        List<Place> places = TestUtils.getValueForTesting(placesRepository.getNearbyPlaceResponse(""));
-
-        assertNull(places);
+        // THEN
+        verify(placesApiServiceMock).getNearbyPlacesResponse(defaultLocation);
+        verifyNoMoreInteractions(placesApiServiceMock);
     }
 }

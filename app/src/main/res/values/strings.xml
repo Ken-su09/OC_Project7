@@ -23,4 +23,8 @@
     <string name="location_permission">Location Permission Needed</string>
     <string name="gps_disabled_msg">Your GPS is disabled, do you want to enable it?</string>
     <string name="positive_button">Yes</string>
+
+    <string name="facebook_app_id">679499986497059</string>
+    <string name="fb_login_protocol_scheme">fb1234</string>
+    <string name="facebook_client_token">8667285525fbe4a89fa1766abc721597</string>
 </resources>

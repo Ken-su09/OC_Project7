@@ -1,0 +1,68 @@
+package com.suonk.oc_project7.ui.workmates;
+
+import android.content.Context;
+import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.suonk.oc_project7.R;
+import com.suonk.oc_project7.databinding.FragmentWorkmatesBinding;
+import com.suonk.oc_project7.events.OnRestaurantEventListener;
+import com.suonk.oc_project7.ui.main.MainActivity;
+import com.suonk.oc_project7.ui.restaurants.list.RestaurantsListAdapter;
+import com.suonk.oc_project7.ui.restaurants.list.RestaurantsViewModel;
+
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
+public class WorkmatesFragment extends Fragment {
+
+    private WorkmatesViewModel viewModel;
+    private FragmentWorkmatesBinding binding;
+    private MainActivity activity;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        activity = (MainActivity) context;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
+        getWorkmatesListFromViewModel();
+    }
+
+    private void getWorkmatesListFromViewModel() {
+        WorkmatesListAdapter listAdapter = new WorkmatesListAdapter();
+
+        viewModel.getWorkmatesLiveData().observe(getViewLifecycleOwner(), listAdapter::submitList);
+
+        binding.workmatesList.setAdapter(listAdapter);
+        binding.workmatesList.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.workmatesList.setHasFixedSize(true);
+    }
+}
