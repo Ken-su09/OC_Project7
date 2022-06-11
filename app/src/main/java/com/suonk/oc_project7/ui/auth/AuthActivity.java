@@ -1,29 +1,26 @@
 package com.suonk.oc_project7.ui.auth;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.lifecycle.ViewModelProvider;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginResult;
-import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
@@ -32,55 +29,32 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityAuthBinding;
+import com.suonk.oc_project7.ui.main.MainActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class AuthActivity extends AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
+public class AuthActivity extends AppCompatActivity {
 
-    private final static int RC_SIGN_IN = 1;
+    private final static int RC_SIGN_IN_GOOGLE = 1;
 
     @NonNull
     private final CallbackManager callbackManager = CallbackManager.Factory.create();
 
     private ActivityAuthBinding binding;
-    private AuthViewModel viewModel;
-
-    private FirebaseAuth auth;
-    private GoogleSignInClient googleSignInClient;
-    private GoogleApiClient googleApiClient;
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            updateUI(currentUser);
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            updateUI(currentUser);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+            return;
+        }
+
         binding = ActivityAuthBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
-
-        auth = FirebaseAuth.getInstance();
-        FacebookSdk.sdkInitialize(getApplicationContext());
-
-        createRequest();
 
         binding.facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -101,92 +75,68 @@ public class AuthActivity extends AppCompatActivity implements GoogleApiClient.O
         binding.googleButton.setOnClickListener(view -> signIn());
     }
 
-    private void createRequest() {
+    private void signIn() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
-        googleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this, this)
-                .addApi(Auth.GOOGLE_SIGN_IN_API)
-                .build();
+        GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
 
-
-        googleSignInClient = GoogleSignIn.getClient(this, gso);
-    }
-
-    private void signIn() {
-        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(googleApiClient);
-        startActivityForResult(signInIntent, RC_SIGN_IN);
-    }
-
-    private void updateUI(@NonNull FirebaseUser currentUser) {
-        binding.profileName.setText(currentUser.getDisplayName());
-        binding.profileImage.setImageURI(currentUser.getPhotoUrl());
-    }
-
-    private void handleFacebookToken(AccessToken token) {
-        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        auth.signInWithCredential(credential).addOnCompleteListener(this, task -> {
-            if (task.isSuccessful()) {
-                FirebaseUser user = auth.getCurrentUser();
-                binding.profileName.setText(user.getDisplayName());
-                binding.profileImage.setImageURI(user.getPhotoUrl());
-                Log.i("FirebaseUser", "" + user.getDisplayName());
-            }
-        });
-    }
-
-    private void firebaseAuthWithGoogle(GoogleSignInAccount account) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-        auth.signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    Log.i("GoogleLogin", "task : " + task);
-                    if (task.isSuccessful()) {
-                        FirebaseUser user = auth.getCurrentUser();
-                        if (user != null) {
-                            updateUI(user);
-                        }
-                    } else if (task.getException() != null) {
-                        task.getException().printStackTrace();
-                        Snackbar.make(binding.getRoot(), "Authentication Failed.", Snackbar.LENGTH_LONG).show();
-                    }
-                });
-    }
-
-    private void handleSignInResult(GoogleSignInResult result) {
-        if (result.isSuccess()) {
-            GoogleSignInAccount account = result.getSignInAccount();
-            if (account != null) {
-                firebaseAuthWithGoogle(account);
-            }
-        }
-    }
-
-    private void signOut() {
-        Auth.GoogleSignInApi.signOut(googleApiClient).setResultCallback(new ResultCallback<Status>() {
-            @Override
-            public void onResult(@NonNull Status status) {
-
-            }
-        });
+        Intent signInIntent = googleSignInClient.getSignInIntent();
+        startActivityForResult(signInIntent, RC_SIGN_IN_GOOGLE);
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == RC_SIGN_IN) {
-            GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            Log.i("GoogleLogin", "result : " + result);
-
-            handleSignInResult(result);
+        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
+        if (requestCode == RC_SIGN_IN_GOOGLE) {
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                // Google Sign In was successful, authenticate with Firebase
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                Log.d("Nino", "firebaseAuthWithGoogle:" + account.getId());
+                firebaseAuthWithGoogle(account.getIdToken());
+            } catch (ApiException e) {
+                // Google Sign In failed, update UI appropriately
+                Log.w("Nino", "Google sign in failed", e);
+            }
         }
     }
 
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    private void firebaseAuthWithGoogle(String idToken) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
+        FirebaseAuth.getInstance().signInWithCredential(credential)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d("Nino", "signInWithCredential:success");
+                        updateFirestore();
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.w("Nino", "signInWithCredential:failure", task.getException());
+                        Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
 
+    private void updateFirestore() {
+        Toast.makeText(this, "Hello, " +  FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
+    }
+
+    private void handleFacebookToken(AccessToken token) {
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+                binding.profileName.setText(user.getDisplayName());
+                binding.profileImage.setImageURI(user.getPhotoUrl());
+                Log.i("FirebaseUser", "" + user.getDisplayName());
+
+                updateFirestore();
+            }
+        });
     }
 }

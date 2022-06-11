@@ -46,10 +46,6 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
-    // Navigation Component
-    implementation 'androidx.navigation:navigation-fragment:2.4.2'
-    implementation 'androidx.navigation:navigation-ui:2.4.2'
-
     // MVVM
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
@@ -74,7 +70,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-scalars:2.9.0'
 
     // Firebase BoM
-    implementation platform('com.google.firebase:firebase-bom:29.2.1')
+    implementation platform('com.google.firebase:firebase-bom:30.1.0')
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-firestore'
@@ -105,14 +101,9 @@ dependencies {
     androidTestImplementation 'com.google.dagger:hilt-android-testing:2.38.1'
     androidTestImplementation 'androidx.arch.core:core-testing:2.1.0'
     androidTestAnnotationProcessor 'com.google.dagger:hilt-android-compiler:2.38.1'
+    androidTestUtil 'androidx.test:orchestrator:1.4.2-alpha04'
 
     debugImplementation "androidx.fragment:fragment-testing:1.4.1"
-    debugImplementation "androidx.test:core:1.4.0"
-    debugImplementation "androidx.test:rules:1.4.0"
-    debugImplementation "androidx.test:runner:1.4.0"
-    debugImplementation "androidx.test.espresso:espresso-intents:3.4.0"
-
-    androidTestUtil 'androidx.test:orchestrator:1.4.2-alpha04'
 }
 
 // open JaCoCo report after generation
