@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.repositories.current_location;
 
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
@@ -71,6 +72,8 @@ public class CurrentLocationRepositoryImpl implements CurrentLocationRepository 
 
     @Override
     public void stopLocationUpdates() {
-        locationProviderClient.removeLocationUpdates(locationCallback);
+        if (locationCallback != null) {
+            locationProviderClient.removeLocationUpdates(locationCallback);
+        }
     }
 }
