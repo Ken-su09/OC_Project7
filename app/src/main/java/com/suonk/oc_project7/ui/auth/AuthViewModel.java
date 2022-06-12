@@ -1,7 +1,10 @@
 package com.suonk.oc_project7.ui.auth;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
@@ -43,13 +46,48 @@ public class AuthViewModel extends ViewModel {
 //
 //    }
 
+    public void addUserToFirestore(@NonNull FirebaseUser firebaseUser) {
+        final String id = firebaseUser.getUid();
 
-    private void addUserToFirestore() {
-        FirebaseUser firebaseUser = auth.getCurrentUser();
+        mediatorLiveData.addSource(getWorkmateFromFirestore(id), workmate -> {
+            combine(workmate, firebaseUser);
+        });
+    }
 
-        if (firebaseUser == null) {
-// Toast
-        } else {
+    private void combine(@Nullable Workmate workmate, FirebaseUser firebaseUser) {
+        final String id = firebaseUser.getUid();
+
+        if (workmate == null && firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
+            final Workmate workmateToAdd = new Workmate(
+                    id,
+                    firebaseUser.getDisplayName(),
+                    firebaseUser.getEmail(),
+                    firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
+                    false
+            );
+            addUser(id, workmate);
         }
+    }
+
+
+    private void addUser(@NonNull String userId, @NonNull Workmate workmate) {
+        firebaseFirestore.collection("workmates")
+                .document(userId)
+                .set(workmate);
+    }
+
+    @NonNull
+    private LiveData<Workmate> getWorkmateFromFirestore(@NonNull String userId) {
+        final MutableLiveData<Workmate> userMutableLiveData = new MutableLiveData<>();
+
+        firebaseFirestore.collection("workmates")
+                .document(userId)
+                .addSnapshotListener((documentSnapshot, error) -> {
+                    if (documentSnapshot != null) {
+                        userMutableLiveData.setValue(documentSnapshot.toObject(Workmate.class));
+                    }
+                });
+
+        return userMutableLiveData;
     }
 }

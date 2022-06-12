@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
@@ -17,19 +18,19 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityAuthBinding;
+import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.ui.main.MainActivity;
+import com.suonk.oc_project7.ui.workmates.WorkmatesViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -42,6 +43,7 @@ public class AuthActivity extends AppCompatActivity {
     private final CallbackManager callbackManager = CallbackManager.Factory.create();
 
     private ActivityAuthBinding binding;
+    private AuthViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,8 @@ public class AuthActivity extends AppCompatActivity {
             finish();
             return;
         }
+
+        viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
         binding = ActivityAuthBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -108,6 +112,9 @@ public class AuthActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         updateFirestore();
+                        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                            viewModel.addUserToFirestore(FirebaseAuth.getInstance().getCurrentUser());
+                        }
                         startActivity(new Intent(this, MainActivity.class));
                     } else {
                         Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
