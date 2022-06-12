@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,14 +18,21 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.GravityCompat;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
+import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityMainBinding;
 import com.suonk.oc_project7.events.OnRestaurantEventListener;
+import com.suonk.oc_project7.ui.auth.AuthActivity;
 import com.suonk.oc_project7.ui.maps.MapsFragment;
 import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsFragment;
 import com.suonk.oc_project7.ui.restaurants.list.ListRestaurantsFragment;
@@ -33,7 +41,7 @@ import com.suonk.oc_project7.ui.workmates.WorkmatesFragment;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements OnRestaurantEventListener {
+public class MainActivity extends AppCompatActivity implements OnRestaurantEventListener, NavigationView.OnNavigationItemSelectedListener {
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -44,6 +52,13 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() == null) {
+            startActivity(new Intent(this, AuthActivity.class));
+            finish();
+            return;
+        }
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -54,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
         setupActionBar();
         setupDrawerLayout();
+        setupNavigationView();
         setupBottomNavigationView();
     }
 
@@ -83,6 +99,30 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.home: {
+
+                break;
+            }
+            case R.id.settings: {
+
+                break;
+            }
+            case R.id.logout: {
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    FirebaseAuth.getInstance().signOut();
+                    startActivity(new Intent(this, AuthActivity.class));
+                    finish();
+                }
+                break;
+            }
+        }
+        binding.drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
     //region =========================================== SETUP UI ===========================================
 
     private void setupFragmentContainer() {
@@ -98,6 +138,23 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         binding.drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
+    }
+
+    private void setupNavigationView() {
+        binding.navView.setNavigationItemSelectedListener(this);
+        View header = binding.navView.getHeaderView(0);
+        AppCompatTextView name = header.findViewById(R.id.user_name);
+        AppCompatTextView email = header.findViewById(R.id.user_mail);
+        AppCompatImageView image = header.findViewById(R.id.user_image);
+
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            name.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+            email.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+            Glide.with(this)
+                    .load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl())
+                    .centerCrop()
+                    .into(image);
+        }
     }
 
     private void setupActionBar() {

@@ -90,17 +90,13 @@ public class AuthActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN_GOOGLE) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
-                // Google Sign In was successful, authenticate with Firebase
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 Log.d("Nino", "firebaseAuthWithGoogle:" + account.getId());
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
-                // Google Sign In failed, update UI appropriately
                 Log.w("Nino", "Google sign in failed", e);
             }
         }
@@ -111,19 +107,16 @@ public class AuthActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d("Nino", "signInWithCredential:success");
                         updateFirestore();
+                        startActivity(new Intent(this, MainActivity.class));
                     } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w("Nino", "signInWithCredential:failure", task.getException());
                         Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
     private void updateFirestore() {
-        Toast.makeText(this, "Hello, " +  FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Hello, " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
     }
 
     private void handleFacebookToken(AccessToken token) {
