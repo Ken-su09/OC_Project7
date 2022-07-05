@@ -53,7 +53,6 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
 
                                     if (result.getPhotos() != null) {
                                         photoReference = result.getPhotos().get(0).getPhotoReference();
-                                        Log.i("getPhotoReference", "" + getRestaurantPictureURL(photoReference));
                                     }
 
                                     if (result.getOpeningHours() != null) {
@@ -108,26 +107,23 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
 
                                 if (result.getPhotos() != null) {
                                     photoReference = result.getPhotos().get(0).getPhotoReference();
-                                    Log.i("getPhotoReference", "" + getRestaurantPictureURL(photoReference));
                                 }
 
                                 if (result.getOpeningHours() != null) {
                                     isOpen = result.getOpeningHours().getOpenNow();
                                 }
 
-                                if (result.getPlaceId() != null) {
-                                    if (result.getPlaceId().equals(placeId)) {
-                                        restaurant = new Restaurant(
-                                                result.getPlaceId(),
-                                                result.getName(),
-                                                result.getVicinity(),
-                                                isOpen,
-                                                result.getRating(),
-                                                result.getGeometry().getLocation().getLat(),
-                                                result.getGeometry().getLocation().getLng(),
-                                                getRestaurantPictureURL(photoReference)
-                                        );
-                                    }
+                                if (result.getPlaceId().equals(placeId)) {
+                                    restaurant = new Restaurant(
+                                            result.getPlaceId(),
+                                            result.getName(),
+                                            result.getVicinity(),
+                                            isOpen,
+                                            result.getRating(),
+                                            result.getGeometry().getLocation().getLat(),
+                                            result.getGeometry().getLocation().getLng(),
+                                            getRestaurantPictureURL(photoReference)
+                                    );
                                 }
                             }
                         }
