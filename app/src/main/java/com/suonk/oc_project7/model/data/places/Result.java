@@ -26,7 +26,7 @@ public class Result {
     @NonNull
     private List<Photo> photos;
     @NonNull
-    private String placeId;
+    private String place_id;
     @NonNull
     private PlusCode plus_code;
     @NonNull
@@ -72,7 +72,7 @@ public class Result {
         this.opening_hours = opening_hours;
         this.permanently_closed = permanently_closed;
         this.photos = photos;
-        this.placeId = placeId;
+        this.place_id = placeId;
         this.plus_code = plus_code;
         this.price_level = price_level;
         this.rating = rating;
@@ -119,7 +119,7 @@ public class Result {
 
     @NonNull
     public String getPlaceId() {
-        return placeId;
+        return place_id;
     }
 
     @NonNull
@@ -147,7 +147,7 @@ public class Result {
                 icon.equals(result.icon) && icon_background_color.equals(result.icon_background_color) &&
                 icon_mask_base_uri.equals(result.icon_mask_base_uri) && name.equals(result.name) &&
                 opening_hours.equals(result.opening_hours) && permanently_closed.equals(result.permanently_closed) &&
-                photos.equals(result.photos) && placeId.equals(result.placeId) && plus_code.equals(result.plus_code) &&
+                photos.equals(result.photos) && place_id.equals(result.place_id) && plus_code.equals(result.plus_code) &&
                 rating.equals(result.rating) && reference.equals(result.reference) && scope.equals(result.scope) &&
                 types.equals(result.types) && vicinity.equals(result.vicinity);
     }
@@ -155,7 +155,7 @@ public class Result {
     @Override
     public int hashCode() {
         return Objects.hash(business_status, geometry, icon, icon_background_color, icon_mask_base_uri,
-                name, opening_hours, permanently_closed, photos, placeId, plus_code, price_level, rating,
+                name, opening_hours, permanently_closed, photos, place_id, plus_code, price_level, rating,
                 reference, scope, types, user_ratings_total, vicinity);
     }
 
@@ -171,7 +171,7 @@ public class Result {
                 ", opening_hours=" + opening_hours +
                 ", permanently_closed=" + permanently_closed +
                 ", photos=" + photos +
-                ", place_id='" + placeId + '\'' +
+                ", place_id='" + place_id + '\'' +
                 ", plus_code=" + plus_code +
                 ", price_level=" + price_level +
                 ", rating=" + rating +
