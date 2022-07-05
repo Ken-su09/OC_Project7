@@ -111,16 +111,17 @@ public class AuthActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
-                        updateFirestore();
                         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                            viewModel.addUserToFirestore(FirebaseAuth.getInstance().getCurrentUser());
+                            viewModel.addWorkmateToFirestore(FirebaseAuth.getInstance().getCurrentUser());
                         }
+                        updateFirestore();
                         startActivity(new Intent(this, MainActivity.class));
                     } else {
                         Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     private void updateFirestore() {
         Toast.makeText(this, "Hello, " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();

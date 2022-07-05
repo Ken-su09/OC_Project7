@@ -5,10 +5,8 @@ import static com.suonk.oc_project7.utils.Constants.PERMISSIONS_REQUEST_ENABLE_G
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,6 +21,7 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -34,7 +33,7 @@ import com.suonk.oc_project7.databinding.ActivityMainBinding;
 import com.suonk.oc_project7.events.OnRestaurantEventListener;
 import com.suonk.oc_project7.ui.auth.AuthActivity;
 import com.suonk.oc_project7.ui.maps.MapsFragment;
-import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsFragment;
+import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActivity;
 import com.suonk.oc_project7.ui.restaurants.list.ListRestaurantsFragment;
 import com.suonk.oc_project7.ui.workmates.WorkmatesFragment;
 
@@ -64,6 +63,11 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, MapsFragment.newInstance())
+                    .commit();
+        }
         isMapsEnabled();
         getLocationPermission();
 
@@ -71,6 +75,12 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         setupDrawerLayout();
         setupNavigationView();
         setupBottomNavigationView();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        mainViewModel.onResume();
     }
 
     @Override
@@ -125,13 +135,6 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
     //region =========================================== SETUP UI ===========================================
 
-    private void setupFragmentContainer() {
-        MapsFragment fragment = new MapsFragment();
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, fragment, "");
-        fragmentTransaction.commit();
-    }
-
     private void setupDrawerLayout() {
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
                 R.string.drawer_opened, R.string.drawer_closed);
@@ -147,14 +150,15 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         AppCompatTextView email = header.findViewById(R.id.user_mail);
         AppCompatImageView image = header.findViewById(R.id.user_image);
 
-        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            name.setText(FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
-            email.setText(FirebaseAuth.getInstance().getCurrentUser().getEmail());
+        mainViewModel.getMainViewStateLiveData().observe(this, mainViewState -> {
+            name.setText(mainViewState.getDisplayName());
+            email.setText(mainViewState.getEmail());
             Glide.with(this)
-                    .load(FirebaseAuth.getInstance().getCurrentUser().getPhotoUrl())
+                    .load(mainViewState.getPhotoUrl())
                     .centerCrop()
                     .into(image);
-        }
+        });
+
     }
 
     private void setupActionBar() {
@@ -166,26 +170,26 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
     private void setupBottomNavigationView() {
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
+            Fragment fragmentToCommit;
+
             switch (item.getItemId()) {
                 case R.id.nav_restaurant:
-                    ListRestaurantsFragment fragment1 = new ListRestaurantsFragment();
-                    FragmentTransaction fragmentTransaction2 = getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction2.replace(R.id.fragment_container, fragment1, "");
-                    fragmentTransaction2.commit();
-                    return true;
+                    fragmentToCommit = ListRestaurantsFragment.newInstance();
+                    break;
                 case R.id.nav_workmates:
-                    WorkmatesFragment fragment2 = new WorkmatesFragment();
-                    FragmentTransaction fragmentTransaction3 = getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction3.replace(R.id.fragment_container, fragment2, "");
-                    fragmentTransaction3.commit();
-                    return true;
+                    fragmentToCommit = WorkmatesFragment.newInstance();
+                    break;
                 default:
-                    MapsFragment defaultFragment = new MapsFragment();
-                    FragmentTransaction defaultFragmentTransaction = getSupportFragmentManager().beginTransaction();
-                    defaultFragmentTransaction.replace(R.id.fragment_container, defaultFragment, "");
-                    defaultFragmentTransaction.commit();
-                    return true;
+                    fragmentToCommit = MapsFragment.newInstance();
+                    break;
             }
+
+            getSupportFragmentManager().beginTransaction()
+                    .addToBackStack(null)
+                    .replace(R.id.fragment_container, fragmentToCommit)
+                    .commit();
+
+            return true;
         });
     }
 
@@ -214,10 +218,7 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
     private void getLocationPermission() {
         mainViewModel.getPermissionsLiveData().observe(this, isPermissionsEnabled -> {
-            if (isPermissionsEnabled) {
-                locationPermissionGranted = true;
-                setupFragmentContainer();
-            } else {
+            if (!isPermissionsEnabled) {
                 ActivityCompat.requestPermissions(this,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
@@ -228,40 +229,17 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     //endregion
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        locationPermissionGranted = false;
-        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
-            if (grantResults.length > 0
-                    && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                locationPermissionGranted = true;
-                setupFragmentContainer();
-            }
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PERMISSIONS_REQUEST_ENABLE_GPS) {
-            if (!locationPermissionGranted) {
-                getLocationPermission();
-            }
-        }
     }
 
     @Override
     public void onRestaurantClick(View view, String id) {
-//        binding.bottomNavigation.setVisibility(View.GONE);
-//        binding.drawerLayout.setVisibility(View.GONE);
-        RestaurantDetailsFragment restaurantDetailsFragment = new RestaurantDetailsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putString("place_id", id);
-        restaurantDetailsFragment.setArguments(bundle);
-        FragmentTransaction defaultFragmentTransaction = getSupportFragmentManager().beginTransaction();
-        defaultFragmentTransaction.replace(R.id.fragment_container, restaurantDetailsFragment, "");
-        defaultFragmentTransaction.commit();
+        startActivity(RestaurantDetailsActivity.navigate(this, id));
+    }
+
+    @Override
+    public void onBackPressed() {
+        getSupportFragmentManager().popBackStack();
     }
 }
