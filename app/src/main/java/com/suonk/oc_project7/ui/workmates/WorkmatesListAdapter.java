@@ -1,5 +1,6 @@
 package com.suonk.oc_project7.ui.workmates;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
@@ -40,6 +41,8 @@ public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, Wor
 
         public void onBind(WorkmateItemViewState workmateItemViewState) {
             binding.name.setText(workmateItemViewState.getName());
+            binding.name.setTypeface(binding.name.getTypeface(), workmateItemViewState.getTextStyle());
+            binding.name.setTextColor(workmateItemViewState.getTextColor());
 
             Glide.with(binding.image)
                     .load(workmateItemViewState.getPictureUrl())

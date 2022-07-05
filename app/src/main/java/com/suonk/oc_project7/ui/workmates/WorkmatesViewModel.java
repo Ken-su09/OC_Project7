@@ -1,17 +1,18 @@
 package com.suonk.oc_project7.ui.workmates;
 
+import android.graphics.Color;
+import android.graphics.Typeface;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.suonk.oc_project7.model.data.restaurant.Restaurant;
+import com.google.firebase.auth.FirebaseAuth;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
-import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
-import com.suonk.oc_project7.ui.restaurants.list.RestaurantItemViewState;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,20 +34,53 @@ public class WorkmatesViewModel extends ViewModel {
     public WorkmatesViewModel(@NonNull WorkmatesRepository workmatesRepository) {
         this.workmatesRepository = workmatesRepository;
 
-        viewStatesLiveData.addSource(workmatesRepository.getAllWorkmatesFromFirestore(), this::combine);
+        LiveData<List<Workmate>> allWorkmates = workmatesRepository.getAllWorkmatesFromFirestoreLiveData();
+        LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
+
+        viewStatesLiveData.addSource(allWorkmates, workmates -> {
+            combine(workmates, workmatesHaveChosen.getValue());
+        });
+
+        viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> {
+            combine(allWorkmates.getValue(), workmates);
+        });
     }
 
-    private void combine(@Nullable List<Workmate> workmates) {
+    private void combine(@Nullable List<Workmate> allWorkmates, @Nullable List<Workmate> workmatesHaveChosen) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
 
-        if (workmates != null) {
-            for (Workmate workmate : workmates) {
-                workmatesItemViews.add(new WorkmateItemViewState(
-                        workmate.getId(),
-                        workmate.getName(),
-                        workmate.getPictureUrl(),
-                        workmate.isConnected()
-                ));
+        if (allWorkmates == null || workmatesHaveChosen == null) {
+            viewStatesLiveData.setValue(workmatesItemViews);
+            return;
+        }
+
+        for (Workmate workmateHasChosen : workmatesHaveChosen) {
+            if (!FirebaseAuth.getInstance().getCurrentUser().getUid().equals(workmateHasChosen.getId())) {
+                WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
+                        workmateHasChosen.getId(),
+                        workmateHasChosen.getName() + " has decided",
+                        workmateHasChosen.getPictureUrl(),
+                        Color.BLACK,
+                        Typeface.NORMAL
+                );
+                workmatesItemViews.add(workmateItemViewState);
+                ids.add(workmateHasChosen.getId());
+            }
+        }
+
+        for (Workmate workmate : allWorkmates) {
+            if (!FirebaseAuth.getInstance().getCurrentUser().getUid().equals(workmate.getId())) {
+                if (!ids.contains(workmate.getId())) {
+                    WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
+                            workmate.getId(),
+                            workmate.getName() + " hasn't decided yet",
+                            workmate.getPictureUrl(),
+                            Color.GRAY,
+                            Typeface.ITALIC
+                    );
+                    workmatesItemViews.add(workmateItemViewState);
+                }
             }
         }
 
