@@ -23,13 +23,10 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class ListRestaurantsFragment extends Fragment implements OnRestaurantEventListener {
 
-    private RestaurantsViewModel viewModel;
-    private FragmentListRestaurantsBinding binding;
     private OnRestaurantEventListener listener;
     private MainActivity activity;
 
     public static ListRestaurantsFragment newInstance() {
-
         Bundle args = new Bundle();
 
         ListRestaurantsFragment fragment = new ListRestaurantsFragment();
@@ -47,26 +44,15 @@ public class ListRestaurantsFragment extends Fragment implements OnRestaurantEve
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentListRestaurantsBinding.inflate(inflater, container, false);
+        FragmentListRestaurantsBinding binding = FragmentListRestaurantsBinding.inflate(inflater, container, false);
+
+        RestaurantsViewModel viewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
+        getRestaurantsListFromViewModel(viewModel, binding);
+
         return binding.getRoot();
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        viewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
-
-        getRestaurantsListFromViewModel();
-    }
-
-    private void getRestaurantsListFromViewModel() {
+    private void getRestaurantsListFromViewModel(@NonNull RestaurantsViewModel viewModel, @NonNull FragmentListRestaurantsBinding binding) {
         RestaurantsListAdapter listAdapter = new RestaurantsListAdapter(this, activity);
 
         viewModel.getRestaurantsLiveData().observe(getViewLifecycleOwner(), listAdapter::submitList);

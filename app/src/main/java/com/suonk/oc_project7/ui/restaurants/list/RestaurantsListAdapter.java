@@ -52,8 +52,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
             binding.address.setText(restaurant.getAddress());
             binding.openText.setText(restaurant.getOpenDescription());
             binding.distance.setText(restaurant.getDistance());
-
-//            Log.i("getPhotoReference", "" + restaurant.getPictureUrl());
+            binding.numberOfPeopleText.setText(restaurant.getNumberOfWorkmates());
 
             Glide.with(activity)
                     .load(restaurant.getPictureUrl())

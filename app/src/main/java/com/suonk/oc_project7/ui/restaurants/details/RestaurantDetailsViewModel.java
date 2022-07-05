@@ -46,10 +46,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private final WorkmatesRepository workmatesRepository;
 
     @NonNull
-    private CurrentLocation currentLocation;
-
-    @NonNull
-    private MutableLiveData<String> currentRestaurantId = new MutableLiveData<String>();
+    private MutableLiveData<String> currentRestaurantId = new MutableLiveData<>();
 
     @NonNull
     private final SingleLiveEvent<Boolean> ratingSingleLiveEvent = new SingleLiveEvent<>();
@@ -59,7 +56,6 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     @Inject
     public RestaurantDetailsViewModel(@NonNull CurrentLocationRepository locationRepository,
-                                      @NonNull PlacesRepository placesRepository,
                                       @NonNull WorkmatesRepository workmatesRepository,
                                       @NonNull RestaurantsRepository restaurantsRepository,
                                       @ApplicationContext Context context) {
@@ -67,9 +63,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
         this.workmatesRepository = workmatesRepository;
         this.locationRepository = locationRepository;
 
-        viewStatesLiveData.addSource(workmatesRepository.getWorkmatesHaveChosenTodayLiveData(), workmates -> {
-            combine(workmates);
-        });
+        viewStatesLiveData.addSource(workmatesRepository.getWorkmatesHaveChosenTodayLiveData(), this::combine);
     }
 
     @NonNull
