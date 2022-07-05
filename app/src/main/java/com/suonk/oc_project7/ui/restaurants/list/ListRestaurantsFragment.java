@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,15 @@ public class ListRestaurantsFragment extends Fragment implements OnRestaurantEve
     private FragmentListRestaurantsBinding binding;
     private OnRestaurantEventListener listener;
     private MainActivity activity;
+
+    public static ListRestaurantsFragment newInstance() {
+
+        Bundle args = new Bundle();
+
+        ListRestaurantsFragment fragment = new ListRestaurantsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onAttach(@NonNull Context context) {

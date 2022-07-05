@@ -2,6 +2,7 @@ package com.suonk.oc_project7.ui.restaurants.list;
 
 import android.content.Context;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -66,6 +67,13 @@ public class RestaurantsViewModel extends ViewModel {
                 isOpen = "Is Close";
             }
 
+            String picture = "";
+
+            if (restaurant.getPictureUrl().split("photo_reference")[1].equals("=")) {
+                picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
+            } else {
+                picture = restaurant.getPictureUrl();
+            }
             restaurantsItemViews.add(new RestaurantItemViewState(
                     restaurant.getRestaurantId(),
                     restaurant.getRestaurantName(),
@@ -74,7 +82,7 @@ public class RestaurantsViewModel extends ViewModel {
                     (int) distance + "m",
                     "",
                     restaurant.getRating().toString(),
-                    restaurant.getPictureUrl()
+                    picture
             ));
         }
 
