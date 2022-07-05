@@ -17,18 +17,22 @@ public class WorkmateItemViewState {
     @NonNull
     private final String pictureUrl;
 
-    private final boolean isConnected;
+    private int textColor;
+
+    private int textStyle;
 
     public WorkmateItemViewState(
             @NonNull String id,
             @NonNull String name,
             @NonNull String pictureUrl,
-            boolean isConnected
+            int textColor,
+            int textStyle
     ) {
         this.id = id;
         this.name = name;
         this.pictureUrl = pictureUrl;
-        this.isConnected = isConnected;
+        this.textColor = textColor;
+        this.textStyle = textStyle;
     }
 
     @NonNull
@@ -46,21 +50,25 @@ public class WorkmateItemViewState {
         return pictureUrl;
     }
 
-    public boolean isConnected() {
-        return isConnected;
+    public int getTextColor() {
+        return textColor;
+    }
+
+    public int getTextStyle() {
+        return textStyle;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WorkmateItemViewState workmate = (WorkmateItemViewState) o;
-        return isConnected == workmate.isConnected && id.equals(workmate.id) && name.equals(workmate.name) && pictureUrl.equals(workmate.pictureUrl);
+        WorkmateItemViewState that = (WorkmateItemViewState) o;
+        return textColor == that.textColor && textStyle == that.textStyle && id.equals(that.id) && name.equals(that.name) && pictureUrl.equals(that.pictureUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, pictureUrl, isConnected);
+        return Objects.hash(id, name, pictureUrl, textColor, textStyle);
     }
 
     @Override
@@ -69,7 +77,8 @@ public class WorkmateItemViewState {
                 "id='" + id + '\'' +
                 ", name='" + name + '\'' +
                 ", pictureUrl='" + pictureUrl + '\'' +
-                ", isConnected=" + isConnected +
+                ", textColor=" + textColor +
+                ", textStyle=" + textStyle +
                 '}';
     }
 }
