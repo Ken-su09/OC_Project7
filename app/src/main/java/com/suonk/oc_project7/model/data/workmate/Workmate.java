@@ -19,7 +19,7 @@ public class Workmate {
     @NonNull
     private String pictureUrl;
 
-    private boolean isConnected;
+    private String restaurantId;
 
     public Workmate() {
 
@@ -30,13 +30,13 @@ public class Workmate {
             @NonNull String name,
             @NonNull String email,
             @NonNull String pictureUrl,
-            boolean isConnected
+            String restaurantId
     ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.pictureUrl = pictureUrl;
-        this.isConnected = isConnected;
+        this.restaurantId = restaurantId;
     }
 
     @NonNull
@@ -59,8 +59,9 @@ public class Workmate {
         return pictureUrl;
     }
 
-    public boolean isConnected() {
-        return isConnected;
+    @NonNull
+    public String getRestaurantId() {
+        return restaurantId;
     }
 
     @Override
@@ -68,12 +69,12 @@ public class Workmate {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Workmate workmate = (Workmate) o;
-        return isConnected == workmate.isConnected && id.equals(workmate.id) && name.equals(workmate.name) && email.equals(workmate.email) && pictureUrl.equals(workmate.pictureUrl);
+        return id.equals(workmate.id) && name.equals(workmate.name) && email.equals(workmate.email) && pictureUrl.equals(workmate.pictureUrl) && Objects.equals(restaurantId, workmate.restaurantId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, pictureUrl, isConnected);
+        return Objects.hash(id, name, email, pictureUrl, restaurantId);
     }
 
     @Override
@@ -83,7 +84,7 @@ public class Workmate {
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", pictureUrl='" + pictureUrl + '\'' +
-                ", isConnected=" + isConnected +
+                ", restaurantId='" + restaurantId + '\'' +
                 '}';
     }
 }
