@@ -12,7 +12,7 @@
         android:layout_height="300dp"
         android:maxHeight="300dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/gugu_20260"
+        android:src="@drawable/ic_restaurant"
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -20,13 +20,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
+        android:backgroundTint="#fff"
         android:contentDescription="@string/app_name"
-        app:backgroundTint="@color/white"
+        android:src="@drawable/ic_accept"
+        android:tintMode="@color/lightGrey"
         app:layout_constraintBottom_toBottomOf="@+id/restaurant_image"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/restaurant_image"
-        app:srcCompat="@drawable/ic_accept"
-        app:tint="#4bae4f" />
+        app:tint="@color/lightGrey" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/banner_layout"

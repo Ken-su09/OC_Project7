@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
@@ -50,6 +51,9 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     @NonNull
     private final SingleLiveEvent<Boolean> ratingSingleLiveEvent = new SingleLiveEvent<>();
+
+    @NonNull
+    private final SingleLiveEvent<Integer> haveChosenSingleLiveEvent = new SingleLiveEvent<>();
 
     @NonNull
     private final MediatorLiveData<List<WorkmateItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
@@ -96,6 +100,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     private void combine(@Nullable List<Workmate> workmates) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
+        haveChosenSingleLiveEvent.setValue(R.drawable.ic_accept);
 
         if (workmates != null) {
             for (Workmate workmate : workmates) {
@@ -108,6 +113,10 @@ public class RestaurantDetailsViewModel extends ViewModel {
                                 Color.BLACK,
                                 Typeface.NORMAL
                         ));
+                    }
+                } else {
+                    if (currentRestaurantId.getValue().equals(workmate.getRestaurantId())) {
+                        haveChosenSingleLiveEvent.setValue(R.drawable.ic_remove);
                     }
                 }
             }
@@ -127,5 +136,10 @@ public class RestaurantDetailsViewModel extends ViewModel {
     @NonNull
     public SingleLiveEvent<Boolean> getRatingSingleLiveEvent() {
         return ratingSingleLiveEvent;
+    }
+
+    @NonNull
+    public SingleLiveEvent<Integer> getHaveChosenSingleLiveEvent() {
+        return haveChosenSingleLiveEvent;
     }
 }

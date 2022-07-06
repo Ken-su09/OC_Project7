@@ -7,9 +7,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityRestaurantDetailsBinding;
 import com.suonk.oc_project7.ui.workmates.WorkmatesListAdapter;
 
@@ -51,8 +53,13 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
                     .into(binding.restaurantImage);
         });
 
+        viewModel.getHaveChosenSingleLiveEvent().observe(this, binding.chosenButton::setImageResource);
+
         binding.chosenButton.setOnClickListener(view -> {
             viewModel.addWorkmate(FirebaseAuth.getInstance().getCurrentUser(), restaurantId.get());
+
+            Toast.makeText(this, "You have chosen this restaurant !", Toast.LENGTH_LONG).show();
+            binding.chosenButton.setImageResource(R.drawable.ic_remove);
         });
     }
 
