@@ -22,7 +22,7 @@ public class NearbyPlaceResponse {
     @Nullable
     @SerializedName("results")
     @Expose
-    private final List<Result> results;
+    private final List<NearbyPlaceResult> nearbyPlaceResults;
     @Nullable
     @SerializedName("status")
     @Expose
@@ -30,11 +30,11 @@ public class NearbyPlaceResponse {
 
     public NearbyPlaceResponse(@NonNull List<Any> htmlAttributions,
                                @NonNull String nextPageToken,
-                               @NonNull List<Result> results,
+                               @NonNull List<NearbyPlaceResult> nearbyPlaceResults,
                                @NonNull String status) {
         this.htmlAttributions = htmlAttributions;
         this.nextPageToken = nextPageToken;
-        this.results = results;
+        this.nearbyPlaceResults = nearbyPlaceResults;
         this.status = status;
     }
 
@@ -49,8 +49,8 @@ public class NearbyPlaceResponse {
     }
 
     @Nullable
-    public List<Result> getResults() {
-        return results;
+    public List<NearbyPlaceResult> getResults() {
+        return nearbyPlaceResults;
     }
 
     @Nullable

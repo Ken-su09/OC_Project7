@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.api;
 
 import com.suonk.oc_project7.BuildConfig;
+import com.suonk.oc_project7.model.data.place_details.PlaceDetailsResponse;
 import com.suonk.oc_project7.model.data.places.NearbyPlaceResponse;
 
 import retrofit2.Call;
@@ -14,4 +15,8 @@ public interface PlacesApiService {
             "&type=restaurant" +
             "&key=" + BuildConfig.MAPS_API_KEY)
     Call<NearbyPlaceResponse> getNearbyPlacesResponse(@Query("location") String location);
+
+    @GET("maps/api/place/details/json?" +
+            "&key=" + BuildConfig.MAPS_API_KEY)
+    Call<PlaceDetailsResponse> getPlaceDetailsById(@Query("place_id") String placeId);
 }

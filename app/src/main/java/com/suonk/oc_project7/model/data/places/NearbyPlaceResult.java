@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import java.util.List;
 import java.util.Objects;
 
-public class Result {
+public class NearbyPlaceResult {
 
     @NonNull
     private String business_status;
@@ -39,12 +39,12 @@ public class Result {
     private String scope = "";
     @NonNull
     private List<String> types;
-    @NonNull
+
     private int user_ratings_total = 0;
     @NonNull
     private String vicinity = "";
 
-    public Result(
+    public NearbyPlaceResult(
             @NonNull String business_status,
             @NonNull Geometry geometry,
             @NonNull String icon,
@@ -141,15 +141,15 @@ public class Result {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Result result = (Result) o;
-        return price_level == result.price_level && user_ratings_total == result.user_ratings_total &&
-                business_status.equals(result.business_status) && geometry.equals(result.geometry) &&
-                icon.equals(result.icon) && icon_background_color.equals(result.icon_background_color) &&
-                icon_mask_base_uri.equals(result.icon_mask_base_uri) && name.equals(result.name) &&
-                opening_hours.equals(result.opening_hours) && permanently_closed.equals(result.permanently_closed) &&
-                photos.equals(result.photos) && place_id.equals(result.place_id) && plus_code.equals(result.plus_code) &&
-                rating.equals(result.rating) && reference.equals(result.reference) && scope.equals(result.scope) &&
-                types.equals(result.types) && vicinity.equals(result.vicinity);
+        NearbyPlaceResult nearbyPlaceResult = (NearbyPlaceResult) o;
+        return price_level == nearbyPlaceResult.price_level && user_ratings_total == nearbyPlaceResult.user_ratings_total &&
+                business_status.equals(nearbyPlaceResult.business_status) && geometry.equals(nearbyPlaceResult.geometry) &&
+                icon.equals(nearbyPlaceResult.icon) && icon_background_color.equals(nearbyPlaceResult.icon_background_color) &&
+                icon_mask_base_uri.equals(nearbyPlaceResult.icon_mask_base_uri) && name.equals(nearbyPlaceResult.name) &&
+                opening_hours.equals(nearbyPlaceResult.opening_hours) && permanently_closed.equals(nearbyPlaceResult.permanently_closed) &&
+                photos.equals(nearbyPlaceResult.photos) && place_id.equals(nearbyPlaceResult.place_id) && plus_code.equals(nearbyPlaceResult.plus_code) &&
+                rating.equals(nearbyPlaceResult.rating) && reference.equals(nearbyPlaceResult.reference) && scope.equals(nearbyPlaceResult.scope) &&
+                types.equals(nearbyPlaceResult.types) && vicinity.equals(nearbyPlaceResult.vicinity);
     }
 
     @Override
