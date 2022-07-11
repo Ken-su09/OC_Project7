@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
+import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
 
 import java.util.List;
 
@@ -13,5 +14,5 @@ public interface RestaurantsRepository {
     LiveData<List<Restaurant>> getNearRestaurants(@NonNull String location);
 
     @NonNull
-    LiveData<Restaurant> getNearRestaurantById(@NonNull String location, @NonNull String placeId);
+    LiveData<RestaurantDetails> getRestaurantDetailsById(@NonNull String placeId);
 }

@@ -2,6 +2,11 @@ package com.suonk.oc_project7.ui.restaurants.details;
 
 import androidx.annotation.NonNull;
 
+import com.suonk.oc_project7.model.data.workmate.Workmate;
+
+import java.util.List;
+import java.util.Objects;
+
 public class RestaurantDetailsViewState {
 
     @NonNull
@@ -19,12 +24,30 @@ public class RestaurantDetailsViewState {
     @NonNull
     private final String pictureUrl;
 
-    public RestaurantDetailsViewState(@NonNull String placeId, @NonNull String restaurantName,@NonNull String address, @NonNull String rating, @NonNull String pictureUrl) {
+    @NonNull
+    private final String phoneNumber;
+
+    @NonNull
+    private final String websiteLink;
+
+//    @NonNull
+//    private final List<Workmate> workmates;
+
+    public RestaurantDetailsViewState(@NonNull String placeId,
+                                      @NonNull String restaurantName,
+                                      @NonNull String address,
+                                      @NonNull String rating,
+                                      @NonNull String pictureUrl,
+                                      @NonNull String phoneNumber,
+                                      @NonNull String websiteLink) {
         this.placeId = placeId;
         this.restaurantName = restaurantName;
         this.address = address;
         this.rating = rating;
         this.pictureUrl = pictureUrl;
+        this.phoneNumber = phoneNumber;
+        this.websiteLink = websiteLink;
+//        this.workmates = workmates;
     }
 
     @NonNull
@@ -50,5 +73,41 @@ public class RestaurantDetailsViewState {
     @NonNull
     public String getAddress() {
         return address;
+    }
+
+    @NonNull
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    @NonNull
+    public String getWebsiteLink() {
+        return websiteLink;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RestaurantDetailsViewState that = (RestaurantDetailsViewState) o;
+        return placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && rating.equals(that.rating) && pictureUrl.equals(that.pictureUrl) && phoneNumber.equals(that.phoneNumber) && websiteLink.equals(that.websiteLink);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(placeId, restaurantName, address, rating, pictureUrl, phoneNumber, websiteLink);
+    }
+
+    @Override
+    public String toString() {
+        return "RestaurantDetailsViewState{" +
+                "placeId='" + placeId + '\'' +
+                ", restaurantName='" + restaurantName + '\'' +
+                ", address='" + address + '\'' +
+                ", rating='" + rating + '\'' +
+                ", pictureUrl='" + pictureUrl + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", websiteLink='" + websiteLink + '\'' +
+                '}';
     }
 }

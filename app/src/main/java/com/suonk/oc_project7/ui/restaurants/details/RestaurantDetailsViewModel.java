@@ -19,6 +19,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
+import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
@@ -47,86 +48,111 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private final WorkmatesRepository workmatesRepository;
 
     @NonNull
-    private MutableLiveData<String> currentRestaurantId = new MutableLiveData<>();
-
-    @NonNull
     private final SingleLiveEvent<Boolean> ratingSingleLiveEvent = new SingleLiveEvent<>();
 
     @NonNull
     private final SingleLiveEvent<Integer> haveChosenSingleLiveEvent = new SingleLiveEvent<>();
 
     @NonNull
-    private final MediatorLiveData<List<WorkmateItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<RestaurantDetailsViewState> restaurantDetailsViewStateLiveData = new MediatorLiveData<>();
+
+    @NonNull
+    private MutableLiveData<List<WorkmateItemViewState>> workmateViewStateLiveData = new MutableLiveData<>();
+
+    @NonNull
+    private MutableLiveData<String> restaurantIdLiveData = new MutableLiveData<>();
+
+    @NonNull
+    private final FirebaseAuth firebaseAuth;
+
+    final Context context;
 
     @Inject
     public RestaurantDetailsViewModel(@NonNull CurrentLocationRepository locationRepository,
                                       @NonNull WorkmatesRepository workmatesRepository,
                                       @NonNull RestaurantsRepository restaurantsRepository,
+                                      @NonNull FirebaseAuth firebaseAuth,
                                       @ApplicationContext Context context) {
         this.restaurantsRepository = restaurantsRepository;
         this.workmatesRepository = workmatesRepository;
         this.locationRepository = locationRepository;
-
-        viewStatesLiveData.addSource(workmatesRepository.getWorkmatesHaveChosenTodayLiveData(), this::combine);
+        this.firebaseAuth = firebaseAuth;
+        this.context = context;
     }
 
-    @NonNull
-    public LiveData<RestaurantDetailsViewState> getRestaurantDetailsLiveData(String id) {
+    public void setRestaurantDetailsLiveData(String place_id) {
+        LiveData<RestaurantDetails> restaurantDetailsLiveData = restaurantsRepository.getRestaurantDetailsById(place_id);
+        LiveData<List<Workmate>> workmatesLiveData = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
+        restaurantIdLiveData.setValue(place_id);
 
-        LiveData<Restaurant> restaurantLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
-            String latLng = location.getLat() + "," + location.getLng();
-            return restaurantsRepository.getNearRestaurantById(latLng, id);
+        restaurantDetailsViewStateLiveData.addSource(restaurantDetailsLiveData, restaurantDetails -> {
+            combine(workmatesRepository.getWorkmatesHaveChosenTodayLiveData().getValue(), restaurantDetails, restaurantIdLiveData.getValue());
         });
 
-        return Transformations.map(restaurantLiveData, restaurant -> {
-            String picture = "";
+        restaurantDetailsViewStateLiveData.addSource(workmatesLiveData, workmates -> {
+            combine(workmates, restaurantDetailsLiveData.getValue(), restaurantIdLiveData.getValue());
+        });
 
-            if (restaurant.getPictureUrl().split("photo_reference")[1].equals("=")) {
-                picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
-            } else {
-                picture = restaurant.getPictureUrl();
-            }
-
-            currentRestaurantId.setValue(restaurant.getRestaurantId());
-
-            return new RestaurantDetailsViewState(
-                    restaurant.getRestaurantId(),
-                    restaurant.getRestaurantName(),
-                    restaurant.getAddress(),
-                    restaurant.getRating().toString(),
-                    picture);
+        restaurantDetailsViewStateLiveData.addSource(restaurantIdLiveData, restaurantId -> {
+            combine(workmatesRepository.getWorkmatesHaveChosenTodayLiveData().getValue(), restaurantDetailsLiveData.getValue(), restaurantId);
         });
     }
 
-    private void combine(@Nullable List<Workmate> workmates) {
+    private void combine(@Nullable List<Workmate> workmates, @Nullable RestaurantDetails restaurantDetails, @Nullable String restaurantId) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
         haveChosenSingleLiveEvent.setValue(R.drawable.ic_accept);
 
         if (workmates != null) {
             for (Workmate workmate : workmates) {
-                if (!FirebaseAuth.getInstance().getCurrentUser().getDisplayName().equals(workmate.getName())) {
-                    if (currentRestaurantId.getValue().equals(workmate.getRestaurantId())) {
-                        workmatesItemViews.add(new WorkmateItemViewState(
-                                workmate.getId(),
-                                workmate.getName() + " has joined !",
-                                workmate.getPictureUrl(),
-                                Color.BLACK,
-                                Typeface.NORMAL
-                        ));
-                    }
-                } else {
-                    if (currentRestaurantId.getValue().equals(workmate.getRestaurantId())) {
-                        haveChosenSingleLiveEvent.setValue(R.drawable.ic_remove);
+                if (!firebaseAuth.getCurrentUser().getDisplayName().equals(workmate.getName())) {
+                    if (restaurantId != null) {
+                        if (restaurantId.equals(workmate.getRestaurantId())) {
+                            workmatesItemViews.add(new WorkmateItemViewState(
+                                    workmate.getId(),
+                                    context.getString(R.string.workmates_has_joined, workmate.getName()),
+                                    workmate.getPictureUrl(),
+                                    Color.BLACK,
+                                    Typeface.NORMAL
+                            ));
+                        }
                     }
                 }
             }
+            workmateViewStateLiveData.setValue(workmatesItemViews);
         }
 
-        viewStatesLiveData.setValue(workmatesItemViews);
+        if (restaurantDetails != null) {
+            String picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
+
+//            if (restaurantDetails.getImage().split("photo_reference")[1].equals("=")) {
+//                picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
+//            } else {
+//                picture = restaurantDetails.getImage();
+//            }
+
+            if (restaurantDetails.getImage().equals("")) {
+                picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
+            } else {
+                picture = restaurantDetails.getImage();
+            }
+
+            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(
+                    restaurantDetails.getPlaceId(),
+                    restaurantDetails.getRestaurantName(),
+                    restaurantDetails.getAddress(),
+                    restaurantDetails.getRating().toString(),
+                    picture,
+                    restaurantDetails.getPhoneNumber(),
+                    restaurantDetails.getWebsiteLink()));
+        }
     }
 
     public LiveData<List<WorkmateItemViewState>> getWorkmatesLiveData() {
-        return viewStatesLiveData;
+        return workmateViewStateLiveData;
+    }
+
+    public LiveData<RestaurantDetailsViewState> getRestaurantDetailsViewStateLiveData() {
+        return restaurantDetailsViewStateLiveData;
     }
 
     public void addWorkmate(@NonNull FirebaseUser firebaseUser, @NonNull String restaurantId) {

@@ -27,4 +27,8 @@
     <string name="facebook_app_id">679499986497059</string>
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">8667285525fbe4a89fa1766abc721597</string>
+
+    <string name="workmates_has_joined">%1$s has joined !</string>
+    <string name="distance_restaurant">%1$d m</string>
+    <string name="number_of_workmates">(%1$d)</string>
 </resources>

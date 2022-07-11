@@ -39,8 +39,9 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
                 .addSnapshotListener((querySnapshot, error) -> {
                     if (querySnapshot != null) {
                         try {
-                            Log.i("getWorkmates", "workmatesMutableLiveData : " + querySnapshot.toObjects(Workmate.class));
-                            workmatesMutableLiveData.setValue(querySnapshot.toObjects(Workmate.class));
+                            List<Workmate> list = querySnapshot.toObjects(Workmate.class);
+                            Log.i("getWorkmates", "workmatesMutableLiveData : " + list);
+                            workmatesMutableLiveData.setValue(list);
                         } catch (Exception e) {
                             Log.i("getWorkmates", "" + e);
                         }
@@ -61,8 +62,6 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
         int day = dateToday.getDayOfMonth();
 
         String today = year + "-" + month + "-" + day;
-
-        Log.i("addWorkmate", "" + today);
 
         firebaseFirestore.collection("have_chosen_today" + "_" + today)
                 .addSnapshotListener((querySnapshot, error) -> {

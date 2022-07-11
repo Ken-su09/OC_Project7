@@ -1,16 +1,16 @@
 package com.suonk.oc_project7.repositories.restaurants;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.suonk.oc_project7.BuildConfig;
 import com.suonk.oc_project7.api.PlacesApiService;
+import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
+import com.suonk.oc_project7.model.data.place_details.PlaceDetailsResponse;
+import com.suonk.oc_project7.model.data.place_details.Result;
 import com.suonk.oc_project7.model.data.places.NearbyPlaceResponse;
-import com.suonk.oc_project7.model.data.places.Place;
-import com.suonk.oc_project7.model.data.places.Result;
+import com.suonk.oc_project7.model.data.places.NearbyPlaceResult;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 
 import java.util.ArrayList;
@@ -46,27 +46,27 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
 
                         if (response.body() != null) {
                             if (response.body().getResults() != null) {
-                                for (Result result : response.body().getResults()) {
+                                for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
 
                                     String photoReference = "";
                                     Boolean isOpen = false;
 
-                                    if (result.getPhotos() != null) {
-                                        photoReference = result.getPhotos().get(0).getPhotoReference();
+                                    if (nearbyPlaceResult.getPhotos() != null) {
+                                        photoReference = nearbyPlaceResult.getPhotos().get(0).getPhotoReference();
                                     }
 
-                                    if (result.getOpeningHours() != null) {
-                                        isOpen = result.getOpeningHours().getOpenNow();
+                                    if (nearbyPlaceResult.getOpeningHours() != null) {
+                                        isOpen = nearbyPlaceResult.getOpeningHours().getOpenNow();
                                     }
 
                                     restaurants.add(new Restaurant(
-                                            result.getPlaceId(),
-                                            result.getName(),
-                                            result.getVicinity(),
+                                            nearbyPlaceResult.getPlaceId(),
+                                            nearbyPlaceResult.getName(),
+                                            nearbyPlaceResult.getVicinity(),
                                             isOpen,
-                                            result.getRating(),
-                                            result.getGeometry().getLocation().getLat(),
-                                            result.getGeometry().getLocation().getLng(),
+                                            nearbyPlaceResult.getRating(),
+                                            nearbyPlaceResult.getGeometry().getLocation().getLat(),
+                                            nearbyPlaceResult.getGeometry().getLocation().getLng(),
                                             getRestaurantPictureURL(photoReference)
                                     ));
                                 }
@@ -89,57 +89,40 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
 
     @NonNull
     @Override
-    public LiveData<Restaurant> getNearRestaurantById(@NonNull String location, @NonNull String placeId) {
-        MutableLiveData<Restaurant> restaurantLiveData = new MutableLiveData<>();
+    public LiveData<RestaurantDetails> getRestaurantDetailsById(@NonNull String placeId) {
+        MutableLiveData<RestaurantDetails> restaurantDetailsLiveData = new MutableLiveData<>();
 
-        apiService.getNearbyPlacesResponse(location).enqueue(new Callback<NearbyPlaceResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<NearbyPlaceResponse> call, @NonNull Response<NearbyPlaceResponse> response) {
-                if (response.isSuccessful()) {
-                    Restaurant restaurant = null;
+        if (apiService.getPlaceDetailsById(placeId) != null) {
+            apiService.getPlaceDetailsById(placeId).enqueue(new Callback<PlaceDetailsResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<PlaceDetailsResponse> call, @NonNull Response<PlaceDetailsResponse> response) {
+                    if (response.isSuccessful()) {
+                        if (response.body() != null) {
+                            if (response.body().getResult() != null) {
+                                Result result = response.body().getResult();
 
-                    if (response.body() != null) {
-
-                        if (response.body().getResults() != null) {
-                            for (Result result : response.body().getResults()) {
-                                String photoReference = "";
-                                Boolean isOpen = false;
-
-                                if (result.getPhotos() != null) {
-                                    photoReference = result.getPhotos().get(0).getPhotoReference();
-                                }
-
-                                if (result.getOpeningHours() != null) {
-                                    isOpen = result.getOpeningHours().getOpenNow();
-                                }
-
-                                if (result.getPlaceId().equals(placeId)) {
-                                    restaurant = new Restaurant(
-                                            result.getPlaceId(),
-                                            result.getName(),
-                                            result.getVicinity(),
-                                            isOpen,
-                                            result.getRating(),
-                                            result.getGeometry().getLocation().getLat(),
-                                            result.getGeometry().getLocation().getLng(),
-                                            getRestaurantPictureURL(photoReference)
-                                    );
-                                }
+                                restaurantDetailsLiveData.setValue(new RestaurantDetails(
+                                        result.getPlace_id(),
+                                        result.getName(),
+                                        result.getInternational_phone_number(),
+                                        result.getFormatted_address(),
+                                        result.getIcon_mask_base_uri(),
+                                        result.getRating(),
+                                        result.getWebsite()
+                                ));
                             }
                         }
                     }
-
-                    restaurantLiveData.setValue(restaurant);
                 }
-            }
 
-            @Override
-            public void onFailure(@NonNull Call<NearbyPlaceResponse> call, @NonNull Throwable t) {
-                t.printStackTrace();
-            }
-        });
+                @Override
+                public void onFailure(@NonNull Call<PlaceDetailsResponse> call, @NonNull Throwable t) {
+                    t.printStackTrace();
+                }
+            });
+        }
 
-        return restaurantLiveData;
+        return restaurantDetailsLiveData;
     }
 
     private String getRestaurantPictureURL(@NonNull String photo_reference) {

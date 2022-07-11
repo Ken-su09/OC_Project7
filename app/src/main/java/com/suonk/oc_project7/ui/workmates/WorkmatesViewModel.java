@@ -30,9 +30,14 @@ public class WorkmatesViewModel extends ViewModel {
     @NonNull
     private final MediatorLiveData<List<WorkmateItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
 
+    @NonNull
+    private final FirebaseAuth firebaseAuth;
+
     @Inject
-    public WorkmatesViewModel(@NonNull WorkmatesRepository workmatesRepository) {
+    public WorkmatesViewModel(@NonNull WorkmatesRepository workmatesRepository,
+                              @NonNull FirebaseAuth firebaseAuth) {
         this.workmatesRepository = workmatesRepository;
+        this.firebaseAuth = firebaseAuth;
 
         LiveData<List<Workmate>> allWorkmates = workmatesRepository.getAllWorkmatesFromFirestoreLiveData();
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
@@ -56,7 +61,7 @@ public class WorkmatesViewModel extends ViewModel {
         }
 
         for (Workmate workmateHasChosen : workmatesHaveChosen) {
-            if (!FirebaseAuth.getInstance().getCurrentUser().getUid().equals(workmateHasChosen.getId())) {
+            if (!firebaseAuth.getCurrentUser().getUid().equals(workmateHasChosen.getId())) {
                 WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                         workmateHasChosen.getId(),
                         workmateHasChosen.getName() + " has decided",
@@ -70,7 +75,7 @@ public class WorkmatesViewModel extends ViewModel {
         }
 
         for (Workmate workmate : allWorkmates) {
-            if (!FirebaseAuth.getInstance().getCurrentUser().getUid().equals(workmate.getId())) {
+            if (!firebaseAuth.getCurrentUser().getUid().equals(workmate.getId())) {
                 if (!ids.contains(workmate.getId())) {
                     WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                             workmate.getId(),

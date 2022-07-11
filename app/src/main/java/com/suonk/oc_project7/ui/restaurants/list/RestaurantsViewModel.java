@@ -15,6 +15,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
@@ -46,11 +47,14 @@ public class RestaurantsViewModel extends ViewModel {
     @NonNull
     private final SingleLiveEvent<Boolean> ratingSingleLiveEvent = new SingleLiveEvent<>();
 
+    final Context context;
+
     @Inject
     public RestaurantsViewModel(@NonNull CurrentLocationRepository locationRepository,
                                 @NonNull WorkmatesRepository workmatesRepository,
                                 @NonNull RestaurantsRepository restaurantsRepository,
                                 @ApplicationContext Context context) {
+        this.context = context;
         LiveData<List<Restaurant>> restaurantsLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
             currentLocation = location;
             String latLng = location.getLat() + "," + location.getLng();
@@ -71,8 +75,6 @@ public class RestaurantsViewModel extends ViewModel {
     private void combine(@Nullable List<Restaurant> restaurants, @Nullable List<Workmate> workmates) {
         List<RestaurantItemViewState> restaurantsItemViews = new ArrayList<>();
         List<String> ids = new ArrayList<>();
-
-        Log.i("restaurantsItemViews", "workmates : " + workmates);
 
         if (workmates != null) {
             for (Workmate workmate : workmates) {
@@ -106,8 +108,8 @@ public class RestaurantsViewModel extends ViewModel {
                         restaurant.getRestaurantName(),
                         restaurant.getAddress(),
                         isOpen,
-                        (int) distance + "m",
-                        "(" + Collections.frequency(ids, restaurant.getRestaurantId()) + ")",
+                        context.getString(R.string.distance_restaurant, (int) distance),
+                        context.getString(R.string.number_of_workmates, Collections.frequency(ids, restaurant.getRestaurantId())),
                         restaurant.getRating().toString(),
                         picture
                 ));

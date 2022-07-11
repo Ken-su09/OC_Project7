@@ -6,12 +6,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
-import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityRestaurantDetailsBinding;
 import com.suonk.oc_project7.ui.workmates.WorkmatesListAdapter;
 
@@ -41,16 +41,28 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
 
     private void getRestaurantFromViewModel(ActivityRestaurantDetailsBinding binding, RestaurantDetailsViewModel viewModel) {
         AtomicReference<String> restaurantId = new AtomicReference<>("");
-        viewModel.getRestaurantDetailsLiveData(getIntent().getStringExtra(PLACE_ID)).observe(this, restaurantItemViewState -> {
+        viewModel.setRestaurantDetailsLiveData(getIntent().getStringExtra(PLACE_ID));
+        viewModel.getRestaurantDetailsViewStateLiveData().observe(this, restaurantItemViewState -> {
             binding.restaurantName.setText(restaurantItemViewState.getRestaurantName());
             binding.restaurantAddress.setText(restaurantItemViewState.getAddress());
 
             restaurantId.set(restaurantItemViewState.getPlaceId());
 
-            Glide.with(this)
-                    .load(restaurantItemViewState.getPictureUrl())
-                    .centerCrop()
-                    .into(binding.restaurantImage);
+            binding.restaurantImage.setImageURI(Uri.parse(restaurantItemViewState.getPictureUrl()));
+//            Glide.with(this)
+//                    .load(restaurantItemViewState.getPictureUrl())
+//                    .centerCrop()
+//                    .into(binding.restaurantImage);
+
+            binding.callIcon.setOnClickListener(view -> {
+                Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", restaurantItemViewState.getPhoneNumber() , null));
+                startActivity(intent);
+            });
+
+            binding.websiteIcon.setOnClickListener(view -> {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(restaurantItemViewState.getWebsiteLink()));
+                startActivity(browserIntent);
+            });
         });
 
         viewModel.getHaveChosenSingleLiveEvent().observe(this, binding.chosenButton::setImageResource);
@@ -59,7 +71,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
             viewModel.addWorkmate(FirebaseAuth.getInstance().getCurrentUser(), restaurantId.get());
 
             Toast.makeText(this, "You have chosen this restaurant !", Toast.LENGTH_LONG).show();
-            binding.chosenButton.setImageResource(R.drawable.ic_remove);
         });
     }
 

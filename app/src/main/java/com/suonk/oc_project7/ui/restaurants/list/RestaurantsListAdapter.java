@@ -77,7 +77,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
             return oldItem.getPlaceId().equals(newItem.getPlaceId()) &&
                     oldItem.getAddress().equals(newItem.getAddress()) &&
                     oldItem.getDistance().equals(newItem.getDistance()) &&
-                    oldItem.getNumberOfWorkmates().equals(newItem.getNumberOfWorkmates()) &&
+                    oldItem.getNumberOfWorkmates() == newItem.getNumberOfWorkmates() &&
                     oldItem.getRating().equals(newItem.getRating()) &&
                     oldItem.getRestaurantName().equals(newItem.getRestaurantName()) &&
                     oldItem.getOpenDescription().equals(newItem.getOpenDescription());

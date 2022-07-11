@@ -7,7 +7,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.suonk.oc_project7.api.PlacesApiService;
 import com.suonk.oc_project7.model.data.places.NearbyPlaceResponse;
 import com.suonk.oc_project7.model.data.places.Place;
-import com.suonk.oc_project7.model.data.places.Result;
+import com.suonk.oc_project7.model.data.places.NearbyPlaceResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,12 +42,12 @@ public class PlacesRepositoryImpl implements PlacesRepository {
 
                         if (response.body() != null) {
                             if (response.body().getResults() != null) {
-                                for (Result result : response.body().getResults()) {
+                                for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
                                     places.add(new Place(
-                                            result.getPlaceId(),
-                                            result.getName(),
-                                            result.getGeometry().getLocation().getLat(),
-                                            result.getGeometry().getLocation().getLng(),
+                                            nearbyPlaceResult.getPlaceId(),
+                                            nearbyPlaceResult.getName(),
+                                            nearbyPlaceResult.getGeometry().getLocation().getLat(),
+                                            nearbyPlaceResult.getGeometry().getLocation().getLng(),
                                             true));
                                 }
                             }
