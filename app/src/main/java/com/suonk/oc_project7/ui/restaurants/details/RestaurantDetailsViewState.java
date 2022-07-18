@@ -19,7 +19,7 @@ public class RestaurantDetailsViewState {
     private final String address;
 
     @NonNull
-    private final String rating;
+    private final int rating;
 
     @NonNull
     private final String pictureUrl;
@@ -30,13 +30,10 @@ public class RestaurantDetailsViewState {
     @NonNull
     private final String websiteLink;
 
-//    @NonNull
-//    private final List<Workmate> workmates;
-
     public RestaurantDetailsViewState(@NonNull String placeId,
                                       @NonNull String restaurantName,
                                       @NonNull String address,
-                                      @NonNull String rating,
+                                      @NonNull int rating,
                                       @NonNull String pictureUrl,
                                       @NonNull String phoneNumber,
                                       @NonNull String websiteLink) {
@@ -47,7 +44,6 @@ public class RestaurantDetailsViewState {
         this.pictureUrl = pictureUrl;
         this.phoneNumber = phoneNumber;
         this.websiteLink = websiteLink;
-//        this.workmates = workmates;
     }
 
     @NonNull
@@ -61,7 +57,7 @@ public class RestaurantDetailsViewState {
     }
 
     @NonNull
-    public String getRating() {
+    public int getRating() {
         return rating;
     }
 
@@ -90,7 +86,7 @@ public class RestaurantDetailsViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantDetailsViewState that = (RestaurantDetailsViewState) o;
-        return placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && rating.equals(that.rating) && pictureUrl.equals(that.pictureUrl) && phoneNumber.equals(that.phoneNumber) && websiteLink.equals(that.websiteLink);
+        return rating == that.rating && placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && pictureUrl.equals(that.pictureUrl) && phoneNumber.equals(that.phoneNumber) && websiteLink.equals(that.websiteLink);
     }
 
     @Override
@@ -98,14 +94,13 @@ public class RestaurantDetailsViewState {
         return Objects.hash(placeId, restaurantName, address, rating, pictureUrl, phoneNumber, websiteLink);
     }
 
-    @NonNull
     @Override
     public String toString() {
         return "RestaurantDetailsViewState{" +
                 "placeId='" + placeId + '\'' +
                 ", restaurantName='" + restaurantName + '\'' +
                 ", address='" + address + '\'' +
-                ", rating='" + rating + '\'' +
+                ", rating=" + rating +
                 ", pictureUrl='" + pictureUrl + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", websiteLink='" + websiteLink + '\'' +

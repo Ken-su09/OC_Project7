@@ -110,7 +110,7 @@ public class RestaurantsViewModel extends ViewModel {
                         isOpen,
                         context.getString(R.string.distance_restaurant, (int) distance),
                         context.getString(R.string.number_of_workmates, Collections.frequency(ids, restaurant.getRestaurantId())),
-                        restaurant.getRating().toString(),
+                        restaurant.getRating().intValue(),
                         picture
                 ));
             }

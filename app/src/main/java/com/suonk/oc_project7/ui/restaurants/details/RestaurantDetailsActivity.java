@@ -1,6 +1,8 @@
 package com.suonk.oc_project7.ui.restaurants.details;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -46,11 +48,18 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
             binding.restaurantName.setText(restaurantItemViewState.getRestaurantName());
             binding.restaurantAddress.setText(restaurantItemViewState.getAddress());
 
-//            binding.restaurantImage.setImageURI(Uri.parse(restaurantItemViewState.getPictureUrl()));
             Glide.with(this)
                     .load(restaurantItemViewState.getPictureUrl())
                     .centerCrop()
                     .into(binding.restaurantImage);
+
+            setStarVisibility(restaurantItemViewState.getRating(),
+                    binding.restaurantRating1,
+                    binding.restaurantRating2,
+                    binding.restaurantRating3,
+                    binding.restaurantRating4,
+                    binding.restaurantRating5
+            );
 
             binding.callIcon.setOnClickListener(view -> {
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", restaurantItemViewState.getPhoneNumber(), null));
@@ -74,6 +83,12 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
             viewModel.addWorkmate();
             Toast.makeText(this, getString(R.string.restaurant_is_chosen), Toast.LENGTH_LONG).show();
         });
+    }
+
+    public void setStarVisibility(int rating, @NonNull AppCompatImageView... ratingStars) {
+        for (int i = 0; i < ratingStars.length; i++) {
+            ratingStars[i].setVisibility(rating > i ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void getWorkmatesWhoHaveChosenThisRestaurant(ActivityRestaurantDetailsBinding binding, RestaurantDetailsViewModel viewModel) {

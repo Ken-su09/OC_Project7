@@ -140,7 +140,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                     restaurantDetails.getPlaceId(),
                     restaurantDetails.getRestaurantName(),
                     restaurantDetails.getAddress(),
-                    restaurantDetails.getRating().toString(),
+                    restaurantDetails.getRating().intValue(),
                     picture,
                     restaurantDetails.getPhoneNumber(),
                     restaurantDetails.getWebsiteLink()));

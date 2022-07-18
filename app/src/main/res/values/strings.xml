@@ -31,4 +31,5 @@
     <string name="workmates_has_joined">%1$s has joined !</string>
     <string name="distance_restaurant">%1$d m</string>
     <string name="number_of_workmates">(%1$d)</string>
+    <string name="restaurant_is_chosen">You have chosen this restaurant !</string>
 </resources>

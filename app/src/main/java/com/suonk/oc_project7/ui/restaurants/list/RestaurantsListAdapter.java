@@ -2,9 +2,11 @@ package com.suonk.oc_project7.ui.restaurants.list;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -54,6 +56,13 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
             binding.distance.setText(restaurant.getDistance());
             binding.numberOfPeopleText.setText(restaurant.getNumberOfWorkmates());
 
+            setStarVisibility(restaurant.getRating(),
+                    binding.oneStar,
+                    binding.twoStars,
+                    binding.threeStars,
+                    binding.fourStars,
+                    binding.fiveStars);
+
             Glide.with(activity)
                     .load(restaurant.getPictureUrl())
                     .centerCrop()
@@ -63,6 +72,12 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
                 binding.getRoot().setEnabled(false);
                 callback.onRestaurantClick(view, restaurant.getPlaceId());
             });
+        }
+
+        public void setStarVisibility(int rating, @NonNull AppCompatImageView... ratingStars) {
+            for (int i = 0; i < ratingStars.length; i++) {
+                ratingStars[i].setVisibility(rating > i ? View.VISIBLE : View.GONE);
+            }
         }
     }
 
@@ -78,7 +93,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
             return oldItem.getPlaceId().equals(newItem.getPlaceId()) &&
                     oldItem.getAddress().equals(newItem.getAddress()) &&
                     oldItem.getDistance().equals(newItem.getDistance()) &&
-                    oldItem.getRating().equals(newItem.getRating()) &&
+                    oldItem.getRating() == newItem.getRating() &&
                     oldItem.getRestaurantName().equals(newItem.getRestaurantName()) &&
                     oldItem.getOpenDescription().equals(newItem.getOpenDescription());
         }

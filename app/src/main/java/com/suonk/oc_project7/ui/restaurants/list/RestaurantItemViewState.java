@@ -25,7 +25,7 @@ public class RestaurantItemViewState {
     private final String numberOfWorkmates;
 
     @NonNull
-    private final String rating;
+    private final int rating;
 
     @NonNull
     private final String pictureUrl;
@@ -34,7 +34,7 @@ public class RestaurantItemViewState {
     public RestaurantItemViewState(@NonNull String placeId, @NonNull String restaurantName,
                                    @NonNull String address, @NonNull String openDescription,
                                    @NonNull String distance, @NonNull String numberOfWorkmates,
-                                   @NonNull String rating, @NonNull String pictureUrl
+                                   @NonNull int rating, @NonNull String pictureUrl
     ) {
         this.placeId = placeId;
         this.restaurantName = restaurantName;
@@ -77,7 +77,7 @@ public class RestaurantItemViewState {
     }
 
     @NonNull
-    public String getRating() {
+    public int getRating() {
         return rating;
     }
 
@@ -91,7 +91,7 @@ public class RestaurantItemViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantItemViewState that = (RestaurantItemViewState) o;
-        return placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && openDescription.equals(that.openDescription) && distance.equals(that.distance) && numberOfWorkmates.equals(that.numberOfWorkmates) && rating.equals(that.rating) && pictureUrl.equals(that.pictureUrl);
+        return rating == that.rating && placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && openDescription.equals(that.openDescription) && distance.equals(that.distance) && numberOfWorkmates.equals(that.numberOfWorkmates) && pictureUrl.equals(that.pictureUrl);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class RestaurantItemViewState {
                 ", openDescription='" + openDescription + '\'' +
                 ", distance='" + distance + '\'' +
                 ", numberOfWorkmates='" + numberOfWorkmates + '\'' +
-                ", rating='" + rating + '\'' +
+                ", rating=" + rating +
                 ", pictureUrl='" + pictureUrl + '\'' +
                 '}';
     }

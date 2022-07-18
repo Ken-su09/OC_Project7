@@ -88,10 +88,12 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:textColor="@color/black"
         android:textSize="12sp"
         android:textStyle="italic"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/five_stars"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/address"
         tools:text="Open until 7pm" />
@@ -102,9 +104,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/image"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/image"
+        app:layout_constraintTop_toBottomOf="@+id/address"
         app:srcCompat="@drawable/ic_star" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -113,9 +117,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/image"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/one_star"
+        app:layout_constraintTop_toBottomOf="@+id/address"
         app:srcCompat="@drawable/ic_star" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -124,9 +130,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/image"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/two_stars"
+        app:layout_constraintTop_toBottomOf="@+id/address"
         app:srcCompat="@drawable/ic_star" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -135,9 +143,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/image"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/three_stars"
+        app:layout_constraintTop_toBottomOf="@+id/address"
         app:srcCompat="@drawable/ic_star" />
 
     <androidx.appcompat.widget.AppCompatImageView
@@ -146,9 +156,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="4dp"
+        android:layout_marginBottom="8dp"
         android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="@+id/image"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/four_stars"
+        app:layout_constraintTop_toBottomOf="@+id/address"
         app:srcCompat="@drawable/ic_star" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
