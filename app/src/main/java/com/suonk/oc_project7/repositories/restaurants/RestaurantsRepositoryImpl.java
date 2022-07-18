@@ -1,5 +1,7 @@
 package com.suonk.oc_project7.repositories.restaurants;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -90,7 +92,15 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
     @NonNull
     @Override
     public LiveData<RestaurantDetails> getRestaurantDetailsById(@NonNull String placeId) {
-        MutableLiveData<RestaurantDetails> restaurantDetailsLiveData = new MutableLiveData<>();
+        MutableLiveData<RestaurantDetails> restaurantDetailsLiveData = new MutableLiveData<>(new RestaurantDetails(
+                "",
+                "",
+                "",
+                "",
+                "",
+                0.0,
+                ""
+        ));
 
         if (apiService.getPlaceDetailsById(placeId) != null) {
             apiService.getPlaceDetailsById(placeId).enqueue(new Callback<PlaceDetailsResponse>() {
@@ -101,12 +111,19 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
                             if (response.body().getResult() != null) {
                                 Result result = response.body().getResult();
 
+                                String photoReference = "";
+                                Boolean isOpen = false;
+
+                                if (result.getPhotos() != null) {
+                                    photoReference = result.getPhotos().get(0).getPhotoReference();
+                                }
+
                                 restaurantDetailsLiveData.setValue(new RestaurantDetails(
                                         result.getPlace_id(),
                                         result.getName(),
                                         result.getInternational_phone_number(),
                                         result.getFormatted_address(),
-                                        result.getIcon_mask_base_uri(),
+                                        getRestaurantPictureURL(photoReference),
                                         result.getRating(),
                                         result.getWebsite()
                                 ));

@@ -11,11 +11,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -112,25 +107,27 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
     @Override
     public void addWorkmateToFirestore(@NonNull FirebaseUser firebaseUser) {
-        final String id = firebaseUser.getUid();
+        if (firebaseUser != null) {
+            final String id = firebaseUser.getUid();
 
-        if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
-            final Workmate workmateToAdd = new Workmate(
-                    id,
-                    firebaseUser.getDisplayName(),
-                    firebaseUser.getEmail(),
-                    firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
-                    ""
-            );
-            firebaseFirestore.collection("all_workmates")
-                    .document(id)
-                    .set(workmateToAdd)
-                    .addOnSuccessListener(unused -> {
+            if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
+                final Workmate workmateToAdd = new Workmate(
+                        id,
+                        firebaseUser.getDisplayName(),
+                        firebaseUser.getEmail(),
+                        firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
+                        ""
+                );
+                firebaseFirestore.collection("all_workmates")
+                        .document(id)
+                        .set(workmateToAdd)
+                        .addOnSuccessListener(unused -> {
 
-                    })
-                    .addOnFailureListener(e -> {
+                        })
+                        .addOnFailureListener(e -> {
 
-                    });
+                        });
+            }
         }
     }
 }
