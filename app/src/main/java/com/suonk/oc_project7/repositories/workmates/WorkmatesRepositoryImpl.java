@@ -3,6 +3,7 @@ package com.suonk.oc_project7.repositories.workmates;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -11,7 +12,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 
 import javax.inject.Inject;
 
@@ -78,12 +83,15 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
         final String id = firebaseUser.getUid();
 
         if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
+            List<String> ids = new ArrayList<>();
+
             final Workmate workmateToAdd = new Workmate(
                     id,
                     firebaseUser.getDisplayName(),
                     firebaseUser.getEmail(),
                     firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
-                    restaurantId
+                    restaurantId,
+                    ids
             );
 
             LocalDate dateToday = LocalDate.now();
@@ -111,12 +119,41 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
             final String id = firebaseUser.getUid();
 
             if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
+                List<String> ids = new ArrayList<>();
                 final Workmate workmateToAdd = new Workmate(
                         id,
                         firebaseUser.getDisplayName(),
                         firebaseUser.getEmail(),
                         firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
-                        ""
+                        "",
+                        ids
+                );
+                firebaseFirestore.collection("all_workmates")
+                        .document(id)
+                        .set(workmateToAdd)
+                        .addOnSuccessListener(unused -> {
+
+                        })
+                        .addOnFailureListener(e -> {
+
+                        });
+            }
+        }
+    }
+
+    @Override
+    public void likeRestaurant(@NonNull FirebaseUser firebaseUser, List<String> listOfLikes) {
+        if (firebaseUser != null) {
+            final String id = firebaseUser.getUid();
+
+            if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
+                final Workmate workmateToAdd = new Workmate(
+                        id,
+                        firebaseUser.getDisplayName(),
+                        firebaseUser.getEmail(),
+                        firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
+                        "",
+                        listOfLikes
                 );
                 firebaseFirestore.collection("all_workmates")
                         .document(id)

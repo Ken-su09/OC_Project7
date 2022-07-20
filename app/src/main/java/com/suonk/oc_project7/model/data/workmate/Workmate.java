@@ -3,6 +3,7 @@ package com.suonk.oc_project7.model.data.workmate;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Workmate {
@@ -21,6 +22,8 @@ public class Workmate {
 
     private String restaurantId;
 
+    private List<String> listOfLikes;
+
     public Workmate() {
 
     }
@@ -30,13 +33,15 @@ public class Workmate {
             @NonNull String name,
             @NonNull String email,
             @NonNull String pictureUrl,
-            String restaurantId
+            String restaurantId,
+            List<String> listOfLikes
     ) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.pictureUrl = pictureUrl;
         this.restaurantId = restaurantId;
+        this.listOfLikes = listOfLikes;
     }
 
     @NonNull
@@ -64,19 +69,25 @@ public class Workmate {
         return restaurantId;
     }
 
+    @NonNull
+    public List<String> getListOfLikes() {
+        return listOfLikes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Workmate workmate = (Workmate) o;
-        return id.equals(workmate.id) && name.equals(workmate.name) && email.equals(workmate.email) && pictureUrl.equals(workmate.pictureUrl) && Objects.equals(restaurantId, workmate.restaurantId);
+        return id.equals(workmate.id) && name.equals(workmate.name) && email.equals(workmate.email) && pictureUrl.equals(workmate.pictureUrl) && Objects.equals(restaurantId, workmate.restaurantId) && Objects.equals(listOfLikes, workmate.listOfLikes);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, pictureUrl, restaurantId);
+        return Objects.hash(id, name, email, pictureUrl, restaurantId, listOfLikes);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Workmate{" +
@@ -85,6 +96,7 @@ public class Workmate {
                 ", email='" + email + '\'' +
                 ", pictureUrl='" + pictureUrl + '\'' +
                 ", restaurantId='" + restaurantId + '\'' +
+                ", listOfLikes=" + listOfLikes +
                 '}';
     }
 }

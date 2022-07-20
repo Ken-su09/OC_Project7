@@ -79,6 +79,15 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
             binding.chosenButton.setImageResource(icon);
         });
 
+        viewModel.getLikeButtonText().observe(this, likeButtonText -> {
+            binding.likeTitle.setText(this.getString(likeButtonText));
+        });
+
+
+        binding.likeIcon.setOnClickListener(view -> {
+            viewModel.likeRestaurant();
+        });
+
         binding.chosenButton.setOnClickListener(view -> {
             viewModel.addWorkmate();
             Toast.makeText(this, getString(R.string.restaurant_is_chosen), Toast.LENGTH_LONG).show();

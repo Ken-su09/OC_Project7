@@ -18,18 +18,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.model.data.places.CurrentLocation;
-import com.suonk.oc_project7.model.data.restaurant.Restaurant;
+import com.suonk.oc_project7.model.data.places.Place;
 import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
-import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
-import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
-import com.suonk.oc_project7.ui.restaurants.list.RestaurantItemViewState;
 import com.suonk.oc_project7.ui.workmates.WorkmateItemViewState;
 import com.suonk.oc_project7.utils.SingleLiveEvent;
 
@@ -45,10 +39,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 public class RestaurantDetailsViewModel extends ViewModel {
 
     @NonNull
-    private final RestaurantsRepository restaurantsRepository;
-    @NonNull
-    private final CurrentLocationRepository locationRepository;
-    @NonNull
     private final WorkmatesRepository workmatesRepository;
 
     @NonNull
@@ -61,6 +51,12 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private final SingleLiveEvent<Integer> selectRestaurantButtonIcon = new SingleLiveEvent<>();
 
     @NonNull
+    private final SingleLiveEvent<Integer> likeButtonText = new SingleLiveEvent<>();
+
+    @NonNull
+    private Workmate currentWorkmate;
+
+    @NonNull
     private final FirebaseAuth firebaseAuth;
 
     private final Context context;
@@ -68,15 +64,12 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private final String placeId;
 
     @Inject
-    public RestaurantDetailsViewModel(@NonNull CurrentLocationRepository locationRepository,
-                                      @NonNull WorkmatesRepository workmatesRepository,
+    public RestaurantDetailsViewModel(@NonNull WorkmatesRepository workmatesRepository,
                                       @NonNull RestaurantsRepository restaurantsRepository,
                                       @NonNull FirebaseAuth firebaseAuth,
                                       @ApplicationContext Context context,
                                       SavedStateHandle savedStateHandle) {
-        this.restaurantsRepository = restaurantsRepository;
         this.workmatesRepository = workmatesRepository;
-        this.locationRepository = locationRepository;
         this.firebaseAuth = firebaseAuth;
         this.context = context;
 
@@ -84,31 +77,27 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
         LiveData<RestaurantDetails> restaurantDetailsLiveData = restaurantsRepository.getRestaurantDetailsById(placeId);
         LiveData<List<Workmate>> workmatesLiveData = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
-
-//        LiveData<List<Workmate>> restaurantLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), currentLocation -> {
-//            String location = currentLocation.getLat() + "," + currentLocation.getLng();
-//            return restaurantsRepository.getNearRestaurants(location);
-//        });
-
-//        restaurantDetailsViewStateLiveData.addSource(locationRepository.getLocationMutableLiveData(), currentLocation -> {
-//            String location = currentLocation.getLat() + "," + currentLocation.getLng();
-//            restaurantsRepository.getNearRestaurants(location);
-//
-//        });
+        LiveData<List<Workmate>> allWorkmatesLiveData = workmatesRepository.getAllWorkmatesFromFirestoreLiveData();
 
         restaurantDetailsViewStateLiveData.addSource(restaurantDetailsLiveData, restaurantDetails -> {
-            combine(workmatesRepository.getWorkmatesHaveChosenTodayLiveData().getValue(), restaurantDetails);
+            combine(workmatesRepository.getWorkmatesHaveChosenTodayLiveData().getValue(), restaurantDetails,
+                    allWorkmatesLiveData.getValue());
         });
 
         restaurantDetailsViewStateLiveData.addSource(workmatesLiveData, workmates -> {
-            combine(workmates, restaurantDetailsLiveData.getValue());
+            combine(workmates, restaurantDetailsLiveData.getValue(), allWorkmatesLiveData.getValue());
+        });
+
+        restaurantDetailsViewStateLiveData.addSource(allWorkmatesLiveData, allWorkmates -> {
+            combine(workmatesLiveData.getValue(), restaurantDetailsLiveData.getValue(), allWorkmates);
         });
     }
 
-    private void combine(@Nullable List<Workmate> workmates, @Nullable RestaurantDetails restaurantDetails) {
+    private void combine(@Nullable List<Workmate> workmates, @Nullable RestaurantDetails restaurantDetails,
+                         @Nullable List<Workmate> allWorkmates) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
 
-        selectRestaurantButtonIcon.setValue(R.drawable.ic_to_select);
+        likeButtonText.setValue(R.string.like);
 
         if (workmates != null && placeId != null) {
             for (Workmate workmate : workmates) {
@@ -120,11 +109,31 @@ public class RestaurantDetailsViewModel extends ViewModel {
                             Color.BLACK,
                             Typeface.NORMAL
                     ));
-                } else {
+                } else if (firebaseAuth.getCurrentUser().getDisplayName().equals(workmate.getName()) && placeId.equals(workmate.getRestaurantId())) {
                     selectRestaurantButtonIcon.setValue(R.drawable.ic_accept);
                 }
             }
             workmateViewStateLiveData.setValue(workmatesItemViews);
+        }
+
+        if (allWorkmates != null) {
+            for (Workmate workmate : allWorkmates) {
+                if (firebaseAuth.getCurrentUser().getDisplayName().equals(workmate.getName())) {
+                    currentWorkmate = workmate;
+                    break;
+                }
+            }
+        }
+
+        Log.i("currentWorkmate", "currentWorkmate : " + currentWorkmate);
+        if (currentWorkmate != null) {
+            for (String like : currentWorkmate.getListOfLikes()) {
+                Log.i("currentWorkmate", "like : " + like);
+                if (like.equals(placeId)) {
+                    likeButtonText.setValue(R.string.dislike);
+                    break;
+                }
+            }
         }
 
         if (restaurantDetails != null) {
@@ -156,10 +165,34 @@ public class RestaurantDetailsViewModel extends ViewModel {
     }
 
     public SingleLiveEvent<Integer> getSelectRestaurantButtonIcon() {
+        Log.i("currentWorkmate", "selectRestaurantButtonIcon : " + selectRestaurantButtonIcon);
         return selectRestaurantButtonIcon;
+    }
+
+    public SingleLiveEvent<Integer> getLikeButtonText() {
+        return likeButtonText;
     }
 
     public void addWorkmate() {
         workmatesRepository.addWorkmateToHaveChosenTodayList(firebaseAuth.getCurrentUser(), placeId);
+    }
+
+    public void likeRestaurant() {
+        List<String> ids;
+
+        if (currentWorkmate != null) {
+            if (currentWorkmate.getListOfLikes() != null) {
+                ids = currentWorkmate.getListOfLikes();
+            } else {
+                ids = new ArrayList<>();
+            }
+
+            if (ids.contains(placeId)) {
+                ids.remove(placeId);
+            } else {
+                ids.add(placeId);
+            }
+            workmatesRepository.likeRestaurant(firebaseAuth.getCurrentUser(), ids);
+        }
     }
 }

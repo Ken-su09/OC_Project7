@@ -19,4 +19,6 @@ public interface WorkmatesRepository {
     void addWorkmateToHaveChosenTodayList(@NonNull FirebaseUser firebaseUser, @NonNull String restaurantId);
 
     void addWorkmateToFirestore(@NonNull FirebaseUser firebaseUser);
+
+    void likeRestaurant(@NonNull FirebaseUser firebaseUser, List<String> listOfLikes);
 }
