@@ -11,6 +11,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 
@@ -31,13 +32,13 @@ public class WorkmatesViewModel extends ViewModel {
     private final MediatorLiveData<List<WorkmateItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
 
     @NonNull
-    private final FirebaseAuth firebaseAuth;
+    private final FirebaseUser firebaseUser;
 
     @Inject
     public WorkmatesViewModel(@NonNull WorkmatesRepository workmatesRepository,
                               @NonNull FirebaseAuth firebaseAuth) {
         this.workmatesRepository = workmatesRepository;
-        this.firebaseAuth = firebaseAuth;
+        firebaseUser = firebaseAuth.getCurrentUser();
 
         LiveData<List<Workmate>> allWorkmates = workmatesRepository.getAllWorkmatesFromFirestoreLiveData();
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
@@ -61,7 +62,7 @@ public class WorkmatesViewModel extends ViewModel {
         }
 
         for (Workmate workmateHasChosen : workmatesHaveChosen) {
-            if (!firebaseAuth.getCurrentUser().getUid().equals(workmateHasChosen.getId())) {
+            if (!firebaseUser.getUid().equals(workmateHasChosen.getId())) {
                 WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                         workmateHasChosen.getId(),
                         workmateHasChosen.getName() + " has decided",
@@ -75,7 +76,7 @@ public class WorkmatesViewModel extends ViewModel {
         }
 
         for (Workmate workmate : allWorkmates) {
-            if (!firebaseAuth.getCurrentUser().getUid().equals(workmate.getId())) {
+            if (!firebaseUser.getUid().equals(workmate.getId())) {
                 if (!ids.contains(workmate.getId())) {
                     WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                             workmate.getId(),

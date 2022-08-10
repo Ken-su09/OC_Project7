@@ -1,18 +1,23 @@
 package com.suonk.oc_project7.ui.main;
 
-import static org.junit.Assert.*;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
-import android.Manifest;
 import android.app.Application;
-import android.content.pm.PackageManager;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.core.app.ActivityCompat;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.location.LocationCallback;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.utils.TestUtils;
 
@@ -29,58 +34,189 @@ public class MainViewModelTest {
     @Rule
     public final InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private final Application application = Mockito.mock(Application.class);
-
-    private final CurrentLocationRepository locationRepository = Mockito.mock(CurrentLocationRepository.class);
-    private final MutableLiveData<Boolean> isPermissionEnabledLiveData = new MutableLiveData<>();
-
     private MainViewModel viewModel;
+
+    private final FirebaseAuth auth = Mockito.mock(FirebaseAuth.class);
+    private final FirebaseUser firebaseUser = Mockito.mock(FirebaseUser.class);
+    private final Application application = Mockito.mock(Application.class);
+    private final CurrentLocationRepository locationRepository = Mockito.mock(CurrentLocationRepository.class);
+    private final PermissionChecker permissionChecker = Mockito.mock(PermissionChecker.class);
+
+    private static final String DEFAULT_NAME = "DEFAULT_NAME";
+    private static final String DEFAULT_MAIL = "DEFAULT_MAIL";
+    private static final String PICTURE_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=key&photo_reference=PHOTO_REFERENCE";
+
+    @NonNull
+    private final MutableLiveData<Boolean> isPermissionEnabledLiveData = new MutableLiveData<>();
+    private final MutableLiveData<MainViewState> mainViewStateLiveData = new MutableLiveData<>();
 
     @Before
     public void setup() {
-        Mockito.doReturn(isPermissionEnabledLiveData).when(locationRepository).getLocationMutableLiveData();
+        doNothing().when(locationRepository).startLocationUpdates();
+        doNothing().when(locationRepository).stopLocationUpdates();
+
+        doReturn(true).when(permissionChecker).hasFineLocationPermission();
+//        doReturn(true).when(permissionChecker).hasCoarseLocationPermission();
+
+        doReturn(firebaseUser).when(auth).getCurrentUser();
+        doReturn(DEFAULT_NAME).when(firebaseUser).getDisplayName();
+        doReturn(DEFAULT_MAIL).when(firebaseUser).getEmail();
+//        doReturn(myURI).when(firebaseUser).getPhotoUrl();
 
         isPermissionEnabledLiveData.setValue(true);
+        mainViewStateLiveData.setValue(getDefaultMainViewState());
 
-        viewModel = new MainViewModel(locationRepository, application);
+        viewModel = new MainViewModel(locationRepository, auth, permissionChecker, application);
+
+        verify(auth).getCurrentUser();
     }
 
     @Test
-    public void start_location_updates_permissions_enabled_should_true() {
+    public void on_start_permissions_enabled_should_true() {
         // GIVEN
 
         // WHEN
         viewModel.onStart();
-
-        // WHEN
-        viewModel.onStop();
 
         // THEN
         boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
         assertTrue(isPermissionsEnabled);
+
+        verify(locationRepository).startLocationUpdates();
+        verify(permissionChecker).hasFineLocationPermission();
+
+        Mockito.verifyNoMoreInteractions(locationRepository, permissionChecker, application);
     }
 
     @Test
-    public void start_location_updates_stop_then_permissions_enabled_should_false() {
+    public void on_start_permissions_enabled_should_true_with_fine_permission_false() {
         // GIVEN
-        viewModel.onStart();
+        doReturn(false).when(permissionChecker).hasFineLocationPermission();
+        doReturn(true).when(permissionChecker).hasCoarseLocationPermission();
 
         // WHEN
-        viewModel.onStop();
+        viewModel.onStart();
+
+        // THEN
+        boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
+        assertTrue(isPermissionsEnabled);
+
+        verify(locationRepository).startLocationUpdates();
+//        verify(locationRepository).stopLocationUpdates();
+        verify(permissionChecker).hasFineLocationPermission();
+        verify(permissionChecker).hasCoarseLocationPermission();
+
+        Mockito.verifyNoMoreInteractions(locationRepository, permissionChecker, application);
+    }
+
+    @Test
+    public void on_start_permissions_enabled_should_false_with_both_permissions_false() {
+        // GIVEN
+        doReturn(false).when(permissionChecker).hasFineLocationPermission();
+        doReturn(false).when(permissionChecker).hasCoarseLocationPermission();
+
+        // WHEN
+        viewModel.onStart();
 
         // THEN
         boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
         assertFalse(isPermissionsEnabled);
+
+        verify(locationRepository).stopLocationUpdates();
+        verify(permissionChecker).hasFineLocationPermission();
+        verify(permissionChecker).hasCoarseLocationPermission();
+
+        Mockito.verifyNoMoreInteractions(locationRepository, permissionChecker, application);
     }
 
-    public void onStop() {
-        if (ActivityCompat.checkSelfPermission(application, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(application, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationRepository.startLocationUpdates();
-            isPermissionEnabledLiveData.setValue(true);
-        } else {
-            locationRepository.stopLocationUpdates();
-            isPermissionEnabledLiveData.setValue(false);
-        }
+    @Test
+    public void on_stop_then_permissions_enabled_should_false() {
+        // GIVEN
+
+        // WHEN
+        viewModel.onStop();
+        boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
+
+        // THEN
+        assertNotNull(isPermissionsEnabled);
+        assertFalse(isPermissionsEnabled);
+    }
+
+    @Test
+    public void on_resume_permissions_enabled_should_true() {
+        // GIVEN
+
+        // WHEN
+        viewModel.onResume();
+
+        // THEN
+        boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
+        assertTrue(isPermissionsEnabled);
+
+        verify(permissionChecker).hasFineLocationPermission();
+
+        Mockito.verifyNoMoreInteractions(locationRepository, permissionChecker, application);
+    }
+
+    @Test
+    public void on_resume_permissions_enabled_should_true_with_fine_permission_false() {
+        // GIVEN
+        doReturn(false).when(permissionChecker).hasFineLocationPermission();
+        doReturn(true).when(permissionChecker).hasCoarseLocationPermission();
+
+        // WHEN
+        viewModel.onResume();
+
+        // THEN
+        boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
+        assertTrue(isPermissionsEnabled);
+
+        verify(permissionChecker).hasFineLocationPermission();
+        verify(permissionChecker).hasCoarseLocationPermission();
+
+        Mockito.verifyNoMoreInteractions(locationRepository, permissionChecker, application);
+    }
+
+    @Test
+    public void on_resume_permissions_enabled_should_false_with_both_permissions_false() {
+        // GIVEN
+        doReturn(false).when(permissionChecker).hasFineLocationPermission();
+        doReturn(false).when(permissionChecker).hasCoarseLocationPermission();
+
+        // WHEN
+        viewModel.onResume();
+
+        // THEN
+        boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
+        assertFalse(isPermissionsEnabled);
+
+        verify(permissionChecker).hasFineLocationPermission();
+        verify(permissionChecker).hasCoarseLocationPermission();
+
+        Mockito.verifyNoMoreInteractions(locationRepository, permissionChecker, application);
+    }
+
+    @Test
+    public void get_main_view_state_live_data() {
+        // GIVEN
+
+        // WHEN
+        MainViewState mainViewState = TestUtils.getValueForTesting(viewModel.getMainViewStateLiveData());
+
+        // THEN
+        assertNotNull(mainViewState);
+        assertEquals(getDefaultMainViewState(), mainViewState);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, permissionChecker, application);
+    }
+
+
+    private MainViewState getDefaultMainViewState() {
+        return new MainViewState(
+                DEFAULT_NAME,
+                DEFAULT_MAIL,
+                ""
+        );
+//        PICTURE_URL.toString()
     }
 }

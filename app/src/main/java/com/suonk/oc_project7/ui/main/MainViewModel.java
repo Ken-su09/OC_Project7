@@ -1,19 +1,17 @@
 package com.suonk.oc_project7.ui.main;
 
-import static com.suonk.oc_project7.utils.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
-import static com.suonk.oc_project7.utils.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
-
-import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
+import com.suonk.oc_project7.model.data.uri.UriConverter;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 
 import javax.inject.Inject;
@@ -33,18 +31,29 @@ public class MainViewModel extends ViewModel {
 
     private final Context context;
 
-    private final FirebaseAuth auth;
+    private final PermissionChecker permissionChecker;
+//    private final UriConverter uriConverter;
+
+    @NonNull
+    private final FirebaseUser firebaseUser;
 
     @Inject
-    public MainViewModel(@NonNull CurrentLocationRepository locationRepository, @ApplicationContext Context context, FirebaseAuth auth) {
+    public MainViewModel(@NonNull CurrentLocationRepository locationRepository,
+                         @NonNull FirebaseAuth auth,
+                         @NonNull PermissionChecker permissionChecker,
+//                         @NonNull UriConverter uriConverter,
+                         @ApplicationContext Context context) {
         this.locationRepository = locationRepository;
+        this.permissionChecker = permissionChecker;
+//        this.uriConverter = uriConverter;
         this.context = context;
-        this.auth = auth;
+
+        firebaseUser = auth.getCurrentUser();
     }
 
+    @SuppressLint("MissingPermission")
     public void onStart() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (permissionChecker.hasFineLocationPermission() || permissionChecker.hasCoarseLocationPermission()) {
             locationRepository.startLocationUpdates();
             isPermissionEnabledLiveData.setValue(true);
         } else {
@@ -54,23 +63,33 @@ public class MainViewModel extends ViewModel {
     }
 
     public void onResume() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (permissionChecker.hasFineLocationPermission() || permissionChecker.hasCoarseLocationPermission()) {
             isPermissionEnabledLiveData.setValue(true);
+        } else {
+            isPermissionEnabledLiveData.setValue(false);
         }
     }
 
     public void onStop() {
         locationRepository.stopLocationUpdates();
+        isPermissionEnabledLiveData.setValue(false);
     }
 
     public LiveData<MainViewState> getMainViewStateLiveData() {
-        if (auth.getCurrentUser() != null) {
-            mainViewStateLiveData.setValue(new MainViewState(
-                    auth.getCurrentUser().getDisplayName(),
-                    auth.getCurrentUser().getEmail(),
-                    auth.getCurrentUser().getPhotoUrl().toString()
-            ));
+        if (firebaseUser != null) {
+            if (firebaseUser.getPhotoUrl() != null) {
+                mainViewStateLiveData.setValue(new MainViewState(
+                        firebaseUser.getDisplayName(),
+                        firebaseUser.getEmail(),
+                        firebaseUser.getPhotoUrl().toString()
+                ));
+            } else {
+                mainViewStateLiveData.setValue(new MainViewState(
+                        firebaseUser.getDisplayName(),
+                        firebaseUser.getEmail(),
+                        ""
+                ));
+            }
         }
 
         return mainViewStateLiveData;

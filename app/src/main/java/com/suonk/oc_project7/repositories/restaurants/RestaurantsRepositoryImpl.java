@@ -6,6 +6,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.BuildConfig;
 import com.suonk.oc_project7.api.PlacesApiService;
 import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
@@ -16,6 +22,7 @@ import com.suonk.oc_project7.model.data.places.NearbyPlaceResult;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -29,9 +36,15 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
     @NonNull
     private final PlacesApiService apiService;
 
+    @NonNull
+    private final FirebaseFirestore firebaseFirestore;
+    private static final String LIKED_RESTAURANTS = "liked_restaurants";
+
     @Inject
-    public RestaurantsRepositoryImpl(@NonNull PlacesApiService apiService) {
+    public RestaurantsRepositoryImpl(@NonNull PlacesApiService apiService,
+                                     @NonNull FirebaseFirestore firebaseFirestore) {
         this.apiService = apiService;
+        this.firebaseFirestore = firebaseFirestore;
     }
 
     @NonNull
@@ -111,11 +124,11 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
                             if (response.body().getResult() != null) {
                                 Result result = response.body().getResult();
 
-                                String photoReference = "";
+                                String photo = null;
                                 Boolean isOpen = false;
 
-                                if (result.getPhotos() != null) {
-                                    photoReference = result.getPhotos().get(0).getPhotoReference();
+                                if (result.getPhotos() != null && !result.getPhotos().isEmpty()) {
+                                    photo = getRestaurantPictureURL(result.getPhotos().get(0).getPhotoReference());
                                 }
 
                                 restaurantDetailsLiveData.setValue(new RestaurantDetails(
@@ -123,7 +136,7 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
                                         result.getName(),
                                         result.getInternational_phone_number(),
                                         result.getFormatted_address(),
-                                        getRestaurantPictureURL(photoReference),
+                                        photo,
                                         result.getRating(),
                                         result.getWebsite()
                                 ));
@@ -140,6 +153,55 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
         }
 
         return restaurantDetailsLiveData;
+    }
+
+    @NonNull
+    @Override
+    public LiveData<List<Restaurant>> getLikedRestaurants() {
+        final MutableLiveData<List<Restaurant>> restaurantsMutableLiveData = new MutableLiveData<>();
+
+        firebaseFirestore.collection("favorites_restaurants")
+                .addSnapshotListener((querySnapshot, error) -> {
+                    if (querySnapshot != null) {
+                        try {
+                            List<Restaurant> list = querySnapshot.toObjects(Restaurant.class);
+                            restaurantsMutableLiveData.setValue(list);
+                        } catch (Exception e) {
+                            Log.i("getLikedRestaurants", "" + e);
+                        }
+                    }
+                });
+
+        return restaurantsMutableLiveData;
+    }
+
+
+    @Override
+    public void toggleIsRestaurantLiked(@NonNull FirebaseUser firebaseUser, @NonNull String restaurantId) {
+        final String id = firebaseUser.getUid();
+
+        if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
+            firebaseFirestore.collection("favorites_restaurants")
+                    .document(id)
+                    .collection("favoriteRestaurants")
+                    .document(restaurantId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            firebaseFirestore.collection("favorites_restaurants")
+                                    .document(id)
+                                    .collection("favoriteRestaurants")
+                                    .document(restaurantId)
+                                    .delete();
+                        } else {
+                            firebaseFirestore.collection("favorites_restaurants")
+                                    .document(id)
+                                    .collection("favoriteRestaurants")
+                                    .document(restaurantId)
+                                    .set(new HashMap<>());
+                        }
+                    });
+        }
     }
 
     private String getRestaurantPictureURL(@NonNull String photo_reference) {

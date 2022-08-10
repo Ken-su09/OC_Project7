@@ -14,12 +14,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseAuth;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityRestaurantDetailsBinding;
 import com.suonk.oc_project7.ui.workmates.WorkmatesListAdapter;
-
-import java.util.concurrent.atomic.AtomicReference;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -53,6 +50,8 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
                     .centerCrop()
                     .into(binding.restaurantImage);
 
+            binding.likeTitle.setText(this.getString(restaurantItemViewState.getLikeButtonText()));
+
             setStarVisibility(restaurantItemViewState.getRating(),
                     binding.restaurantRating1,
                     binding.restaurantRating2,
@@ -79,13 +78,8 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
             binding.chosenButton.setImageResource(icon);
         });
 
-        viewModel.getLikeButtonText().observe(this, likeButtonText -> {
-            binding.likeTitle.setText(this.getString(likeButtonText));
-        });
-
-
-        binding.likeIcon.setOnClickListener(view -> {
-            viewModel.likeRestaurant();
+        binding.likeRoot.setOnClickListener(view -> {
+            viewModel.toggleIsRestaurantLiked();
         });
 
         binding.chosenButton.setOnClickListener(view -> {
@@ -103,7 +97,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     private void getWorkmatesWhoHaveChosenThisRestaurant(ActivityRestaurantDetailsBinding binding, RestaurantDetailsViewModel viewModel) {
         WorkmatesListAdapter listAdapter = new WorkmatesListAdapter();
 
-        viewModel.getWorkmatesLiveData().observe(this, listAdapter::submitList);
+        viewModel.getWorkmatesViewStateLiveData().observe(this, listAdapter::submitList);
         binding.workmatesRecyclerView.setAdapter(listAdapter);
         binding.workmatesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.workmatesRecyclerView.setHasFixedSize(true);

@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.model.data.restaurant;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
@@ -18,7 +19,7 @@ public class RestaurantDetails {
     @NonNull
     private final String address;
 
-    @NonNull
+    @Nullable
     private final String image;
 
     @NonNull
@@ -31,7 +32,7 @@ public class RestaurantDetails {
                              @NonNull String restaurantName,
                              @NonNull String phoneNumber,
                              @NonNull String address,
-                             @NonNull String image,
+                             @Nullable String image,
                              @NonNull Double rating,
                              @NonNull String websiteLink) {
         this.placeId = placeId;
@@ -63,7 +64,7 @@ public class RestaurantDetails {
         return address;
     }
 
-    @NonNull
+    @Nullable
     public String getImage() {
         return image;
     }

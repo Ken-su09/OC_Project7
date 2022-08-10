@@ -1,11 +1,6 @@
 package com.suonk.oc_project7.ui.restaurants.list;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.location.Location;
-import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,17 +9,13 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
-import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
-import com.suonk.oc_project7.ui.workmates.WorkmateItemViewState;
-import com.suonk.oc_project7.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,10 +33,10 @@ public class RestaurantsViewModel extends ViewModel {
     private final MediatorLiveData<List<RestaurantItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
 
     @NonNull
-    private CurrentLocation currentLocation;
+    CurrentLocationRepository locationRepository;
 
     @NonNull
-    private final SingleLiveEvent<Boolean> ratingSingleLiveEvent = new SingleLiveEvent<>();
+    private CurrentLocation currentLocation;
 
     final Context context;
 
@@ -54,7 +45,9 @@ public class RestaurantsViewModel extends ViewModel {
                                 @NonNull WorkmatesRepository workmatesRepository,
                                 @NonNull RestaurantsRepository restaurantsRepository,
                                 @ApplicationContext Context context) {
+        this.locationRepository = locationRepository;
         this.context = context;
+
         LiveData<List<Restaurant>> restaurantsLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
             currentLocation = location;
             String latLng = location.getLat() + "," + location.getLng();
@@ -63,13 +56,8 @@ public class RestaurantsViewModel extends ViewModel {
 
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
 
-        viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> {
-            combine(restaurantsLiveData.getValue(), workmates);
-        });
-
-        viewStatesLiveData.addSource(restaurantsLiveData, restaurants -> {
-            combine(restaurants, workmatesHaveChosen.getValue());
-        });
+        viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> combine(restaurantsLiveData.getValue(), workmates));
+        viewStatesLiveData.addSource(restaurantsLiveData, restaurants -> combine(restaurants, workmatesHaveChosen.getValue()));
     }
 
     private void combine(@Nullable List<Restaurant> restaurants, @Nullable List<Workmate> workmates) {
@@ -84,15 +72,15 @@ public class RestaurantsViewModel extends ViewModel {
 
         if (restaurants != null) {
             for (Restaurant restaurant : restaurants) {
-                float distance = getDistanceFromTwoLocations(currentLocation.getLat(), currentLocation.getLng(),
+                float distance = locationRepository.getDistanceFromTwoLocations(currentLocation.getLat(), currentLocation.getLng(),
                         restaurant.getLatitude(), restaurant.getLongitude());
 
                 String isOpen;
 
                 if (restaurant.getOpen()) {
-                    isOpen = "Is Open";
+                    isOpen = context.getString(R.string.is_open);
                 } else {
-                    isOpen = "Is Close";
+                    isOpen = context.getString(R.string.is_close);
                 }
 
                 String picture;
@@ -103,14 +91,22 @@ public class RestaurantsViewModel extends ViewModel {
                     picture = restaurant.getPictureUrl();
                 }
 
+                int numberOfWorkmates = 0;
+
+                if (ids.size() != 0) {
+                    numberOfWorkmates = Collections.frequency(ids, restaurant.getRestaurantId());
+                }
+
+                double rating = restaurant.getRating() / 1.66666666667;
+
                 restaurantsItemViews.add(new RestaurantItemViewState(
                         restaurant.getRestaurantId(),
                         restaurant.getRestaurantName(),
                         restaurant.getAddress(),
                         isOpen,
                         context.getString(R.string.distance_restaurant, (int) distance),
-                        context.getString(R.string.number_of_workmates, Collections.frequency(ids, restaurant.getRestaurantId())),
-                        restaurant.getRating().intValue(),
+                        context.getString(R.string.number_of_workmates, numberOfWorkmates),
+                        (int) rating,
                         picture
                 ));
             }
@@ -121,23 +117,5 @@ public class RestaurantsViewModel extends ViewModel {
 
     public LiveData<List<RestaurantItemViewState>> getRestaurantsLiveData() {
         return viewStatesLiveData;
-    }
-
-    @NonNull
-    public SingleLiveEvent<Boolean> getRatingSingleLiveEvent() {
-        return ratingSingleLiveEvent;
-    }
-
-    private float getDistanceFromTwoLocations(double startLat, double startLng,
-                                              double endLat, double endLng) {
-        Location startPoint = new Location("currentLocation");
-        startPoint.setLatitude(startLat);
-        startPoint.setLongitude(startLng);
-
-        Location endPoint = new Location("restaurantLocation");
-        endPoint.setLatitude(endLat);
-        endPoint.setLongitude(endLng);
-
-        return startPoint.distanceTo(endPoint);
     }
 }

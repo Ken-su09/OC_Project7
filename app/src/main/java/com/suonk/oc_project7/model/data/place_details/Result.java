@@ -2,6 +2,7 @@
 package com.suonk.oc_project7.model.data.place_details;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -63,7 +64,7 @@ public class Result {
     @SerializedName("opening_hours")
     private OpeningHours opening_hours;
 
-    @NonNull
+    @Nullable
     @Expose
     private List<Photo> photos;
 
@@ -128,7 +129,7 @@ public class Result {
                   @NonNull String international_phone_number,
                   @NonNull String name,
                   @NonNull OpeningHours opening_hours,
-                  @NonNull List<Photo> photos,
+                  @Nullable List<Photo> photos,
                   @NonNull String place_id,
                   @NonNull PlusCode plus_code,
                   @NonNull Long price_level,
@@ -228,7 +229,7 @@ public class Result {
         return opening_hours;
     }
 
-    @NonNull
+    @Nullable
     public List<Photo> getPhotos() {
         return photos;
     }

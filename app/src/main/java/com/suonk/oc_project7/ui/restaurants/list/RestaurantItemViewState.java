@@ -76,7 +76,6 @@ public class RestaurantItemViewState {
         return numberOfWorkmates;
     }
 
-    @NonNull
     public int getRating() {
         return rating;
     }
