@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.api;
 
 import com.suonk.oc_project7.BuildConfig;
+import com.suonk.oc_project7.model.data.place_auto_complete.AutocompleteResponse;
 import com.suonk.oc_project7.model.data.place_details.PlaceDetailsResponse;
 import com.suonk.oc_project7.model.data.places.NearbyPlaceResponse;
 
@@ -19,4 +20,24 @@ public interface PlacesApiService {
     @GET("maps/api/place/details/json?" +
             "&key=" + BuildConfig.MAPS_API_KEY)
     Call<PlaceDetailsResponse> getPlaceDetailsById(@Query("place_id") String placeId);
+
+
+    // &radius=20
+    // &input=
+    @GET("maps/api/place/autocomplete/json?" +
+            "radius=2000" +
+            "&types=restaurant" +
+            "&key=" + BuildConfig.MAPS_API_KEY)
+    Call<AutocompleteResponse> getPlacesAutocomplete(
+            @Query("language") String language,
+            @Query("input") String input);
+    
+//    @GET("maps/api/place/autocomplete/json?" +
+//            "radius=2000" +
+//            "&types=restaurant" +
+//            "&key=" + BuildConfig.MAPS_API_KEY)
+//    Call<AutocompleteResponse> getPlacesAutocomplete(
+//            @Query("language") String language,
+//            @Query("location") String location,
+//            @Query("input") String input);
 }

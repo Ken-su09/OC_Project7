@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,12 +19,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
@@ -44,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private boolean locationPermissionGranted = false;
+    private final boolean locationPermissionGranted = false;
 
     private MainViewModel mainViewModel;
 
@@ -75,6 +77,7 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         setupDrawerLayout();
         setupNavigationView();
         setupBottomNavigationView();
+        setupRecyclerView();
     }
 
     @Override
@@ -98,7 +101,45 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) searchItem.getActionView();
+
+        if (searchView != null) {
+            searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                @Override
+                public boolean onQueryTextSubmit(String query) {
+                    if (query.length() > 2) {
+                        mainViewModel.onSearchDone(query);
+                    }
+                    hideFragmentAndShowList(query);
+
+                    return false;
+                }
+
+                @Override
+                public boolean onQueryTextChange(String input) {
+                    if (input.length() > 2) {
+                        mainViewModel.onSearchChanged(input);
+                    }
+                    hideFragmentAndShowList(input);
+
+                    return true;
+                }
+            });
+        }
+
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void hideFragmentAndShowList(String input) {
+        if (!input.equals("") || !input.isEmpty()) {
+            binding.recyclerView.setVisibility(View.VISIBLE);
+            binding.fragmentContainer.setVisibility(View.GONE);
+        } else {
+            binding.recyclerView.setVisibility(View.GONE);
+            binding.fragmentContainer.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -191,6 +232,15 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
             return true;
         });
+    }
+
+    private void setupRecyclerView() {
+        MainListAdapter listAdapter = new MainListAdapter(this);
+
+        mainViewModel.getMainItemListViewState().observe(this, listAdapter::submitList);
+
+        binding.recyclerView.setAdapter(listAdapter);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
     //endregion
