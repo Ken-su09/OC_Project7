@@ -1,5 +1,10 @@
 package com.suonk.oc_project7.ui.restaurants.list;
 
+import android.graphics.Color;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +12,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
@@ -59,9 +65,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
             setStarVisibility(restaurant.getRating(),
                     binding.oneStar,
                     binding.twoStars,
-                    binding.threeStars,
-                    binding.fourStars,
-                    binding.fiveStars);
+                    binding.threeStars);
 
             Glide.with(activity)
                     .load(restaurant.getPictureUrl())

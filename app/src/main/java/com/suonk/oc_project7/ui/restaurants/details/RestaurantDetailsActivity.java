@@ -52,12 +52,12 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
 
             binding.likeTitle.setText(this.getString(restaurantItemViewState.getLikeButtonText()));
 
+            binding.chosenButton.setImageResource(restaurantItemViewState.getSelectButtonIcon());
+
             setStarVisibility(restaurantItemViewState.getRating(),
                     binding.restaurantRating1,
                     binding.restaurantRating2,
-                    binding.restaurantRating3,
-                    binding.restaurantRating4,
-                    binding.restaurantRating5
+                    binding.restaurantRating3
             );
 
             binding.callIcon.setOnClickListener(view -> {
@@ -72,10 +72,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(restaurantItemViewState.getWebsiteLink()));
                 startActivity(browserIntent);
             });
-        });
-
-        viewModel.getSelectRestaurantButtonIcon().observe(this, icon -> {
-            binding.chosenButton.setImageResource(icon);
         });
 
         binding.likeRoot.setOnClickListener(view -> {

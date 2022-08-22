@@ -1,5 +1,7 @@
 package com.suonk.oc_project7.ui.restaurants.list;
 
+import android.text.SpannableString;
+
 import androidx.annotation.NonNull;
 
 import java.util.Objects;
@@ -29,7 +31,6 @@ public class RestaurantItemViewState {
 
     @NonNull
     private final String pictureUrl;
-
 
     public RestaurantItemViewState(@NonNull String placeId, @NonNull String restaurantName,
                                    @NonNull String address, @NonNull String openDescription,

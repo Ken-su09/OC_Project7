@@ -52,14 +52,13 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private final MutableLiveData<List<WorkmateItemViewState>> workmatesViewStateLiveData = new MutableLiveData<>(new ArrayList<>());
 
     @NonNull
-    private final SingleLiveEvent<Integer> selectRestaurantButtonIcon = new SingleLiveEvent<>();
-
-    @NonNull
     private final FirebaseUser firebaseUser;
 
     private final Context context;
 
     private final String placeId;
+
+    private String restaurantName;
 
     @Inject
     public RestaurantDetailsViewModel(@NonNull WorkmatesRepository workmatesRepository,
@@ -93,6 +92,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private void combine(@Nullable List<Workmate> workmates, @Nullable RestaurantDetails restaurantDetails,
                          @Nullable List<Restaurant> likedRestaurants) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
+        int selectRestaurantButtonIcon = R.drawable.ic_to_select;
 
         if (workmates != null && placeId != null) {
             for (Workmate workmate : workmates) {
@@ -105,7 +105,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                             Typeface.NORMAL
                     ));
                 } else if (firebaseUser.getUid().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
-                    selectRestaurantButtonIcon.setValue(R.drawable.ic_accept);
+                    selectRestaurantButtonIcon = R.drawable.ic_accept;
                 }
             }
             workmatesViewStateLiveData.setValue(workmatesItemViews);
@@ -120,17 +120,16 @@ public class RestaurantDetailsViewModel extends ViewModel {
                 picture = restaurantDetails.getImage();
             }
 
-            boolean isLiked = false;
-
             for (Restaurant restaurant : likedRestaurants) {
                 if (restaurant.getRestaurantId().equals(placeId)) {
-                    isLiked = true;
-                    likeButtonText = R.string.like;
+                    likeButtonText = R.string.dislike;
                     break;
                 }
             }
 
             double rating = restaurantDetails.getRating() / 1.66666666667;
+
+            restaurantName = restaurantDetails.getRestaurantName();
 
             restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(
                     restaurantDetails.getPlaceId(),
@@ -140,6 +139,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                     picture,
                     restaurantDetails.getPhoneNumber(),
                     restaurantDetails.getWebsiteLink(),
+                    selectRestaurantButtonIcon,
                     likeButtonText));
         } else {
             restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(
@@ -150,6 +150,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                     "",
                     "",
                     "",
+                    R.drawable.ic_to_select,
                     likeButtonText));
         }
     }
@@ -162,13 +163,10 @@ public class RestaurantDetailsViewModel extends ViewModel {
         return restaurantDetailsViewStateLiveData;
     }
 
-    @NonNull
-    public SingleLiveEvent<Integer> getSelectRestaurantButtonIcon() {
-        return selectRestaurantButtonIcon;
-    }
-
     public void addWorkmate() {
-        workmatesRepository.addWorkmateToHaveChosenTodayList(firebaseUser, placeId);
+        if (restaurantName != null) {
+            workmatesRepository.addWorkmateToHaveChosenTodayList(firebaseUser, placeId, restaurantName);
+        }
     }
 
     public void toggleIsRestaurantLiked() {

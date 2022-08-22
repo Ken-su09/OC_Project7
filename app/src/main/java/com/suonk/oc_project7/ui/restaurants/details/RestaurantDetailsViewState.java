@@ -30,6 +30,8 @@ public class RestaurantDetailsViewState {
     @NonNull
     private final String websiteLink;
 
+    private final int selectButtonIcon;
+
     private final int likeButtonText;
 
     public RestaurantDetailsViewState(@NonNull String placeId,
@@ -39,6 +41,7 @@ public class RestaurantDetailsViewState {
                                       @NonNull String pictureUrl,
                                       @NonNull String phoneNumber,
                                       @NonNull String websiteLink,
+                                      int selectButtonIcon,
                                       int likeButtonText) {
         this.placeId = placeId;
         this.restaurantName = restaurantName;
@@ -47,6 +50,7 @@ public class RestaurantDetailsViewState {
         this.pictureUrl = pictureUrl;
         this.phoneNumber = phoneNumber;
         this.websiteLink = websiteLink;
+        this.selectButtonIcon = selectButtonIcon;
         this.likeButtonText = likeButtonText;
     }
 
@@ -85,6 +89,10 @@ public class RestaurantDetailsViewState {
         return websiteLink;
     }
 
+    public int getSelectButtonIcon() {
+        return selectButtonIcon;
+    }
+
     public int getLikeButtonText() {
         return likeButtonText;
     }
@@ -94,12 +102,12 @@ public class RestaurantDetailsViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantDetailsViewState that = (RestaurantDetailsViewState) o;
-        return rating == that.rating && likeButtonText == that.likeButtonText && placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && pictureUrl.equals(that.pictureUrl) && phoneNumber.equals(that.phoneNumber) && websiteLink.equals(that.websiteLink);
+        return rating == that.rating && selectButtonIcon == that.selectButtonIcon && likeButtonText == that.likeButtonText && placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && pictureUrl.equals(that.pictureUrl) && phoneNumber.equals(that.phoneNumber) && websiteLink.equals(that.websiteLink);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, restaurantName, address, rating, pictureUrl, phoneNumber, websiteLink, likeButtonText);
+        return Objects.hash(placeId, restaurantName, address, rating, pictureUrl, phoneNumber, websiteLink, selectButtonIcon, likeButtonText);
     }
 
     @Override
@@ -112,6 +120,7 @@ public class RestaurantDetailsViewState {
                 ", pictureUrl='" + pictureUrl + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", websiteLink='" + websiteLink + '\'' +
+                ", selectButtonIcon=" + selectButtonIcon +
                 ", likeButtonText=" + likeButtonText +
                 '}';
     }
