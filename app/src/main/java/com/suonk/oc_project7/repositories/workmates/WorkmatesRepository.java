@@ -16,7 +16,8 @@ public interface WorkmatesRepository {
     @NonNull
     LiveData<List<Workmate>> getWorkmatesHaveChosenTodayLiveData();
 
-    void addWorkmateToHaveChosenTodayList(@NonNull FirebaseUser firebaseUser, @NonNull String restaurantId);
+    void addWorkmateToHaveChosenTodayList(@NonNull FirebaseUser firebaseUser, @NonNull String restaurantId,
+                                          @NonNull String restaurantName);
 
     void addWorkmateToFirestore(@NonNull FirebaseUser firebaseUser);
 }

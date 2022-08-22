@@ -28,11 +28,16 @@
     <string name="fb_login_protocol_scheme">fb1234</string>
     <string name="facebook_client_token">8667285525fbe4a89fa1766abc721597</string>
 
-    <string name="workmates_has_joined">%1$s has joined !</string>
+    <string name="workmate_has_joined">%1$s has joined !</string>
     <string name="distance_restaurant">%1$d m</string>
     <string name="number_of_workmates">(%1$d)</string>
     <string name="restaurant_is_chosen">You have chosen this restaurant !</string>
     
     <string name="like">LIKE</string>
-    <string name="dislike">DISLIKE</string>
+    <string name="dislike">UNLIKE</string>
+    <string name="is_open">Is Open</string>
+    <string name="is_close">Is Close</string>
+
+    <string name="has_chosen"> %1$s has chosen this %2$s</string>
+    <string name="has_not_chosen_yet"> %1$s has not chosen yet</string>
 </resources>

@@ -1,5 +1,7 @@
 package com.suonk.oc_project7.ui.workmates;
 
+import android.service.autofill.CharSequenceTransformation;
+
 import androidx.annotation.NonNull;
 
 import com.suonk.oc_project7.model.data.workmate.Workmate;
@@ -12,7 +14,7 @@ public class WorkmateItemViewState {
     private final String id;
 
     @NonNull
-    private final String name;
+    private final CharSequence sentence;
 
     @NonNull
     private final String pictureUrl;
@@ -23,13 +25,13 @@ public class WorkmateItemViewState {
 
     public WorkmateItemViewState(
             @NonNull String id,
-            @NonNull String name,
+            @NonNull CharSequence sentence,
             @NonNull String pictureUrl,
             int textColor,
             int textStyle
     ) {
         this.id = id;
-        this.name = name;
+        this.sentence = sentence;
         this.pictureUrl = pictureUrl;
         this.textColor = textColor;
         this.textStyle = textStyle;
@@ -41,8 +43,8 @@ public class WorkmateItemViewState {
     }
 
     @NonNull
-    public String getName() {
-        return name;
+    public CharSequence getSentence() {
+        return sentence;
     }
 
     @NonNull
@@ -63,19 +65,19 @@ public class WorkmateItemViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WorkmateItemViewState that = (WorkmateItemViewState) o;
-        return textColor == that.textColor && textStyle == that.textStyle && id.equals(that.id) && name.equals(that.name) && pictureUrl.equals(that.pictureUrl);
+        return textColor == that.textColor && textStyle == that.textStyle && id.equals(that.id) && sentence.equals(that.sentence) && pictureUrl.equals(that.pictureUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, pictureUrl, textColor, textStyle);
+        return Objects.hash(id, sentence, pictureUrl, textColor, textStyle);
     }
 
     @Override
     public String toString() {
         return "WorkmateItemViewState{" +
                 "id='" + id + '\'' +
-                ", name='" + name + '\'' +
+                ", sentence='" + sentence + '\'' +
                 ", pictureUrl='" + pictureUrl + '\'' +
                 ", textColor=" + textColor +
                 ", textStyle=" + textStyle +

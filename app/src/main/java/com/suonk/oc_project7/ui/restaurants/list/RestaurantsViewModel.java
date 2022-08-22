@@ -14,6 +14,8 @@ import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
+import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
+import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 
@@ -33,6 +35,9 @@ public class RestaurantsViewModel extends ViewModel {
     private final MediatorLiveData<List<RestaurantItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
 
     @NonNull
+    private final CurrentUserSearchRepository currentUserSearchRepository;
+
+    @NonNull
     CurrentLocationRepository locationRepository;
 
     @NonNull
@@ -44,9 +49,11 @@ public class RestaurantsViewModel extends ViewModel {
     public RestaurantsViewModel(@NonNull CurrentLocationRepository locationRepository,
                                 @NonNull WorkmatesRepository workmatesRepository,
                                 @NonNull RestaurantsRepository restaurantsRepository,
+                                @NonNull CurrentUserSearchRepository currentUserSearchRepository,
                                 @ApplicationContext Context context) {
         this.locationRepository = locationRepository;
         this.context = context;
+        this.currentUserSearchRepository = currentUserSearchRepository;
 
         LiveData<List<Restaurant>> restaurantsLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
             currentLocation = location;
@@ -55,12 +62,18 @@ public class RestaurantsViewModel extends ViewModel {
         });
 
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
+        LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
-        viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> combine(restaurantsLiveData.getValue(), workmates));
-        viewStatesLiveData.addSource(restaurantsLiveData, restaurants -> combine(restaurants, workmatesHaveChosen.getValue()));
+        viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> combine(restaurantsLiveData.getValue(),
+                workmates, currentUserSearchLiveData.getValue()));
+        viewStatesLiveData.addSource(restaurantsLiveData, restaurants -> combine(restaurants, workmatesHaveChosen.getValue()
+                , currentUserSearchLiveData.getValue()));
+        viewStatesLiveData.addSource(currentUserSearchLiveData, query -> combine(restaurantsLiveData.getValue(), workmatesHaveChosen.getValue(),
+                query));
     }
 
-    private void combine(@Nullable List<Restaurant> restaurants, @Nullable List<Workmate> workmates) {
+    private void combine(@Nullable List<Restaurant> restaurants, @Nullable List<Workmate> workmates,
+                         @Nullable CharSequence query) {
         List<RestaurantItemViewState> restaurantsItemViews = new ArrayList<>();
         List<String> ids = new ArrayList<>();
 
@@ -109,6 +122,14 @@ public class RestaurantsViewModel extends ViewModel {
                         (int) rating,
                         picture
                 ));
+            }
+        }
+
+        if (query != null && !query.toString().isEmpty()) {
+            for (RestaurantItemViewState restaurantItem : restaurantsItemViews) {
+                if (!restaurantItem.getRestaurantName().contains(query)) {
+                    restaurantsItemViews.remove(restaurantItem);
+                }
             }
         }
 

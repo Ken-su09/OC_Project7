@@ -80,7 +80,8 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
     }
 
     @Override
-    public void addWorkmateToHaveChosenTodayList(@NonNull FirebaseUser firebaseUser, @NonNull String restaurantId) {
+    public void addWorkmateToHaveChosenTodayList(@NonNull FirebaseUser firebaseUser, @NonNull String restaurantId,
+                                                 @NonNull String restaurantName) {
         final String id = firebaseUser.getUid();
 
         if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
@@ -90,7 +91,8 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
                     firebaseUser.getDisplayName(),
                     firebaseUser.getEmail(),
                     firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
-                    restaurantId
+                    restaurantId,
+                    restaurantName
             );
 
             LocalDate dateToday = LocalDate.now();
@@ -123,6 +125,7 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
                     firebaseUser.getDisplayName(),
                     firebaseUser.getEmail(),
                     firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
+                    "",
                     ""
             );
             firebaseFirestore.collection("all_workmates")

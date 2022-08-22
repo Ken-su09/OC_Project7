@@ -8,6 +8,8 @@ import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.api.PlacesApiService;
+import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
+import com.suonk.oc_project7.model.data.user.CustomFirebaseUser;
 
 import javax.inject.Singleton;
 
@@ -45,11 +47,19 @@ public class AppModule {
     }
 
     @Provides
+    @Singleton
+    public PermissionChecker providePermissionChecker(@ApplicationContext Context context) {
+        return new PermissionChecker(context);
+    }
+
+    @Provides
+    @Singleton
     public static FirebaseAuth provideFirebaseAuth() {
         return FirebaseAuth.getInstance();
     }
 
     @Provides
+    @Singleton
     public static FirebaseFirestore provideFirebaseFirestore() {
         return FirebaseFirestore.getInstance();
     }

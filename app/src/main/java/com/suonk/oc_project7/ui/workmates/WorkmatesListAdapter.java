@@ -40,7 +40,7 @@ public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, Wor
         }
 
         public void onBind(WorkmateItemViewState workmateItemViewState) {
-            binding.name.setText(workmateItemViewState.getName());
+            binding.name.setText(workmateItemViewState.getSentence());
             binding.name.setTypeface(binding.name.getTypeface(), workmateItemViewState.getTextStyle());
             binding.name.setTextColor(workmateItemViewState.getTextColor());
 
