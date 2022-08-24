@@ -1,7 +1,5 @@
 package com.suonk.oc_project7.ui.main;
 
-import android.text.SpannableString;
-
 import androidx.annotation.NonNull;
 
 import java.util.Objects;
@@ -11,21 +9,26 @@ public class MainItemViewState {
     @NonNull
     private final String placeId;
 
-//    @NonNull
-//    private final String restaurantName;
+    @NonNull
+    private final String restaurantName;
 
     @NonNull
     private final String address;
 
-    @NonNull
-    private final SpannableString textToHighlight;
+    private final int start;
 
-    public MainItemViewState(@NonNull String placeId, @NonNull String address,
-                             @NonNull SpannableString textToHighlight) {
+    private final int end;
+
+    public MainItemViewState(@NonNull String placeId,
+                             @NonNull String restaurantName,
+                             @NonNull String address,
+                             int start,
+                             int end) {
         this.placeId = placeId;
-//        this.restaurantName = restaurantName;
+        this.restaurantName = restaurantName;
         this.address = address;
-        this.textToHighlight = textToHighlight;
+        this.start = start;
+        this.end = end;
     }
 
     @NonNull
@@ -34,13 +37,21 @@ public class MainItemViewState {
     }
 
     @NonNull
+    public String getRestaurantName() {
+        return restaurantName;
+    }
+
+    @NonNull
     public String getAddress() {
         return address;
     }
 
-    @NonNull
-    public SpannableString getTextToHighlight() {
-        return textToHighlight;
+    public int getStart() {
+        return start;
+    }
+
+    public int getEnd() {
+        return end;
     }
 
     @Override
@@ -48,20 +59,23 @@ public class MainItemViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MainItemViewState that = (MainItemViewState) o;
-        return placeId.equals(that.placeId) && address.equals(that.address) && textToHighlight.equals(that.textToHighlight);
+        return start == that.start && end == that.end && placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, address, textToHighlight);
+        return Objects.hash(placeId, restaurantName, address, start, end);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MainItemViewState{" +
                 "placeId='" + placeId + '\'' +
+                ", restaurantName='" + restaurantName + '\'' +
                 ", address='" + address + '\'' +
-                ", textToHighlight=" + textToHighlight +
+                ", start=" + start +
+                ", end=" + end +
                 '}';
     }
 }

@@ -21,6 +21,7 @@ import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 import com.suonk.oc_project7.ui.restaurants.list.RestaurantItemViewState;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,9 +34,6 @@ public class WorkmatesViewModel extends ViewModel {
 
     @NonNull
     private final WorkmatesRepository workmatesRepository;
-
-    @NonNull
-    private final CurrentUserSearchRepository currentUserSearchRepository;
 
     @NonNull
     private final MediatorLiveData<List<WorkmateItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
@@ -52,7 +50,6 @@ public class WorkmatesViewModel extends ViewModel {
                               @NonNull FirebaseAuth firebaseAuth,
                               @ApplicationContext Context context) {
         this.workmatesRepository = workmatesRepository;
-        this.currentUserSearchRepository = currentUserSearchRepository;
         firebaseUser = firebaseAuth.getCurrentUser();
         this.context = context;
 
@@ -75,7 +72,7 @@ public class WorkmatesViewModel extends ViewModel {
 
     private void combine(@Nullable List<Workmate> allWorkmates, @Nullable List<Workmate> workmatesHaveChosen,
                          @Nullable CharSequence query) {
-        List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
+        ArrayList<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
         List<String> ids = new ArrayList<>();
 
         if (allWorkmates == null || workmatesHaveChosen == null) {
@@ -88,24 +85,25 @@ public class WorkmatesViewModel extends ViewModel {
                 CharSequence sentence = context.getString(R.string.has_chosen,
                         workmateHasChosen.getName(), workmateHasChosen.getRestaurantName());
 
-                if (workmateHasChosen.getRestaurantName() != null && query != null &&
-                        workmateHasChosen.getRestaurantName().contains(query)) {
-                    WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
-                            workmateHasChosen.getId(),
-                            sentence,
-                            workmateHasChosen.getPictureUrl(),
-                            Color.BLACK,
-                            Typeface.NORMAL
-                    );
-                    workmatesItemViews.add(workmateItemViewState);
+                if (workmateHasChosen.getRestaurantName() != null) {
+                    if (query == null || workmateHasChosen.getRestaurantName().contains(query)) {
+                        WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
+                                workmateHasChosen.getId(),
+                                sentence,
+                                workmateHasChosen.getPictureUrl(),
+                                Color.BLACK,
+                                Typeface.NORMAL
+                        );
+                        workmatesItemViews.add(workmateItemViewState);
+                    }
                     ids.add(workmateHasChosen.getId());
                 }
             }
         }
 
         for (Workmate workmate : allWorkmates) {
-            if (!firebaseUser.getUid().equals(workmate.getId())) {
-                if (!ids.contains(workmate.getId())) {
+            if (!firebaseUser.getUid().equals(workmate.getId()) && !ids.contains(workmate.getId())) {
+                if (query == null || workmate.getRestaurantName().contains(query)) {
                     WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                             workmate.getId(),
                             context.getString(R.string.has_not_chosen_yet, workmate.getName()),
@@ -114,14 +112,6 @@ public class WorkmatesViewModel extends ViewModel {
                             Typeface.ITALIC
                     );
                     workmatesItemViews.add(workmateItemViewState);
-                }
-            }
-        }
-
-        if (query != null && !query.toString().isEmpty()) {
-            for (WorkmateItemViewState workmateItemView : workmatesItemViews) {
-                if (!workmateItemView.getPictureUrl().contains(query)) {
-                    workmatesItemViews.remove(workmateItemView);
                 }
             }
         }

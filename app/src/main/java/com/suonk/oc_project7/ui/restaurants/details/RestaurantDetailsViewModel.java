@@ -130,6 +130,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
             double rating = restaurantDetails.getRating() / 1.66666666667;
 
             restaurantName = restaurantDetails.getRestaurantName();
+            System.out.println("combine() : restaurantName = " + restaurantName);
 
             restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(
                     restaurantDetails.getPlaceId(),
@@ -164,6 +165,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
     }
 
     public void addWorkmate() {
+        System.out.println("addWorkmate() : restaurantName = " + restaurantName);
         if (restaurantName != null) {
             workmatesRepository.addWorkmateToHaveChosenTodayList(firebaseUser, placeId, restaurantName);
         }

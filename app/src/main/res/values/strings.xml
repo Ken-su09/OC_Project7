@@ -38,6 +38,6 @@
     <string name="is_open">Is Open</string>
     <string name="is_close">Is Close</string>
 
-    <string name="has_chosen"> %1$s has chosen this %2$s</string>
+    <string name="has_chosen"> %1$s has chosen %2$s</string>
     <string name="has_not_chosen_yet"> %1$s has not chosen yet</string>
 </resources>

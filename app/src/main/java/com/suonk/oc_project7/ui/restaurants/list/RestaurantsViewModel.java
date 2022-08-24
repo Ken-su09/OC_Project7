@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.ui.restaurants.list;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,9 +19,11 @@ import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchR
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
+import com.suonk.oc_project7.ui.workmates.WorkmateItemViewState;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -33,9 +36,6 @@ public class RestaurantsViewModel extends ViewModel {
 
     @NonNull
     private final MediatorLiveData<List<RestaurantItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
-
-    @NonNull
-    private final CurrentUserSearchRepository currentUserSearchRepository;
 
     @NonNull
     CurrentLocationRepository locationRepository;
@@ -53,7 +53,6 @@ public class RestaurantsViewModel extends ViewModel {
                                 @ApplicationContext Context context) {
         this.locationRepository = locationRepository;
         this.context = context;
-        this.currentUserSearchRepository = currentUserSearchRepository;
 
         LiveData<List<Restaurant>> restaurantsLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
             currentLocation = location;
@@ -66,8 +65,10 @@ public class RestaurantsViewModel extends ViewModel {
 
         viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> combine(restaurantsLiveData.getValue(),
                 workmates, currentUserSearchLiveData.getValue()));
+
         viewStatesLiveData.addSource(restaurantsLiveData, restaurants -> combine(restaurants, workmatesHaveChosen.getValue()
                 , currentUserSearchLiveData.getValue()));
+
         viewStatesLiveData.addSource(currentUserSearchLiveData, query -> combine(restaurantsLiveData.getValue(), workmatesHaveChosen.getValue(),
                 query));
     }
@@ -112,23 +113,17 @@ public class RestaurantsViewModel extends ViewModel {
 
                 double rating = restaurant.getRating() / 1.66666666667;
 
-                restaurantsItemViews.add(new RestaurantItemViewState(
-                        restaurant.getRestaurantId(),
-                        restaurant.getRestaurantName(),
-                        restaurant.getAddress(),
-                        isOpen,
-                        context.getString(R.string.distance_restaurant, (int) distance),
-                        context.getString(R.string.number_of_workmates, numberOfWorkmates),
-                        (int) rating,
-                        picture
-                ));
-            }
-        }
-
-        if (query != null && !query.toString().isEmpty()) {
-            for (RestaurantItemViewState restaurantItem : restaurantsItemViews) {
-                if (!restaurantItem.getRestaurantName().contains(query)) {
-                    restaurantsItemViews.remove(restaurantItem);
+                if (query == null || restaurant.getRestaurantName().contains(query)) {
+                    restaurantsItemViews.add(new RestaurantItemViewState(
+                            restaurant.getRestaurantId(),
+                            restaurant.getRestaurantName(),
+                            restaurant.getAddress(),
+                            isOpen,
+                            context.getString(R.string.distance_restaurant, (int) distance),
+                            context.getString(R.string.number_of_workmates, numberOfWorkmates),
+                            (int) rating,
+                            picture
+                    ));
                 }
             }
         }

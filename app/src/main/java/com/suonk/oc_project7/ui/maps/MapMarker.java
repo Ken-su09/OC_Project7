@@ -14,8 +14,17 @@ public class MapMarker {
     private final Double longitude;
     @NonNull
     private final String restaurantName;
-    @NonNull
-    private final Float color;
+
+    private final int markerIcon;
+
+    public MapMarker(@NonNull String placeId, @NonNull Double latitude, @NonNull Double longitude,
+                     @NonNull String restaurantName, int markerIcon) {
+        this.placeId = placeId;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.restaurantName = restaurantName;
+        this.markerIcon = markerIcon;
+    }
 
     @NonNull
     public String getPlaceId() {
@@ -38,17 +47,8 @@ public class MapMarker {
     }
 
     @NonNull
-    public Float getColor() {
-        return color;
-    }
-
-    public MapMarker(@NonNull String placeId, @NonNull Double latitude, @NonNull Double longitude,
-                     @NonNull String restaurantName, @NonNull Float color) {
-        this.placeId = placeId;
-        this.latitude = latitude;
-        this.longitude = longitude;
-        this.restaurantName = restaurantName;
-        this.color = color;
+    public int getMarkerIcon() {
+        return markerIcon;
     }
 
     @Override
@@ -56,12 +56,12 @@ public class MapMarker {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MapMarker mapMarker = (MapMarker) o;
-        return placeId.equals(mapMarker.placeId) && latitude.equals(mapMarker.latitude) && longitude.equals(mapMarker.longitude) && restaurantName.equals(mapMarker.restaurantName);
+        return markerIcon == mapMarker.markerIcon && placeId.equals(mapMarker.placeId) && latitude.equals(mapMarker.latitude) && longitude.equals(mapMarker.longitude) && restaurantName.equals(mapMarker.restaurantName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, latitude, longitude, restaurantName);
+        return Objects.hash(placeId, latitude, longitude, restaurantName, markerIcon);
     }
 
     @Override
@@ -71,6 +71,7 @@ public class MapMarker {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", restaurantName='" + restaurantName + '\'' +
+                ", markerIcon=" + markerIcon +
                 '}';
     }
 }

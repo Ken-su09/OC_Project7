@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -106,30 +108,46 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         SearchView searchView = (SearchView) searchItem.getActionView();
 
         if (searchView != null) {
+            searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
             searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
                 @Override
                 public boolean onQueryTextSubmit(String query) {
-                    if (query.length() > 2) {
-                        mainViewModel.onSearchDone(query);
-                    }
-                    hideFragmentAndShowList(query);
+                    mainViewModel.onSearchDone(query);
+                    showFragmentAndHideList();
 
                     return false;
                 }
 
                 @Override
                 public boolean onQueryTextChange(String input) {
-                    if (input.length() > 2) {
-                        mainViewModel.onSearchChanged(input);
-                    }
+                    mainViewModel.onSearchChanged(input);
                     hideFragmentAndShowList(input);
 
+                    return true;
+                }
+            });
+
+            searchItem.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+                @Override
+                public boolean onMenuItemActionExpand(MenuItem item) {
+                    return true;
+                }
+
+                @Override
+                public boolean onMenuItemActionCollapse(MenuItem item) {
+                    mainViewModel.onSearchDone("");
+                    showFragmentAndHideList();
                     return true;
                 }
             });
         }
 
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void showFragmentAndHideList() {
+        binding.recyclerView.setVisibility(View.GONE);
+        binding.fragmentContainer.setVisibility(View.VISIBLE);
     }
 
     private void hideFragmentAndShowList(String input) {
@@ -215,12 +233,15 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
             switch (item.getItemId()) {
                 case R.id.nav_restaurant:
+                    showFragmentAndHideList();
                     fragmentToCommit = ListRestaurantsFragment.newInstance();
                     break;
                 case R.id.nav_workmates:
+                    showFragmentAndHideList();
                     fragmentToCommit = WorkmatesFragment.newInstance();
                     break;
                 default:
+                    showFragmentAndHideList();
                     fragmentToCommit = MapsFragment.newInstance();
                     break;
             }

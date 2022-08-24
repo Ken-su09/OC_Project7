@@ -1,23 +1,18 @@
 package com.suonk.oc_project7.ui.main;
 
-import android.content.Context;
+import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.BackgroundColorSpan;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ItemRestaurantBinding;
 import com.suonk.oc_project7.events.OnRestaurantEventListener;
 
@@ -51,8 +46,11 @@ public class MainListAdapter extends ListAdapter<MainItemViewState, MainListAdap
         }
 
         public void onBind(MainItemViewState restaurant, OnRestaurantEventListener callback) {
-            binding.name.setText(restaurant.getTextToHighlight(), TextView.BufferType.SPANNABLE);
-//            setHighLightedText(binding.name, restaurant.getInput(), itemView.getContext());
+            Spannable wordToSpan = new SpannableString(restaurant.getRestaurantName());
+            wordToSpan.setSpan(new BackgroundColorSpan(Color.LTGRAY), restaurant.getStart(),
+                    restaurant.getEnd(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            binding.name.setText(wordToSpan, TextView.BufferType.SPANNABLE);
             binding.address.setText(restaurant.getAddress());
 
             binding.getRoot().setOnClickListener(view -> {
@@ -73,7 +71,8 @@ public class MainListAdapter extends ListAdapter<MainItemViewState, MainListAdap
         public boolean areContentsTheSame(@NonNull MainItemViewState oldItem, @NonNull MainItemViewState newItem) {
             return oldItem.getPlaceId().equals(newItem.getPlaceId()) &&
                     oldItem.getAddress().equals(newItem.getAddress()) &&
-                    oldItem.getTextToHighlight().equals(newItem.getTextToHighlight());
+                    oldItem.getStart() == newItem.getStart() &&
+                    oldItem.getEnd() == newItem.getEnd();
         }
     }
 }

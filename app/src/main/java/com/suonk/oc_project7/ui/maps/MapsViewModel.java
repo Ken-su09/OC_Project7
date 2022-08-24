@@ -13,6 +13,7 @@ import com.suonk.oc_project7.model.data.places.Place;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
+import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 import com.suonk.oc_project7.ui.restaurants.list.RestaurantItemViewState;
@@ -20,6 +21,7 @@ import com.suonk.oc_project7.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -37,7 +39,8 @@ public class MapsViewModel extends ViewModel {
     @Inject
     public MapsViewModel(@NonNull CurrentLocationRepository locationRepository,
                          @NonNull PlacesRepository placesRepository,
-                         @NonNull WorkmatesRepository workmatesRepository) {
+                         @NonNull WorkmatesRepository workmatesRepository,
+                         @NonNull CurrentUserSearchRepository currentUserSearchRepository) {
 
         LiveData<List<Place>> listPlacesLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
             String latLng = location.getLat() + "," + location.getLng();
@@ -45,17 +48,23 @@ public class MapsViewModel extends ViewModel {
         });
 
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
+        LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
         viewStatesLiveData.addSource(listPlacesLiveData, places -> {
-            combine(places, workmatesHaveChosen.getValue());
+            combine(places, workmatesHaveChosen.getValue(), currentUserSearchLiveData.getValue());
         });
 
         viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> {
-            combine(listPlacesLiveData.getValue(), workmates);
+            combine(listPlacesLiveData.getValue(), workmates, currentUserSearchLiveData.getValue());
+        });
+
+        viewStatesLiveData.addSource(currentUserSearchLiveData, query -> {
+            combine(listPlacesLiveData.getValue(), workmatesHaveChosen.getValue(), query);
         });
     }
 
-    private void combine(@Nullable List<Place> places, @Nullable List<Workmate> workmates) {
+    private void combine(@Nullable List<Place> places, @Nullable List<Workmate> workmates,
+                         @Nullable CharSequence query) {
         List<String> restaurantIds = new ArrayList<>();
 
         if (workmates != null) {
@@ -67,28 +76,21 @@ public class MapsViewModel extends ViewModel {
 
         if (places != null) {
             for (Place place : places) {
-                float color = 0F;
+                int defaultIcon = R.drawable.ic_custom_google_marker_red;
 
-                if (true) {
-                    color = 120.0F;
-                } else {
-                    color = 0.0F;
+                if (restaurantIds.contains(place.getPlaceId())) {
+                    defaultIcon = R.drawable.ic_custom_google_marker_blue;
                 }
 
-                float finalColor = color;
-
-                if (restaurantIds.contains(place.getPlaceId())){
-
-                }
-
-
+                if(query == null || place.getRestaurantName().contains(query)){
                     listMapMaker.add(new MapMarker(
                             place.getPlaceId(),
                             place.getLatitude(),
                             place.getLongitude(),
                             place.getRestaurantName(),
-                            finalColor
+                            defaultIcon
                     ));
+                }
             }
         }
 
