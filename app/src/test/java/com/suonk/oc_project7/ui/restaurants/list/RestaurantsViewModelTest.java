@@ -19,6 +19,8 @@ import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepositoryImpl;
+import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
+import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepositoryImpl;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
@@ -43,13 +45,23 @@ public class RestaurantsViewModelTest {
 
     private RestaurantsViewModel restaurantsViewModel;
 
+    //region ============================================= MOCK =============================================
+
     private final Application application = Mockito.mock(Application.class);
     private final CurrentLocationRepository currentLocationRepositoryMock = mock(CurrentLocationRepositoryImpl.class);
     private final WorkmatesRepository workmatesRepositoryMock = mock(WorkmatesRepositoryImpl.class);
     private final RestaurantsRepository restaurantsRepositoryMock = mock(RestaurantsRepositoryImpl.class);
     private final CurrentLocation currentLocation = mock(CurrentLocation.class);
+    private final CurrentUserSearchRepository currentUserSearchRepositoryMock = Mockito.mock(CurrentUserSearchRepository.class);
 
-    private static final String RESTAURANT_NAME = "RESTAURANT_NAME";
+    //endregion
+
+    //region ======================================== DEFAULTS VALUES =======================================
+
+    private static final String RESTAURANT_NAME = "PIZZA HUT";
+    private static final String RESTAURANT_NAME_1 = "PIZZA N PASTA";
+    private static final String RESTAURANT_NAME_2 = "OKONOMIYAKI";
+
     private static final boolean RESTAURANT_IS_OPEN_TRUE = true;
     private static final boolean RESTAURANT_IS_OPEN_FALSE = false;
     private static final String ADDRESS = "ADDRESS";
@@ -66,31 +78,51 @@ public class RestaurantsViewModelTest {
     private static final double LONGITUDE = 8.256546;
     private static final String LOCATION = LATITUDE + "," + LONGITUDE;
     private static final float DISTANCE_TO_RESTAURANT = 325.6546f;
-    private static final int NUMBER_OF_WORKMATES = 1;
+    private static final int NUMBER_OF_WORKMATES = 2;
+    private static final int NUMBER_OF_WORKMATES_1 = 1;
 
     private static final String FORMATTED_DISTANCE_TO_RESTAURANT = "FORMATTED_DISTANCE_TO_RESTAURANT";
-    private static final String FORMATTED_NUMBER_OF_WORKMATES = "FORMATTED_NUMBER_OF_WORKMATES";
+    private static final String FORMATTED_NUMBER_OF_WORKMATES = NUMBER_OF_WORKMATES + " FORMATTED_NUMBER_OF_WORKMATES";
+    private static final String FORMATTED_NUMBER_OF_WORKMATES_1 = NUMBER_OF_WORKMATES_1 + " FORMATTED_NUMBER_OF_WORKMATES";
+    private static final String FORMATTED_NUMBER_OF_NO_WORKMATES = "FORMATTED_NUMBER_OF_NO_WORKMATES";
 
-    private static final String FORMATTED_OPEN_DESCRIPTION_IS_OPEN = "FORMATTED_DISTANCE_TO_RESTAURANT";
-    private static final String FORMATTED_OPEN_DESCRIPTION_IS_CLOSE = "FORMATTED_NUMBER_OF_WORKMATES";
+    private static final String FORMATTED_OPEN_DESCRIPTION_IS_OPEN = "FORMATTED_OPEN_DESCRIPTION_IS_OPEN";
+    private static final String FORMATTED_OPEN_DESCRIPTION_IS_CLOSE = "FORMATTED_OPEN_DESCRIPTION_IS_CLOSE";
+
+    private static final String IS_OPEN = "IS_OPEN";
+    private static final String IS_CLOSE = "IS_CLOSE";
+
+    private static final String TEXT_TO_HIGHLIGHT = "PIZ";
+
+    //endregion
+
+    //region =========================================== LIVEDATA ===========================================
 
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Workmate>> workmatesHaveChosenLiveData = new MutableLiveData<>();
     private final MutableLiveData<CurrentLocation> currentLocationMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> searchInputLiveData = new MutableLiveData<>();
+
+    //endregion
 
     @Before
     public void setup() {
         doReturn(LATITUDE).when(currentLocation).getLat();
         doReturn(LONGITUDE).when(currentLocation).getLng();
+
         doReturn(currentLocationMutableLiveData).when(currentLocationRepositoryMock).getLocationMutableLiveData();
         doReturn(restaurantsLiveData).when(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
         doReturn(workmatesHaveChosenLiveData).when(workmatesRepositoryMock).getWorkmatesHaveChosenTodayLiveData();
+        doReturn(searchInputLiveData).when(currentUserSearchRepositoryMock).getCurrentUserSearchLiveData();
+
         doReturn(DISTANCE_TO_RESTAURANT).when(currentLocationRepositoryMock).getDistanceFromTwoLocations(
                 LATITUDE, LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE
         );
 
         doReturn(FORMATTED_DISTANCE_TO_RESTAURANT).when(application).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
         doReturn(FORMATTED_NUMBER_OF_WORKMATES).when(application).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES);
+        doReturn(FORMATTED_NUMBER_OF_WORKMATES_1).when(application).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
+        doReturn(FORMATTED_NUMBER_OF_NO_WORKMATES).when(application).getString(R.string.number_of_workmates, 0);
 
         doReturn(FORMATTED_OPEN_DESCRIPTION_IS_OPEN).when(application).getString(R.string.is_open);
         doReturn(FORMATTED_OPEN_DESCRIPTION_IS_CLOSE).when(application).getString(R.string.is_close);
@@ -98,36 +130,99 @@ public class RestaurantsViewModelTest {
         currentLocationMutableLiveData.setValue(currentLocation);
         restaurantsLiveData.setValue(getDefaultRestaurants());
         workmatesHaveChosenLiveData.setValue(getDefaultWorkmatesHaveChosen());
+        searchInputLiveData.setValue(TEXT_TO_HIGHLIGHT);
 
         restaurantsViewModel = new RestaurantsViewModel(
                 currentLocationRepositoryMock,
                 workmatesRepositoryMock,
                 restaurantsRepositoryMock,
+                currentUserSearchRepositoryMock,
                 application
         );
 
         verify(currentLocationRepositoryMock).getLocationMutableLiveData();
         verify(workmatesRepositoryMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(currentUserSearchRepositoryMock).getCurrentUserSearchLiveData();
     }
 
     @Test
-    public void get_restaurants_view_state_list() {
-        // When
+    public void get_restaurants_view_state_list_with_no_search() {
+        // GIVEN
+        searchInputLiveData.setValue("");
+
+        // WHEN
         List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(restaurantsViewModel.getRestaurantsLiveData());
 
         assertNotNull(restaurantsItemViewState);
-        assertEquals(2, restaurantsItemViewState.size());
+        assertEquals(3, restaurantsItemViewState.size());
         assertEquals(getDefaultRestaurantsItemViewState(), restaurantsItemViewState);
 
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
-        verify(currentLocationRepositoryMock, atLeastOnce()).getDistanceFromTwoLocations(LATITUDE, LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE);
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock, currentLocationRepositoryMock);
+        verify(currentLocationRepositoryMock, atLeastOnce()).getDistanceFromTwoLocations(LATITUDE,
+                LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE);
+
+        verify(application, atLeastOnce()).getString(R.string.is_open);
+        verify(application, atLeastOnce()).getString(R.string.is_close);
+        verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
     @Test
-    public void get_restaurants_view_state_if_restaurants_null() {
+    public void get_restaurants_view_state_list_with_search() {
+        // GIVEN
+
+        // WHEN
+        List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(restaurantsViewModel.getRestaurantsLiveData());
+
+        assertNotNull(restaurantsItemViewState);
+        assertEquals(2, restaurantsItemViewState.size());
+        assertEquals(getDefaultRestaurantsItemViewStateAfterQuery(), restaurantsItemViewState);
+
+        verify(currentLocation, atLeastOnce()).getLat();
+        verify(currentLocation, atLeastOnce()).getLng();
+        verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
+        verify(currentLocationRepositoryMock, atLeastOnce()).getDistanceFromTwoLocations(LATITUDE,
+                LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE);
+
+        verify(application, atLeastOnce()).getString(R.string.is_open);
+        verify(application, atLeastOnce()).getString(R.string.is_close);
+        verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
+    }
+
+    @Test
+    public void get_restaurants_view_state_if_restaurants_null_with_no_search() {
+        // GIVEN
+        searchInputLiveData.setValue("");
+        restaurantsLiveData.setValue(null);
+
+        // WHEN
+        List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(restaurantsViewModel.getRestaurantsLiveData());
+
+        assertNotNull(restaurantsItemViewState);
+        assertEquals(0, restaurantsItemViewState.size());
+
+        verify(currentLocation, atLeastOnce()).getLat();
+        verify(currentLocation, atLeastOnce()).getLng();
+        verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
+    }
+
+    @Test
+    public void get_restaurants_view_state_if_restaurants_null_with_search() {
         // WHEN
         restaurantsLiveData.setValue(null);
         List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(restaurantsViewModel.getRestaurantsLiveData());
@@ -138,14 +233,47 @@ public class RestaurantsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock, currentLocationRepositoryMock);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
     @Test
-    public void get_restaurants_view_state_if_workmates_have_chosen_null() {
-        // WHEN
+    public void get_restaurants_view_state_if_workmates_have_chosen_null_with_no_search() {
+        // GIVEN
+        searchInputLiveData.setValue("");
         workmatesHaveChosenLiveData.setValue(null);
-        List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(restaurantsViewModel.getRestaurantsLiveData());
+
+        // WHEN
+        List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(
+                restaurantsViewModel.getRestaurantsLiveData());
+
+        assertNotNull(restaurantsItemViewState);
+        assertEquals(3, restaurantsItemViewState.size());
+
+        verify(currentLocation, atLeastOnce()).getLat();
+        verify(currentLocation, atLeastOnce()).getLng();
+        verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
+        verify(currentLocationRepositoryMock, atLeastOnce()).getDistanceFromTwoLocations(LATITUDE,
+                LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE);
+
+        verify(application, atLeastOnce()).getString(R.string.is_open);
+        verify(application, atLeastOnce()).getString(R.string.is_close);
+        verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
+    }
+
+    @Test
+    public void get_restaurants_view_state_if_workmates_have_chosen_null_with_search() {
+        // GIVEN
+        workmatesHaveChosenLiveData.setValue(null);
+
+        // WHEN
+        List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(
+                restaurantsViewModel.getRestaurantsLiveData());
 
         assertNotNull(restaurantsItemViewState);
         assertEquals(2, restaurantsItemViewState.size());
@@ -153,12 +281,40 @@ public class RestaurantsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
-        verify(currentLocationRepositoryMock, atLeastOnce()).getDistanceFromTwoLocations(LATITUDE, LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE);
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock, currentLocationRepositoryMock);
+        verify(currentLocationRepositoryMock, atLeastOnce()).getDistanceFromTwoLocations(LATITUDE,
+                LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE);
+
+        verify(application, atLeastOnce()).getString(R.string.is_open);
+        verify(application, atLeastOnce()).getString(R.string.is_close);
+        verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
     @Test
-    public void get_restaurants_view_state_if_workmates_have_chosen_and_restaurants_are_null() {
+    public void get_restaurants_view_state_if_workmates_have_chosen_and_restaurants_are_null_with_no_search() {
+        // WHEN
+        searchInputLiveData.setValue("");
+        restaurantsLiveData.setValue(null);
+        workmatesHaveChosenLiveData.setValue(null);
+
+        List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(restaurantsViewModel.getRestaurantsLiveData());
+
+        assertNotNull(restaurantsItemViewState);
+        assertEquals(0, restaurantsItemViewState.size());
+
+        verify(currentLocation, atLeastOnce()).getLat();
+        verify(currentLocation, atLeastOnce()).getLng();
+        verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
+    }
+
+    @Test
+    public void get_restaurants_view_state_if_workmates_have_chosen_and_restaurants_are_null_with_search() {
         // WHEN
         restaurantsLiveData.setValue(null);
         workmatesHaveChosenLiveData.setValue(null);
@@ -171,14 +327,17 @@ public class RestaurantsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock, currentLocationRepositoryMock);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
     private List<Restaurant> getDefaultRestaurants() {
         List<Restaurant> restaurants = new ArrayList<>();
 
         restaurants.add(new Restaurant("1", RESTAURANT_NAME, ADDRESS, RESTAURANT_IS_OPEN_TRUE, RATING, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE, PICTURE_URL));
-        restaurants.add(new Restaurant("2", RESTAURANT_NAME, ADDRESS, RESTAURANT_IS_OPEN_FALSE, RATING, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE, PICTURE_URL_EMPTY));
+        restaurants.add(new Restaurant("2", RESTAURANT_NAME_1, ADDRESS, RESTAURANT_IS_OPEN_FALSE, RATING, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE, PICTURE_URL_EMPTY));
+        restaurants.add(new Restaurant("3", RESTAURANT_NAME_2, ADDRESS, RESTAURANT_IS_OPEN_FALSE, RATING, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE, PICTURE_URL_EMPTY));
 
         return restaurants;
     }
@@ -187,7 +346,17 @@ public class RestaurantsViewModelTest {
         List<RestaurantItemViewState> restaurants = new ArrayList<>();
 
         restaurants.add(new RestaurantItemViewState("1", RESTAURANT_NAME, ADDRESS, FORMATTED_OPEN_DESCRIPTION_IS_OPEN, FORMATTED_DISTANCE_TO_RESTAURANT, FORMATTED_NUMBER_OF_WORKMATES, 2, PICTURE_URL));
-        restaurants.add(new RestaurantItemViewState("2", RESTAURANT_NAME, ADDRESS, FORMATTED_OPEN_DESCRIPTION_IS_CLOSE, FORMATTED_DISTANCE_TO_RESTAURANT, FORMATTED_NUMBER_OF_WORKMATES, 2, DEFAULT_PICTURE_URL_EMPTY));
+        restaurants.add(new RestaurantItemViewState("2", RESTAURANT_NAME_1, ADDRESS, FORMATTED_OPEN_DESCRIPTION_IS_CLOSE, FORMATTED_DISTANCE_TO_RESTAURANT, FORMATTED_NUMBER_OF_WORKMATES_1, 2, DEFAULT_PICTURE_URL_EMPTY));
+        restaurants.add(new RestaurantItemViewState("3", RESTAURANT_NAME_2, ADDRESS, FORMATTED_OPEN_DESCRIPTION_IS_CLOSE, FORMATTED_DISTANCE_TO_RESTAURANT, FORMATTED_NUMBER_OF_NO_WORKMATES, 2, DEFAULT_PICTURE_URL_EMPTY));
+
+        return restaurants;
+    }
+
+    private List<RestaurantItemViewState> getDefaultRestaurantsItemViewStateAfterQuery() {
+        List<RestaurantItemViewState> restaurants = new ArrayList<>();
+
+        restaurants.add(new RestaurantItemViewState("1", RESTAURANT_NAME, ADDRESS, FORMATTED_OPEN_DESCRIPTION_IS_OPEN, FORMATTED_DISTANCE_TO_RESTAURANT, FORMATTED_NUMBER_OF_WORKMATES, 2, PICTURE_URL));
+        restaurants.add(new RestaurantItemViewState("2", RESTAURANT_NAME_1, ADDRESS, FORMATTED_OPEN_DESCRIPTION_IS_CLOSE, FORMATTED_DISTANCE_TO_RESTAURANT, FORMATTED_NUMBER_OF_WORKMATES_1, 2, DEFAULT_PICTURE_URL_EMPTY));
 
         return restaurants;
     }
@@ -195,8 +364,9 @@ public class RestaurantsViewModelTest {
     private List<Workmate> getDefaultWorkmatesHaveChosen() {
         List<Workmate> workmates = new ArrayList<>();
 
-        workmates.add(new Workmate("1", "workmate1", "mail", "1", "1"));
-        workmates.add(new Workmate("2", "workmate2", "mail", "1", "2"));
+        workmates.add(new Workmate("1", "workmate1", "mail", "1", "1", RESTAURANT_NAME));
+        workmates.add(new Workmate("2", "workmate2", "mail", "1", "2", RESTAURANT_NAME_1));
+        workmates.add(new Workmate("3", "workmate3", "mail", "1", "1", RESTAURANT_NAME));
 
         return workmates;
     }
