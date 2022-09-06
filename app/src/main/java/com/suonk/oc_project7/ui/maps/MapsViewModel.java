@@ -10,18 +10,14 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.model.data.places.Place;
-import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
-import com.suonk.oc_project7.ui.restaurants.list.RestaurantItemViewState;
 import com.suonk.oc_project7.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -50,17 +46,14 @@ public class MapsViewModel extends ViewModel {
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
         LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
-        viewStatesLiveData.addSource(listPlacesLiveData, places -> {
-            combine(places, workmatesHaveChosen.getValue(), currentUserSearchLiveData.getValue());
-        });
+        viewStatesLiveData.addSource(listPlacesLiveData, places ->
+                combine(places, workmatesHaveChosen.getValue(), currentUserSearchLiveData.getValue()));
 
-        viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> {
-            combine(listPlacesLiveData.getValue(), workmates, currentUserSearchLiveData.getValue());
-        });
+        viewStatesLiveData.addSource(workmatesHaveChosen, workmates ->
+                combine(listPlacesLiveData.getValue(), workmates, currentUserSearchLiveData.getValue()));
 
-        viewStatesLiveData.addSource(currentUserSearchLiveData, query -> {
-            combine(listPlacesLiveData.getValue(), workmatesHaveChosen.getValue(), query);
-        });
+        viewStatesLiveData.addSource(currentUserSearchLiveData, query ->
+                combine(listPlacesLiveData.getValue(), workmatesHaveChosen.getValue(), query));
     }
 
     private void combine(@Nullable List<Place> places, @Nullable List<Workmate> workmates,
