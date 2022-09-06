@@ -7,12 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -39,6 +37,7 @@ import com.suonk.oc_project7.ui.auth.AuthActivity;
 import com.suonk.oc_project7.ui.maps.MapsFragment;
 import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActivity;
 import com.suonk.oc_project7.ui.restaurants.list.ListRestaurantsFragment;
+import com.suonk.oc_project7.ui.settings.SettingsActivity;
 import com.suonk.oc_project7.ui.workmates.WorkmatesFragment;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -170,22 +169,13 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.home: {
-
-                break;
-            }
-            case R.id.settings: {
-
-                break;
-            }
-            case R.id.logout: {
-                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                    FirebaseAuth.getInstance().signOut();
-                    startActivity(new Intent(this, AuthActivity.class));
-                    finish();
-                }
-                break;
+        if (item.getItemId() == R.id.settings) {
+            startActivity(new Intent(this, SettingsActivity.class));
+        } else if (item.getItemId() == R.id.logout) {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(this, AuthActivity.class));
+                finish();
             }
         }
         binding.drawerLayout.closeDrawer(GravityCompat.START);
@@ -224,26 +214,22 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.orange));
         binding.toolbar.setTitleTextColor(AppCompatResources.getColorStateList(this, R.color.white));
-        getSupportActionBar().setTitle(getString(R.string.toolbar_title));
+        getSupportActionBar().setTitle(getString(R.string.main_toolbar_title));
     }
 
     private void setupBottomNavigationView() {
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             Fragment fragmentToCommit;
 
-            switch (item.getItemId()) {
-                case R.id.nav_restaurant:
-                    showFragmentAndHideList();
-                    fragmentToCommit = ListRestaurantsFragment.newInstance();
-                    break;
-                case R.id.nav_workmates:
-                    showFragmentAndHideList();
-                    fragmentToCommit = WorkmatesFragment.newInstance();
-                    break;
-                default:
-                    showFragmentAndHideList();
-                    fragmentToCommit = MapsFragment.newInstance();
-                    break;
+            if (item.getItemId() == R.id.nav_restaurant) {
+                showFragmentAndHideList();
+                fragmentToCommit = ListRestaurantsFragment.newInstance();
+            } else if (item.getItemId() == R.id.nav_workmates) {
+                showFragmentAndHideList();
+                fragmentToCommit = WorkmatesFragment.newInstance();
+            } else {
+                showFragmentAndHideList();
+                fragmentToCommit = MapsFragment.newInstance();
             }
 
             getSupportFragmentManager().beginTransaction()

@@ -1,15 +1,13 @@
 package com.suonk.oc_project7.ui.maps;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.suonk.oc_project7.R;
@@ -19,10 +17,7 @@ import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
-import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
-import com.suonk.oc_project7.ui.main.MainViewModel;
-import com.suonk.oc_project7.ui.restaurants.list.RestaurantItemViewState;
 import com.suonk.oc_project7.utils.TestUtils;
 
 import org.junit.Before;
@@ -340,9 +335,9 @@ public class MapsViewModelTest {
     private List<Workmate> getDefaultWorkmatesHaveChosen() {
         List<Workmate> workmates = new ArrayList<>();
 
-        workmates.add(new Workmate("1", "workmate1", EMAIL, PICTURE_URL, DEFAULT_ID, RESTAURANT_NAME));
-        workmates.add(new Workmate("2", "workmate2", EMAIL, PICTURE_URL, DEFAULT_ID_2, RESTAURANT_NAME_1));
-        workmates.add(new Workmate("3", "workmate3", EMAIL, PICTURE_URL, DEFAULT_ID, RESTAURANT_NAME));
+        workmates.add(new Workmate("1", "workmate1", EMAIL, PICTURE_URL, DEFAULT_ID, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("2", "workmate2", EMAIL, PICTURE_URL, DEFAULT_ID_2, RESTAURANT_NAME_1, new ArrayList<>()));
+        workmates.add(new Workmate("3", "workmate3", EMAIL, PICTURE_URL, DEFAULT_ID, RESTAURANT_NAME, new ArrayList<>()));
 
         return workmates;
     }

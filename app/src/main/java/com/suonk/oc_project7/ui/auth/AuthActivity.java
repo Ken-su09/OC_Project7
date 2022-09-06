@@ -25,12 +25,9 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityAuthBinding;
-import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.ui.main.MainActivity;
-import com.suonk.oc_project7.ui.workmates.WorkmatesViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -42,7 +39,6 @@ public class AuthActivity extends AppCompatActivity {
     @NonNull
     private final CallbackManager callbackManager = CallbackManager.Factory.create();
 
-    private ActivityAuthBinding binding;
     private AuthViewModel viewModel;
 
     @Override
@@ -57,13 +53,13 @@ public class AuthActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(AuthViewModel.class);
 
-        binding = ActivityAuthBinding.inflate(getLayoutInflater());
+        ActivityAuthBinding binding = ActivityAuthBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         binding.facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                handleFacebookToken(loginResult.getAccessToken());
+                handleFacebookToken(binding, loginResult.getAccessToken());
             }
 
             @Override
@@ -124,17 +120,21 @@ public class AuthActivity extends AppCompatActivity {
 
 
     private void updateFirestore() {
-        Toast.makeText(this, "Hello, " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+            Toast.makeText(this, "Hello, " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
+        }
     }
 
-    private void handleFacebookToken(AccessToken token) {
+    private void handleFacebookToken(ActivityAuthBinding binding, AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                binding.profileName.setText(user.getDisplayName());
-                binding.profileImage.setImageURI(user.getPhotoUrl());
-                Log.i("FirebaseUser", "" + user.getDisplayName());
+
+                if (user != null) {
+                    binding.profileName.setText(user.getDisplayName());
+                    binding.profileImage.setImageURI(user.getPhotoUrl());
+                }
 
                 updateFirestore();
             }

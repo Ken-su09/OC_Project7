@@ -7,13 +7,13 @@ import java.util.Objects;
 public class MainViewState {
 
     @NonNull
-    private String displayName;
+    private final String displayName;
 
     @NonNull
-    private String email;
+    private final String email;
 
     @NonNull
-    private String photoUrl;
+    private final String photoUrl;
 
     public MainViewState(@NonNull String displayName, @NonNull String email, @NonNull String photoUrl) {
         this.displayName = displayName;
@@ -49,6 +49,7 @@ public class MainViewState {
         return Objects.hash(displayName, email, photoUrl);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MainViewState{" +

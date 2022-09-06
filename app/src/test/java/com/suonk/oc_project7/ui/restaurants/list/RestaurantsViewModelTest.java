@@ -2,7 +2,6 @@ package com.suonk.oc_project7.ui.restaurants.list;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -20,7 +19,6 @@ import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepositoryImpl;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
-import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepositoryImpl;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
@@ -88,9 +86,6 @@ public class RestaurantsViewModelTest {
 
     private static final String FORMATTED_OPEN_DESCRIPTION_IS_OPEN = "FORMATTED_OPEN_DESCRIPTION_IS_OPEN";
     private static final String FORMATTED_OPEN_DESCRIPTION_IS_CLOSE = "FORMATTED_OPEN_DESCRIPTION_IS_CLOSE";
-
-    private static final String IS_OPEN = "IS_OPEN";
-    private static final String IS_CLOSE = "IS_CLOSE";
 
     private static final String TEXT_TO_HIGHLIGHT = "PIZ";
 
@@ -196,6 +191,35 @@ public class RestaurantsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES);
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
+
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
+                currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
+    }
+
+    @Test
+    public void get_restaurants_view_state_list_with_search_null() {
+        // GIVEN
+        searchInputLiveData.setValue(null);
+
+        // WHEN
+        List<RestaurantItemViewState> restaurantsItemViewState = TestUtils.getValueForTesting(restaurantsViewModel.getRestaurantsLiveData());
+
+        assertNotNull(restaurantsItemViewState);
+        assertEquals(3, restaurantsItemViewState.size());
+        assertEquals(getDefaultRestaurantsItemViewState(), restaurantsItemViewState);
+
+        verify(currentLocation, atLeastOnce()).getLat();
+        verify(currentLocation, atLeastOnce()).getLng();
+        verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
+        verify(currentLocationRepositoryMock, atLeastOnce()).getDistanceFromTwoLocations(LATITUDE,
+                LONGITUDE, RESTAURANT_LATITUDE, RESTAURANT_LONGITUDE);
+
+        verify(application, atLeastOnce()).getString(R.string.is_open);
+        verify(application, atLeastOnce()).getString(R.string.is_close);
+        verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
+        verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
 
         Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesRepositoryMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
@@ -364,9 +388,10 @@ public class RestaurantsViewModelTest {
     private List<Workmate> getDefaultWorkmatesHaveChosen() {
         List<Workmate> workmates = new ArrayList<>();
 
-        workmates.add(new Workmate("1", "workmate1", "mail", "1", "1", RESTAURANT_NAME));
-        workmates.add(new Workmate("2", "workmate2", "mail", "1", "2", RESTAURANT_NAME_1));
-        workmates.add(new Workmate("3", "workmate3", "mail", "1", "1", RESTAURANT_NAME));
+        workmates.add(new Workmate("1", "workmate1", "mail", "1", "1", RESTAURANT_NAME, new ArrayList<>()
+        ));
+        workmates.add(new Workmate("2", "workmate2", "mail", "1", "2", RESTAURANT_NAME_1, new ArrayList<>()));
+        workmates.add(new Workmate("3", "workmate3", "mail", "1", "1", RESTAURANT_NAME, new ArrayList<>()));
 
         return workmates;
     }

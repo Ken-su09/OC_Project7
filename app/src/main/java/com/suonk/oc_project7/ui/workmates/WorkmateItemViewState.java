@@ -1,10 +1,6 @@
 package com.suonk.oc_project7.ui.workmates;
 
-import android.service.autofill.CharSequenceTransformation;
-
 import androidx.annotation.NonNull;
-
-import com.suonk.oc_project7.model.data.workmate.Workmate;
 
 import java.util.Objects;
 
@@ -19,9 +15,9 @@ public class WorkmateItemViewState {
     @NonNull
     private final String pictureUrl;
 
-    private int textColor;
+    private final int textColor;
 
-    private int textStyle;
+    private final int textStyle;
 
     public WorkmateItemViewState(
             @NonNull String id,
@@ -73,6 +69,7 @@ public class WorkmateItemViewState {
         return Objects.hash(id, sentence, pictureUrl, textColor, textStyle);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "WorkmateItemViewState{" +

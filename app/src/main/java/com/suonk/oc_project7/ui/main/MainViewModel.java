@@ -1,7 +1,6 @@
 package com.suonk.oc_project7.ui.main;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,11 +40,11 @@ public class MainViewModel extends ViewModel {
 
     private final MutableLiveData<Boolean> isPermissionEnabledLiveData = new MutableLiveData<>();
 
-    private MutableLiveData<MainViewState> mainViewStateLiveData = new MutableLiveData<>();
+    private final MutableLiveData<MainViewState> mainViewStateLiveData = new MutableLiveData<>();
 
     private final MediatorLiveData<List<MainItemViewState>> itemViewStates = new MediatorLiveData<>();
 
-    private MutableLiveData<CharSequence> searchInputLiveData = new MutableLiveData<>();
+    private final MutableLiveData<CharSequence> searchInputLiveData = new MutableLiveData<>();
 
     private final PermissionChecker permissionChecker;
 
@@ -61,8 +60,6 @@ public class MainViewModel extends ViewModel {
         this.permissionChecker = permissionChecker;
 
         LiveData<List<PlaceAutocomplete>> placesAutocompleteLiveData = Transformations.switchMap(searchInputLiveData, input -> {
-//            return placesRepository.getPlacesAutocomplete(Locale.getDefault().getLanguage(),
-//                    currentLocation.getLat() + "," + currentLocation.getLng(), input);
             if (input != null) {
                 return placesRepository.getPlacesAutocomplete(Locale.getDefault().getLanguage(), input.toString());
             } else {
@@ -70,13 +67,11 @@ public class MainViewModel extends ViewModel {
             }
         });
 
-        itemViewStates.addSource(placesAutocompleteLiveData, placesAutocomplete -> {
-            combine(placesAutocomplete, searchInputLiveData.getValue());
-        });
+        itemViewStates.addSource(placesAutocompleteLiveData, placesAutocomplete ->
+                combine(placesAutocomplete, searchInputLiveData.getValue()));
 
-        itemViewStates.addSource(searchInputLiveData, input -> {
-            combine(placesAutocompleteLiveData.getValue(), input);
-        });
+        itemViewStates.addSource(searchInputLiveData, input ->
+                combine(placesAutocompleteLiveData.getValue(), input));
     }
 
     private void combine(@Nullable List<PlaceAutocomplete> placesAutocomplete, @Nullable CharSequence input) {
@@ -84,12 +79,12 @@ public class MainViewModel extends ViewModel {
 
         if (placesAutocomplete != null) {
             for (PlaceAutocomplete placeAutocomplete : placesAutocomplete) {
-                if (input != null && placeAutocomplete.getRestaurantName().contains(input)) {
-                    CustomSpannable textToHighlight = setHighLightedText(
-                            placeAutocomplete.getRestaurantName(),
-                            input.toString());
+                if (input != null) {
+                    if (placeAutocomplete.getRestaurantName().contains(input)) {
+                        CustomSpannable textToHighlight = setHighLightedText(
+                                placeAutocomplete.getRestaurantName(),
+                                input.toString());
 
-                    if (textToHighlight != null) {
                         mainItemViewStates.add(new MainItemViewState(
                                 placeAutocomplete.getPlaceId(),
                                 placeAutocomplete.getRestaurantName(),

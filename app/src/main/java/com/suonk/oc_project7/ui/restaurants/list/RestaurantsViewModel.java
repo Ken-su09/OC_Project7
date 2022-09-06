@@ -1,7 +1,6 @@
 package com.suonk.oc_project7.ui.restaurants.list;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,14 +15,11 @@ import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
-import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
-import com.suonk.oc_project7.ui.workmates.WorkmateItemViewState;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -40,7 +36,6 @@ public class RestaurantsViewModel extends ViewModel {
     @NonNull
     CurrentLocationRepository locationRepository;
 
-    @NonNull
     private CurrentLocation currentLocation;
 
     final Context context;
@@ -113,7 +108,18 @@ public class RestaurantsViewModel extends ViewModel {
 
                 double rating = restaurant.getRating() / 1.66666666667;
 
-                if (query == null || restaurant.getRestaurantName().contains(query)) {
+                if (query == null) {
+                    restaurantsItemViews.add(new RestaurantItemViewState(
+                            restaurant.getRestaurantId(),
+                            restaurant.getRestaurantName(),
+                            restaurant.getAddress(),
+                            isOpen,
+                            context.getString(R.string.distance_restaurant, (int) distance),
+                            context.getString(R.string.number_of_workmates, numberOfWorkmates),
+                            (int) rating,
+                            picture
+                    ));
+                } else if (restaurant.getRestaurantName().contains(query)) {
                     restaurantsItemViews.add(new RestaurantItemViewState(
                             restaurant.getRestaurantId(),
                             restaurant.getRestaurantName(),

@@ -2,6 +2,9 @@ package com.suonk.oc_project7.ui.workmates;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,18 +12,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.FragmentWorkmatesBinding;
-import com.suonk.oc_project7.events.OnRestaurantEventListener;
-import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.ui.main.MainActivity;
-import com.suonk.oc_project7.ui.restaurants.list.RestaurantsListAdapter;
-import com.suonk.oc_project7.ui.restaurants.list.RestaurantsViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 

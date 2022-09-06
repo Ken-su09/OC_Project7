@@ -86,7 +86,7 @@ public class WorkmatesViewModelTest {
     //endregion
 
     @Before
-    public void setup() throws Exception {
+    public void setup() {
         doReturn(workmatesMutableLiveData).when(workmatesRepositoryMock).getAllWorkmatesFromFirestoreLiveData();
         doReturn(workmatesHaveChosenMutableLiveData).when(workmatesRepositoryMock).getWorkmatesHaveChosenTodayLiveData();
         doReturn(currentUserSearchLiveData).when(currentUserSearchRepository).getCurrentUserSearchLiveData();
@@ -112,7 +112,7 @@ public class WorkmatesViewModelTest {
 
         workmatesMutableLiveData.setValue(getDefaultWorkmates());
         workmatesHaveChosenMutableLiveData.setValue(getDefaultWorkmatesHaveChosen());
-        currentUserSearchLiveData.setValue(getDefaultCurrentUserSearch());
+        currentUserSearchLiveData.setValue(TEXT_TO_HIGHLIGHT);
 
         verify(workmatesRepositoryMock).getAllWorkmatesFromFirestoreLiveData();
         verify(workmatesRepositoryMock).getWorkmatesHaveChosenTodayLiveData();
@@ -381,15 +381,14 @@ public class WorkmatesViewModelTest {
     private List<Workmate> getDefaultWorkmates() {
         List<Workmate> workmates = new ArrayList<>();
 
-        workmates.add(new Workmate(UID, U_NAME, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME));
-        workmates.add(new Workmate("2", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME));
-        workmates.add(new Workmate("3", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME));
-        workmates.add(new Workmate("4", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_1));
-        workmates.add(new Workmate("5", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_2));
-
-        workmates.add(new Workmate("6", WORKMATE_HAS_NOT_CHOSEN_YET, EMAIL, PICTURE_URL, "1", ""));
-        workmates.add(new Workmate("7", WORKMATE_HAS_NOT_CHOSEN_YET, EMAIL, PICTURE_URL, "1", ""));
-        workmates.add(new Workmate("8", WORKMATE_HAS_NOT_CHOSEN_YET, EMAIL, PICTURE_URL, "1", ""));
+        workmates.add(new Workmate(UID, U_NAME, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("2", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("3", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("4", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_1, new ArrayList<>()));
+        workmates.add(new Workmate("5", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_2, new ArrayList<>()));
+        workmates.add(new Workmate("6", WORKMATE_HAS_NOT_CHOSEN_YET, EMAIL, PICTURE_URL, "1", "", new ArrayList<>()));
+        workmates.add(new Workmate("7", WORKMATE_HAS_NOT_CHOSEN_YET, EMAIL, PICTURE_URL, "1", "", new ArrayList<>()));
+        workmates.add(new Workmate("8", WORKMATE_HAS_NOT_CHOSEN_YET, EMAIL, PICTURE_URL, "1", "", new ArrayList<>()));
 
 
         return workmates;
@@ -398,11 +397,11 @@ public class WorkmatesViewModelTest {
     private List<Workmate> getDefaultWorkmatesHaveChosen() {
         List<Workmate> workmates = new ArrayList<>();
 
-        workmates.add(new Workmate(UID, U_NAME, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME));
-        workmates.add(new Workmate("2", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME));
-        workmates.add(new Workmate("3", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME));
-        workmates.add(new Workmate("4", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_1));
-        workmates.add(new Workmate("5", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_2));
+        workmates.add(new Workmate(UID, U_NAME, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("2", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("3", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("4", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_1, new ArrayList<>()));
+        workmates.add(new Workmate("5", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_2, new ArrayList<>()));
 
         return workmates;
     }
@@ -430,9 +429,5 @@ public class WorkmatesViewModelTest {
         workmates.add(new WorkmateItemViewState("4", TEXT_WORKMATE_HAS_CHOSEN_1, PICTURE_URL, TEXT_COLOR_HAS_DECIDED, TEXT_STYLE_HAS_DECIDED));
 
         return workmates;
-    }
-
-    private CharSequence getDefaultCurrentUserSearch() {
-        return TEXT_TO_HIGHLIGHT;
     }
 }

@@ -7,10 +7,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-
-import android.app.Application;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
@@ -187,7 +184,6 @@ public class MainViewModelTest {
         boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
 
         // THEN
-        assertNotNull(isPermissionsEnabled);
         assertFalse(isPermissionsEnabled);
 
         verify(currentLocationRepositoryMock).stopLocationUpdates();
@@ -309,6 +305,42 @@ public class MainViewModelTest {
     public void get_main_item_list_view_state_list_with_on_search_changed_null() {
         // GIVEN
         viewModel.onSearchChanged(null);
+
+        // WHEN
+        List<MainItemViewState> mainItemViewStates = TestUtils.getValueForTesting(viewModel.getMainItemListViewState());
+
+        assertNotNull(mainItemViewStates);
+        assertEquals(0, mainItemViewStates.size());
+
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LANGUAGE, "");
+
+        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
+                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+    }
+
+    @Test
+    public void get_main_item_list_view_state_list_with_search_null() {
+        // GIVEN
+        searchInputLiveData.setValue(null);
+        viewModel.onSearchChanged(null);
+
+        // WHEN
+        List<MainItemViewState> mainItemViewStates = TestUtils.getValueForTesting(viewModel.getMainItemListViewState());
+
+        assertNotNull(mainItemViewStates);
+        assertEquals(0, mainItemViewStates.size());
+
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LANGUAGE, "");
+
+        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
+                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+    }
+
+    @Test
+    public void get_main_item_list_view_state_list_with_on_search_changed_empty_with_search_null() {
+        // GIVEN
+        viewModel.onSearchChanged("");
+        searchInputLiveData.setValue(null);
 
         // WHEN
         List<MainItemViewState> mainItemViewStates = TestUtils.getValueForTesting(viewModel.getMainItemListViewState());

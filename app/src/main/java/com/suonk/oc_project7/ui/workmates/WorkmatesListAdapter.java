@@ -1,5 +1,6 @@
 package com.suonk.oc_project7.ui.workmates;
 
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -39,6 +40,7 @@ public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, Wor
             this.binding = binding;
         }
 
+        @SuppressLint("WrongConstant")
         public void onBind(WorkmateItemViewState workmateItemViewState) {
             binding.name.setText(workmateItemViewState.getSentence());
             binding.name.setTypeface(binding.name.getTypeface(), workmateItemViewState.getTextStyle());

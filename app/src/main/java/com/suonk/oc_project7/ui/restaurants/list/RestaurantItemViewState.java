@@ -1,7 +1,5 @@
 package com.suonk.oc_project7.ui.restaurants.list;
 
-import android.text.SpannableString;
-
 import androidx.annotation.NonNull;
 
 import java.util.Objects;
@@ -26,7 +24,6 @@ public class RestaurantItemViewState {
     @NonNull
     private final String numberOfWorkmates;
 
-    @NonNull
     private final int rating;
 
     @NonNull
@@ -35,7 +32,7 @@ public class RestaurantItemViewState {
     public RestaurantItemViewState(@NonNull String placeId, @NonNull String restaurantName,
                                    @NonNull String address, @NonNull String openDescription,
                                    @NonNull String distance, @NonNull String numberOfWorkmates,
-                                   @NonNull int rating, @NonNull String pictureUrl
+                                   int rating, @NonNull String pictureUrl
     ) {
         this.placeId = placeId;
         this.restaurantName = restaurantName;
@@ -99,6 +96,7 @@ public class RestaurantItemViewState {
         return Objects.hash(placeId, restaurantName, address, openDescription, distance, numberOfWorkmates, rating, pictureUrl);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "RestaurantItemViewState{" +
