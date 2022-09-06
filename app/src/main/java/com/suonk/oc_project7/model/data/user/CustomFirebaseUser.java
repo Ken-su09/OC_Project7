@@ -1,8 +1,5 @@
 package com.suonk.oc_project7.model.data.user;
 
-import android.content.Context;
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 
 import java.util.Objects;

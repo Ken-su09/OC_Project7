@@ -3,20 +3,17 @@ package com.suonk.oc_project7.model.data.place_details;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 import java.util.Objects;
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 public class AddressComponent {
 
     @NonNull
-    @SerializedName("long_name")
     private final String longName;
 
     @NonNull
-    @SerializedName("short_name")
     private final String shortName;
 
     @NonNull
@@ -27,18 +24,6 @@ public class AddressComponent {
         this.longName = longName;
         this.shortName = shortName;
         this.types = types;
-    }
-
-    public String getLongName() {
-        return longName;
-    }
-
-    public String getShortName() {
-        return shortName;
-    }
-
-    public List<String> getTypes() {
-        return types;
     }
 
     @Override
@@ -54,6 +39,7 @@ public class AddressComponent {
         return Objects.hash(longName, shortName, types);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "AddressComponent{" +

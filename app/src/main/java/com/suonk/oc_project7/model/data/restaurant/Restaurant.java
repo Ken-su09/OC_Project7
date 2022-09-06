@@ -2,8 +2,6 @@ package com.suonk.oc_project7.model.data.restaurant;
 
 import androidx.annotation.NonNull;
 
-import com.suonk.oc_project7.model.data.places.Place;
-
 import java.util.Objects;
 
 public class Restaurant {
@@ -99,6 +97,7 @@ public class Restaurant {
         return Objects.hash(restaurantId, restaurantName, address, isOpen, rating, latitude, longitude, pictureUrl);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Restaurant{" +

@@ -9,7 +9,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.api.PlacesApiService;
 import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
-import com.suonk.oc_project7.model.data.user.CustomFirebaseUser;
 
 import javax.inject.Singleton;
 

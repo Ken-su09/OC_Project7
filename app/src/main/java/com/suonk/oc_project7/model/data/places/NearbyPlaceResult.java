@@ -8,41 +8,56 @@ import java.util.Objects;
 public class NearbyPlaceResult {
 
     @NonNull
-    private String business_status;
+    private final String business_status;
+
     @NonNull
     private Geometry geometry;
+
     @NonNull
-    private String icon;
+    private final String icon;
+
     @NonNull
-    private String icon_background_color;
+    private final String icon_background_color;
+
     @NonNull
     private final String icon_mask_base_uri;
-    @NonNull
-    private String name;
-    @NonNull
-    private OpeningHours opening_hours;
-    @NonNull
-    private Boolean permanently_closed = false;
-    @NonNull
-    private List<Photo> photos;
-    @NonNull
-    private String place_id;
-    @NonNull
-    private PlusCode plus_code;
-    @NonNull
-    private int price_level = 0;
-    @NonNull
-    private Double rating = 0.0;
-    @NonNull
-    private String reference = "";
-    @NonNull
-    private String scope = "";
-    @NonNull
-    private List<String> types;
 
-    private int user_ratings_total = 0;
     @NonNull
-    private String vicinity = "";
+    private final String name;
+
+    @NonNull
+    private final OpeningHours opening_hours;
+
+    @NonNull
+    private final Boolean permanently_closed;
+
+    @NonNull
+    private final List<Photo> photos;
+
+    @NonNull
+    private final String place_id;
+
+    @NonNull
+    private final PlusCode plus_code;
+
+    private final int price_level;
+
+    @NonNull
+    private final Double rating;
+
+    @NonNull
+    private final String reference;
+
+    @NonNull
+    private final String scope;
+
+    @NonNull
+    private final List<String> types;
+
+    private final int user_ratings_total;
+
+    @NonNull
+    private final String vicinity;
 
     public NearbyPlaceResult(
             @NonNull String business_status,
@@ -56,12 +71,12 @@ public class NearbyPlaceResult {
             @NonNull List<Photo> photos,
             @NonNull String placeId,
             @NonNull PlusCode plus_code,
-            @NonNull int price_level,
+            int price_level,
             @NonNull Double rating,
             @NonNull String reference,
             @NonNull String scope,
             @NonNull List<String> types,
-            @NonNull int user_ratings_total,
+            int user_ratings_total,
             @NonNull String vicinity) {
         this.business_status = business_status;
         this.geometry = geometry;
@@ -159,6 +174,7 @@ public class NearbyPlaceResult {
                 reference, scope, types, user_ratings_total, vicinity);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Result{" +

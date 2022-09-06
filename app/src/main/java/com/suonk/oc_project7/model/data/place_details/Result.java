@@ -3,12 +3,8 @@ package com.suonk.oc_project7.model.data.place_details;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import java.util.List;
 import java.util.Objects;
-
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 import com.suonk.oc_project7.model.data.places.Geometry;
 import com.suonk.oc_project7.model.data.places.OpeningHours;
 import com.suonk.oc_project7.model.data.places.Photo;
@@ -17,105 +13,79 @@ import com.suonk.oc_project7.model.data.places.PlusCode;
 public class Result {
 
     @NonNull
-    @SerializedName("address_components")
-    private List<AddressComponent> address_components;
+    private final List<AddressComponent> address_components;
 
     @NonNull
-    @SerializedName("adr_address")
-    private String adr_address;
+    private final String adr_address;
 
     @NonNull
-    @SerializedName("business_status")
-    private String business_status;
+    private final String business_status;
 
     @NonNull
-    @SerializedName("formatted_address")
-    private String formatted_address;
+    private final String formatted_address;
 
     @NonNull
-    @SerializedName("formatted_phone_number")
-    private String formatted_phone_number;
+    private final String formatted_phone_number;
 
     @NonNull
-    @Expose
-    private Geometry geometry;
+    private final Geometry geometry;
 
     @NonNull
-    @Expose
-    private String icon;
+    private final String icon;
 
     @NonNull
-    @SerializedName("icon_background_color")
-    private String icon_background_color;
+    private final String icon_background_color;
 
     @NonNull
-    @SerializedName("icon_mask_base_uri")
-    private String icon_mask_base_uri;
+    private final String icon_mask_base_uri;
 
     @NonNull
-    @SerializedName("international_phone_number")
-    private String international_phone_number;
+    private final String international_phone_number;
 
     @NonNull
-    @Expose
-    private String name;
+    private final String name;
 
     @NonNull
-    @SerializedName("opening_hours")
-    private OpeningHours opening_hours;
+    private final OpeningHours opening_hours;
 
     @Nullable
-    @Expose
-    private List<Photo> photos;
+    private final List<Photo> photos;
 
     @NonNull
-    @SerializedName("place_id")
-    private String place_id;
-
+    private final String place_id;
 
     @NonNull
-    @SerializedName("plus_code")
-    private PlusCode plus_code;
+    private final PlusCode plus_code;
 
     @NonNull
-    @SerializedName("price_level")
-    private Long price_level;
+    private final Long price_level;
 
     @NonNull
-    @Expose
-    private Double rating;
+    private final Double rating;
 
     @NonNull
-    @Expose
-    private String reference;
+    private final String reference;
 
     @NonNull
-    @Expose
-    private List<Review> reviews;
+    private final List<Review> reviews;
 
     @NonNull
-    @Expose
-    private List<String> types;
+    private final List<String> types;
 
     @NonNull
-    @Expose
-    private String url;
+    private final String url;
 
     @NonNull
-    @SerializedName("user_ratings_total")
-    private Long user_ratings_total;
+    private final Long user_ratings_total;
 
     @NonNull
-    @SerializedName("utc_offset")
-    private Long utc_offset;
+    private final Long utc_offset;
 
     @NonNull
-    @Expose
-    private String vicinity;
+    private final String vicinity;
 
     @NonNull
-    @Expose
-    private String website;
+    private final String website;
 
     public Result(@NonNull List<AddressComponent> address_components,
                   @NonNull String adr_address,
@@ -170,48 +140,8 @@ public class Result {
     }
 
     @NonNull
-    public List<AddressComponent> getAddress_components() {
-        return address_components;
-    }
-
-    @NonNull
-    public String getAdr_address() {
-        return adr_address;
-    }
-
-    @NonNull
-    public String getBusiness_status() {
-        return business_status;
-    }
-
-    @NonNull
     public String getFormatted_address() {
         return formatted_address;
-    }
-
-    @NonNull
-    public String getFormatted_phone_number() {
-        return formatted_phone_number;
-    }
-
-    @NonNull
-    public Geometry getGeometry() {
-        return geometry;
-    }
-
-    @NonNull
-    public String getIcon() {
-        return icon;
-    }
-
-    @NonNull
-    public String getIcon_background_color() {
-        return icon_background_color;
-    }
-
-    @NonNull
-    public String getIcon_mask_base_uri() {
-        return icon_mask_base_uri;
     }
 
     @NonNull
@@ -222,11 +152,6 @@ public class Result {
     @NonNull
     public String getName() {
         return name;
-    }
-
-    @NonNull
-    public OpeningHours getOpening_hours() {
-        return opening_hours;
     }
 
     @Nullable
@@ -240,53 +165,8 @@ public class Result {
     }
 
     @NonNull
-    public PlusCode getPlus_code() {
-        return plus_code;
-    }
-
-    @NonNull
-    public Long getPrice_level() {
-        return price_level;
-    }
-
-    @NonNull
     public Double getRating() {
         return rating;
-    }
-
-    @NonNull
-    public String getReference() {
-        return reference;
-    }
-
-    @NonNull
-    public List<Review> getReviews() {
-        return reviews;
-    }
-
-    @NonNull
-    public List<String> getTypes() {
-        return types;
-    }
-
-    @NonNull
-    public String getUrl() {
-        return url;
-    }
-
-    @NonNull
-    public Long getUser_ratings_total() {
-        return user_ratings_total;
-    }
-
-    @NonNull
-    public Long getUtc_offset() {
-        return utc_offset;
-    }
-
-    @NonNull
-    public String getVicinity() {
-        return vicinity;
     }
 
     @NonNull
@@ -299,7 +179,10 @@ public class Result {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Result result = (Result) o;
-        return address_components.equals(result.address_components) && adr_address.equals(result.adr_address) && business_status.equals(result.business_status) && formatted_address.equals(result.formatted_address) && formatted_phone_number.equals(result.formatted_phone_number) && geometry.equals(result.geometry) && icon.equals(result.icon) && icon_background_color.equals(result.icon_background_color) && icon_mask_base_uri.equals(result.icon_mask_base_uri) && international_phone_number.equals(result.international_phone_number) && name.equals(result.name) && opening_hours.equals(result.opening_hours) && photos.equals(result.photos) && place_id.equals(result.place_id) && plus_code.equals(result.plus_code) && price_level.equals(result.price_level) && rating.equals(result.rating) && reference.equals(result.reference) && reviews.equals(result.reviews) && types.equals(result.types) && url.equals(result.url) && user_ratings_total.equals(result.user_ratings_total) && utc_offset.equals(result.utc_offset) && vicinity.equals(result.vicinity) && website.equals(result.website);
+        if (!address_components.equals(result.address_components) || !adr_address.equals(result.adr_address) || !business_status.equals(result.business_status) || !formatted_address.equals(result.formatted_address) || !formatted_phone_number.equals(result.formatted_phone_number) || !geometry.equals(result.geometry) || !icon.equals(result.icon) || !icon_background_color.equals(result.icon_background_color) || !icon_mask_base_uri.equals(result.icon_mask_base_uri) || !international_phone_number.equals(result.international_phone_number) || !name.equals(result.name) || !opening_hours.equals(result.opening_hours))
+            return false;
+        assert photos != null;
+        return photos.equals(result.photos) && place_id.equals(result.place_id) && plus_code.equals(result.plus_code) && price_level.equals(result.price_level) && rating.equals(result.rating) && reference.equals(result.reference) && reviews.equals(result.reviews) && types.equals(result.types) && url.equals(result.url) && user_ratings_total.equals(result.user_ratings_total) && utc_offset.equals(result.utc_offset) && vicinity.equals(result.vicinity) && website.equals(result.website);
     }
 
     @Override
@@ -307,6 +190,7 @@ public class Result {
         return Objects.hash(address_components, adr_address, business_status, formatted_address, formatted_phone_number, geometry, icon, icon_background_color, icon_mask_base_uri, international_phone_number, name, opening_hours, photos, place_id, plus_code, price_level, rating, reference, reviews, types, url, user_ratings_total, utc_offset, vicinity, website);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Result{" +

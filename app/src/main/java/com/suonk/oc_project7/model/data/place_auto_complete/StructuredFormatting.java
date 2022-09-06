@@ -1,41 +1,59 @@
 
 package com.suonk.oc_project7.model.data.place_auto_complete;
 
-import java.util.List;
+import androidx.annotation.NonNull;
 
-import com.google.gson.annotations.SerializedName;
+import java.util.List;
+import java.util.Objects;
 
 public class StructuredFormatting {
 
-    @SerializedName("main_text")
-    private String mMainText;
-    @SerializedName("main_text_matched_substrings")
-    private List<MainTextMatchedSubstring> mMainTextMatchedSubstrings;
-    @SerializedName("secondary_text")
-    private String mSecondaryText;
+    @NonNull
+    private final String mMainText;
+    @NonNull
+    private final List<MainTextMatchedSubstring> mMainTextMatchedSubstrings;
+    @NonNull
+    private final String mSecondaryText;
+
+    public StructuredFormatting(@NonNull String mMainText,
+                                @NonNull List<MainTextMatchedSubstring> mMainTextMatchedSubstrings,
+                                @NonNull String mSecondaryText) {
+        this.mMainText = mMainText;
+        this.mMainTextMatchedSubstrings = mMainTextMatchedSubstrings;
+        this.mSecondaryText = mSecondaryText;
+    }
 
     public String getMainText() {
         return mMainText;
-    }
-
-    public void setMainText(String mainText) {
-        mMainText = mainText;
     }
 
     public List<MainTextMatchedSubstring> getMainTextMatchedSubstrings() {
         return mMainTextMatchedSubstrings;
     }
 
-    public void setMainTextMatchedSubstrings(List<MainTextMatchedSubstring> mainTextMatchedSubstrings) {
-        mMainTextMatchedSubstrings = mainTextMatchedSubstrings;
-    }
-
     public String getSecondaryText() {
         return mSecondaryText;
     }
 
-    public void setSecondaryText(String secondaryText) {
-        mSecondaryText = secondaryText;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StructuredFormatting that = (StructuredFormatting) o;
+        return mMainText.equals(that.mMainText) && mMainTextMatchedSubstrings.equals(that.mMainTextMatchedSubstrings) && mSecondaryText.equals(that.mSecondaryText);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(mMainText, mMainTextMatchedSubstrings, mSecondaryText);
+    }
+
+    @Override
+    public String toString() {
+        return "StructuredFormatting{" +
+                "mMainText='" + mMainText + '\'' +
+                ", mMainTextMatchedSubstrings=" + mMainTextMatchedSubstrings +
+                ", mSecondaryText='" + mSecondaryText + '\'' +
+                '}';
+    }
 }

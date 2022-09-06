@@ -4,42 +4,33 @@ package com.suonk.oc_project7.model.data.place_details;
 import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
 public class Review {
 
     @NonNull
-    @SerializedName("author_name")
     private final String authorName;
 
     @NonNull
-    @SerializedName("author_url")
     private final String authorUrl;
 
     @NonNull
-    @Expose
     private final String language;
 
     @NonNull
-    @SerializedName("profile_photo_url")
     private final String profilePhotoUrl;
 
     @NonNull
-    @Expose
     private final Long rating;
 
     @NonNull
-    @SerializedName("relative_time_description")
     private final String relativeTimeDescription;
 
     @NonNull
-    @Expose
     private final String text;
 
     @NonNull
-    @Expose
     private final Long time;
 
     public Review(@NonNull String authorName,
@@ -60,34 +51,42 @@ public class Review {
         this.time = time;
     }
 
+    @NonNull
     public String getAuthorName() {
         return authorName;
     }
 
+    @NonNull
     public String getAuthorUrl() {
         return authorUrl;
     }
 
+    @NonNull
     public String getLanguage() {
         return language;
     }
 
+    @NonNull
     public String getProfilePhotoUrl() {
         return profilePhotoUrl;
     }
 
+    @NonNull
     public Long getRating() {
         return rating;
     }
 
+    @NonNull
     public String getRelativeTimeDescription() {
         return relativeTimeDescription;
     }
 
+    @NonNull
     public String getText() {
         return text;
     }
 
+    @NonNull
     public Long getTime() {
         return time;
     }
@@ -105,6 +104,7 @@ public class Review {
         return Objects.hash(authorName, authorUrl, language, profilePhotoUrl, rating, relativeTimeDescription, text, time);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Review{" +
