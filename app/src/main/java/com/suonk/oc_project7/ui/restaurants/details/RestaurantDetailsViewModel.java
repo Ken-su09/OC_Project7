@@ -17,17 +17,12 @@ import androidx.lifecycle.ViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 import com.suonk.oc_project7.ui.workmates.WorkmateItemViewState;
-import com.suonk.oc_project7.utils.SingleLiveEvent;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,14 +46,12 @@ public class RestaurantDetailsViewModel extends ViewModel {
     @NonNull
     private final MutableLiveData<List<WorkmateItemViewState>> workmatesViewStateLiveData = new MutableLiveData<>(new ArrayList<>());
 
-    @NonNull
-    private final FirebaseUser firebaseUser;
-
     private final Context context;
 
     private final String placeId;
 
     private String restaurantName;
+    private Workmate user;
 
     @Inject
     public RestaurantDetailsViewModel(@NonNull WorkmatesRepository workmatesRepository,
@@ -69,34 +62,43 @@ public class RestaurantDetailsViewModel extends ViewModel {
         this.restaurantsRepository = restaurantsRepository;
         this.workmatesRepository = workmatesRepository;
         this.context = context;
-        firebaseUser = firebaseAuth.getCurrentUser();
         placeId = savedStateHandle.get(PLACE_ID);
 
-        LiveData<RestaurantDetails> restaurantDetailsLiveData = restaurantsRepository.getRestaurantDetailsById(placeId);
-        LiveData<List<Workmate>> workmatesLiveData = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
-        LiveData<List<Restaurant>> likedRestaurantsLiveData = restaurantsRepository.getLikedRestaurants();
+        LiveData<List<Workmate>> workmatesHaveChosenLiveData = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
 
-        restaurantDetailsViewStateLiveData.addSource(likedRestaurantsLiveData, likedRestaurants -> {
-            combine(workmatesLiveData.getValue(), restaurantDetailsLiveData.getValue(), likedRestaurants);
-        });
+        LiveData<RestaurantDetails> restaurantDetailsLiveData = new MutableLiveData<>();
+        if (placeId != null) {
+            restaurantDetailsLiveData = restaurantsRepository.getRestaurantDetailsById(placeId);
+        }
+        LiveData<RestaurantDetails> finalRestaurantDetailsLiveData = restaurantDetailsLiveData;
 
-        restaurantDetailsViewStateLiveData.addSource(workmatesLiveData, workmates -> {
-            combine(workmates, restaurantDetailsLiveData.getValue(), likedRestaurantsLiveData.getValue());
-        });
+        LiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
+        if (firebaseAuth.getCurrentUser() != null) {
+            FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
+            currentUserLiveData = workmatesRepository.getCurrentUserLiveData(firebaseUser.getUid());
+        }
+        LiveData<Workmate> finalCurrentUserLiveData = currentUserLiveData;
 
-        restaurantDetailsViewStateLiveData.addSource(restaurantDetailsLiveData, restaurantDetails -> {
-            combine(workmatesLiveData.getValue(), restaurantDetails, likedRestaurantsLiveData.getValue());
-        });
+        restaurantDetailsViewStateLiveData.addSource(workmatesHaveChosenLiveData, workmatesHaveChosen ->
+                combine(workmatesHaveChosen, finalRestaurantDetailsLiveData.getValue(), finalCurrentUserLiveData.getValue()));
+
+        restaurantDetailsViewStateLiveData.addSource(finalRestaurantDetailsLiveData, restaurantDetails ->
+                combine(workmatesHaveChosenLiveData.getValue(), restaurantDetails, finalCurrentUserLiveData.getValue()));
+
+        restaurantDetailsViewStateLiveData.addSource(finalCurrentUserLiveData, currentUser ->
+                combine(workmatesHaveChosenLiveData.getValue(), finalRestaurantDetailsLiveData.getValue(), currentUser));
     }
 
-    private void combine(@Nullable List<Workmate> workmates, @Nullable RestaurantDetails restaurantDetails,
-                         @Nullable List<Restaurant> likedRestaurants) {
+    private void combine(@Nullable List<Workmate> workmatesHaveChosen,
+                         @Nullable RestaurantDetails restaurantDetails,
+                         @Nullable Workmate currentUser
+    ) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
         int selectRestaurantButtonIcon = R.drawable.ic_to_select;
 
-        if (workmates != null && placeId != null) {
-            for (Workmate workmate : workmates) {
-                if (!firebaseUser.getUid().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
+        if (workmatesHaveChosen != null && placeId != null) {
+            for (Workmate workmate : workmatesHaveChosen) {
+                if (currentUser != null && !currentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
                     workmatesItemViews.add(new WorkmateItemViewState(
                             workmate.getId(),
                             context.getString(R.string.workmate_has_joined, workmate.getName()),
@@ -104,7 +106,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                             Color.BLACK,
                             Typeface.NORMAL
                     ));
-                } else if (firebaseUser.getUid().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
+                } else if (currentUser != null && currentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
                     selectRestaurantButtonIcon = R.drawable.ic_accept;
                 }
             }
@@ -113,24 +115,26 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
         int likeButtonText = R.string.like;
 
-        if (restaurantDetails != null && likedRestaurants != null) {
+        if (restaurantDetails != null) {
             String picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
 
             if (restaurantDetails.getImage() != null) {
                 picture = restaurantDetails.getImage();
             }
 
-            for (Restaurant restaurant : likedRestaurants) {
-                if (restaurant.getRestaurantId().equals(placeId)) {
-                    likeButtonText = R.string.dislike;
-                    break;
+            if (currentUser != null) {
+                user = currentUser;
+                for (String id : currentUser.getLikedRestaurants()) {
+                    if (id.equals(placeId)) {
+                        likeButtonText = R.string.dislike;
+                        break;
+                    }
                 }
             }
 
             double rating = restaurantDetails.getRating() / 1.66666666667;
 
             restaurantName = restaurantDetails.getRestaurantName();
-            System.out.println("combine() : restaurantName = " + restaurantName);
 
             restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(
                     restaurantDetails.getPlaceId(),
@@ -165,13 +169,14 @@ public class RestaurantDetailsViewModel extends ViewModel {
     }
 
     public void addWorkmate() {
-        System.out.println("addWorkmate() : restaurantName = " + restaurantName);
-        if (restaurantName != null) {
-            workmatesRepository.addWorkmateToHaveChosenTodayList(firebaseUser, placeId, restaurantName);
+        if (restaurantName != null && user != null) {
+            workmatesRepository.addWorkmateToHaveChosenTodayList(user, placeId, restaurantName);
         }
     }
 
     public void toggleIsRestaurantLiked() {
-        restaurantsRepository.toggleIsRestaurantLiked(firebaseUser, placeId);
+        if (restaurantName != null && user != null) {
+            restaurantsRepository.toggleIsRestaurantLiked(user, placeId, restaurantName);
+        }
     }
 }

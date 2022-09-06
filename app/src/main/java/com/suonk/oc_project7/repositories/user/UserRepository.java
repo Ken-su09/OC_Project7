@@ -1,9 +1,9 @@
 package com.suonk.oc_project7.repositories.user;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.suonk.oc_project7.model.data.user.CustomFirebaseUser;
 
 import javax.inject.Inject;
@@ -18,11 +18,20 @@ public class UserRepository {
         this.auth = auth;
     }
 
+    @Nullable
     public CustomFirebaseUser getCustomFirebaseUser() {
-        return new CustomFirebaseUser(
-                auth.getCurrentUser().getDisplayName(),
-                auth.getCurrentUser().getEmail(),
-                auth.getCurrentUser().getPhotoUrl().toString()
-        );
+        if (auth.getCurrentUser() != null &&
+                auth.getCurrentUser().getDisplayName() != null &&
+                auth.getCurrentUser().getEmail() != null &&
+                auth.getCurrentUser().getPhotoUrl() != null
+        ) {
+            return new CustomFirebaseUser(
+                    auth.getCurrentUser().getDisplayName(),
+                    auth.getCurrentUser().getEmail(),
+                    auth.getCurrentUser().getPhotoUrl().toString()
+            );
+        }
+
+        return null;
     }
 }

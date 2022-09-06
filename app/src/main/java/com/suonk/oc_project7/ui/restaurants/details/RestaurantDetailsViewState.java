@@ -2,9 +2,6 @@ package com.suonk.oc_project7.ui.restaurants.details;
 
 import androidx.annotation.NonNull;
 
-import com.suonk.oc_project7.model.data.workmate.Workmate;
-
-import java.util.List;
 import java.util.Objects;
 
 public class RestaurantDetailsViewState {
@@ -18,7 +15,6 @@ public class RestaurantDetailsViewState {
     @NonNull
     private final String address;
 
-    @NonNull
     private final int rating;
 
     @NonNull
@@ -64,7 +60,6 @@ public class RestaurantDetailsViewState {
         return restaurantName;
     }
 
-    @NonNull
     public int getRating() {
         return rating;
     }
@@ -110,6 +105,7 @@ public class RestaurantDetailsViewState {
         return Objects.hash(placeId, restaurantName, address, rating, pictureUrl, phoneNumber, websiteLink, selectButtonIcon, likeButtonText);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "RestaurantDetailsViewState{" +

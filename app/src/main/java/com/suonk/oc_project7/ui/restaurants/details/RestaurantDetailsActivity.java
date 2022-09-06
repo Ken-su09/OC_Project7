@@ -1,17 +1,17 @@
 package com.suonk.oc_project7.ui.restaurants.details;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bumptech.glide.Glide;
 import com.suonk.oc_project7.R;
@@ -74,9 +74,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
             });
         });
 
-        binding.likeRoot.setOnClickListener(view -> {
-            viewModel.toggleIsRestaurantLiked();
-        });
+        binding.likeRoot.setOnClickListener(view -> viewModel.toggleIsRestaurantLiked());
 
         binding.chosenButton.setOnClickListener(view -> {
             viewModel.addWorkmate();
