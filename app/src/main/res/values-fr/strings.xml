@@ -15,7 +15,10 @@
     <string name="settings_drawer_item">Réglages</string>
     <string name="logout_drawer_item">Déconnexion</string>
 
-    <string name="toolbar_title">J\'ai Faim !</string>
+    <string name="main_toolbar_title">J\'ai Faim !</string>
+    <string name="toolbar_title">Settings</string>
+
+    <string name="enabled_notification">Activer les notifications</string>
 
     <string name="drawer_opened">Ouvrir</string>
     <string name="drawer_closed">Fermer</string>

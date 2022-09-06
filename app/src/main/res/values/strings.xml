@@ -15,7 +15,10 @@
     <string name="settings_drawer_item">Settings</string>
     <string name="logout_drawer_item">Logout</string>
 
-    <string name="toolbar_title">I\'m Hungry !</string>
+    <string name="main_toolbar_title">I\'m Hungry !</string>
+    <string name="toolbar_title">Settings</string>
+
+    <string name="enabled_notification">Enabled notifications</string>
 
     <string name="drawer_opened">Open</string>
     <string name="drawer_closed">Close</string>
@@ -32,7 +35,7 @@
     <string name="distance_restaurant">%1$d m</string>
     <string name="number_of_workmates">(%1$d)</string>
     <string name="restaurant_is_chosen">You have chosen this restaurant !</string>
-    
+
     <string name="like">LIKE</string>
     <string name="dislike">UNLIKE</string>
     <string name="is_open">Is Open</string>
