@@ -17,7 +17,7 @@ public class NotificationRepositoryImpl implements NotificationRepository {
     private final Context context;
 
     @Inject
-    public NotificationRepositoryImpl(@ApplicationContext Context context) {
+    public NotificationRepositoryImpl(@NonNull @ApplicationContext Context context) {
         this.context = context;
     }
 

@@ -36,11 +36,19 @@ public class SettingsViewModel extends ViewModel {
     }
 
     public LiveData<MainViewState> getMainViewStateLiveData() {
-        mainViewStateLiveData.setValue(new MainViewState(
-                userRepository.getCustomFirebaseUser().getDisplayName(),
-                userRepository.getCustomFirebaseUser().getEmail(),
-                userRepository.getCustomFirebaseUser().getPhotoUrl()
-        ));
+        if (userRepository.getCustomFirebaseUser() != null) {
+            mainViewStateLiveData.setValue(new MainViewState(
+                    userRepository.getCustomFirebaseUser().getDisplayName(),
+                    userRepository.getCustomFirebaseUser().getEmail(),
+                    userRepository.getCustomFirebaseUser().getPhotoUrl()
+            ));
+        } else {
+            mainViewStateLiveData.setValue(new MainViewState(
+                    "",
+                    "",
+                    ""
+            ));
+        }
 
         return mainViewStateLiveData;
     }

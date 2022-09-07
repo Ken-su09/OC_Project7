@@ -2,6 +2,7 @@ package com.suonk.oc_project7.model.data.workmate;
 
 import androidx.annotation.NonNull;
 
+import java.util.List;
 import java.util.Objects;
 
 public class Workmate {
@@ -22,9 +23,8 @@ public class Workmate {
 
     private String restaurantName;
 
-    public Workmate() {
-
-    }
+    @NonNull
+    private List<String> likedRestaurants;
 
     public Workmate(
             @NonNull String id,
@@ -32,7 +32,8 @@ public class Workmate {
             @NonNull String email,
             @NonNull String pictureUrl,
             @NonNull String restaurantId,
-            @NonNull String restaurantName
+            @NonNull String restaurantName,
+            @NonNull List<String> likedRestaurants
     ) {
         this.id = id;
         this.name = name;
@@ -40,6 +41,10 @@ public class Workmate {
         this.pictureUrl = pictureUrl;
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
+        this.likedRestaurants = likedRestaurants;
+    }
+
+    public Workmate() {
     }
 
     @NonNull
@@ -71,19 +76,25 @@ public class Workmate {
         return restaurantName;
     }
 
+    @NonNull
+    public List<String> getLikedRestaurants() {
+        return likedRestaurants;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Workmate workmate = (Workmate) o;
-        return id.equals(workmate.id) && name.equals(workmate.name) && email.equals(workmate.email) && pictureUrl.equals(workmate.pictureUrl) && Objects.equals(restaurantId, workmate.restaurantId) && Objects.equals(restaurantName, workmate.restaurantName);
+        return id.equals(workmate.id) && name.equals(workmate.name) && email.equals(workmate.email) && pictureUrl.equals(workmate.pictureUrl) && Objects.equals(restaurantId, workmate.restaurantId) && Objects.equals(restaurantName, workmate.restaurantName) && Objects.equals(likedRestaurants, workmate.likedRestaurants);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, pictureUrl, restaurantId, restaurantName);
+        return Objects.hash(id, name, email, pictureUrl, restaurantId, restaurantName, likedRestaurants);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Workmate{" +
@@ -93,6 +104,7 @@ public class Workmate {
                 ", pictureUrl='" + pictureUrl + '\'' +
                 ", restaurantId='" + restaurantId + '\'' +
                 ", restaurantName='" + restaurantName + '\'' +
+                ", likedRestaurants=" + likedRestaurants +
                 '}';
     }
 }

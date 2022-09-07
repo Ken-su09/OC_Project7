@@ -2,8 +2,6 @@ package com.suonk.oc_project7.repositories.current_location;
 
 import android.location.Location;
 import android.os.Looper;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.lifecycle.LiveData;

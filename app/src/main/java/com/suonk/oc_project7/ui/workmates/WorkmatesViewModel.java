@@ -1,6 +1,6 @@
 package com.suonk.oc_project7.ui.workmates;
 
-import android.content.Context;
+import android.app.Application;
 import android.graphics.Color;
 import android.graphics.Typeface;
 
@@ -8,10 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
@@ -23,7 +23,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @HiltViewModel
 public class WorkmatesViewModel extends ViewModel {
@@ -32,46 +31,58 @@ public class WorkmatesViewModel extends ViewModel {
     private final MediatorLiveData<List<WorkmateItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
 
     @NonNull
-    private final FirebaseUser firebaseUser;
-
-    @NonNull
-    private final Context context;
+    private final Application application;
 
     @Inject
     public WorkmatesViewModel(@NonNull WorkmatesRepository workmatesRepository,
                               @NonNull CurrentUserSearchRepository currentUserSearchRepository,
                               @NonNull FirebaseAuth firebaseAuth,
-                              @NonNull @ApplicationContext Context context) {
-        firebaseUser = firebaseAuth.getCurrentUser();
-        this.context = context;
+                              @NonNull Application application) {
+        this.application = application;
+
+        LiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
+
+        if (firebaseAuth.getCurrentUser() != null) {
+            currentUserLiveData = workmatesRepository.getCurrentUserLiveData(firebaseAuth.getCurrentUser().getUid());
+        }
+        LiveData<Workmate> finalCurrentUserLiveData = currentUserLiveData;
 
         LiveData<List<Workmate>> allWorkmates = workmatesRepository.getAllWorkmatesFromFirestoreLiveData();
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
         LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
         viewStatesLiveData.addSource(allWorkmates, workmates ->
-                combine(workmates, workmatesHaveChosen.getValue(), currentUserSearchLiveData.getValue()));
+                combine(workmates, workmatesHaveChosen.getValue(), currentUserSearchLiveData.getValue(),
+                        finalCurrentUserLiveData.getValue()));
 
         viewStatesLiveData.addSource(workmatesHaveChosen, workmates ->
-                combine(allWorkmates.getValue(), workmates, currentUserSearchLiveData.getValue()));
+                combine(allWorkmates.getValue(), workmates, currentUserSearchLiveData.getValue(),
+                        finalCurrentUserLiveData.getValue()));
 
         viewStatesLiveData.addSource(currentUserSearchLiveData, query ->
-                combine(allWorkmates.getValue(), workmatesHaveChosen.getValue(), query));
+                combine(allWorkmates.getValue(), workmatesHaveChosen.getValue(), query,
+                        finalCurrentUserLiveData.getValue()));
+
+        viewStatesLiveData.addSource(finalCurrentUserLiveData, currentUser ->
+                combine(allWorkmates.getValue(), workmatesHaveChosen.getValue(),
+                        currentUserSearchLiveData.getValue(), currentUser));
     }
 
-    private void combine(@Nullable List<Workmate> allWorkmates, @Nullable List<Workmate> workmatesHaveChosen,
-                         @Nullable CharSequence query) {
+    private void combine(@Nullable List<Workmate> allWorkmates,
+                         @Nullable List<Workmate> workmatesHaveChosen,
+                         @Nullable CharSequence query,
+                         @Nullable Workmate currentUser) {
         ArrayList<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
         List<String> ids = new ArrayList<>();
 
-        if (allWorkmates == null || workmatesHaveChosen == null) {
+        if (allWorkmates == null || workmatesHaveChosen == null || currentUser == null) {
             viewStatesLiveData.setValue(workmatesItemViews);
             return;
         }
 
         for (Workmate workmateHasChosen : workmatesHaveChosen) {
-            if (!firebaseUser.getUid().equals(workmateHasChosen.getId())) {
-                CharSequence sentence = context.getString(R.string.has_chosen,
+            if (!currentUser.getId().equals(workmateHasChosen.getId())) {
+                CharSequence sentence = application.getString(R.string.has_chosen,
                         workmateHasChosen.getName(), workmateHasChosen.getRestaurantName());
 
                 if (query == null || workmateHasChosen.getRestaurantName().contains(query)) {
@@ -89,11 +100,11 @@ public class WorkmatesViewModel extends ViewModel {
         }
 
         for (Workmate workmate : allWorkmates) {
-            if (!firebaseUser.getUid().equals(workmate.getId()) && !ids.contains(workmate.getId())) {
+            if (!currentUser.getId().equals(workmate.getId()) && !ids.contains(workmate.getId())) {
                 if (query == null || workmate.getRestaurantName().contains(query)) {
                     WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                             workmate.getId(),
-                            context.getString(R.string.has_not_chosen_yet, workmate.getName()),
+                            application.getString(R.string.has_not_chosen_yet, workmate.getName()),
                             workmate.getPictureUrl(),
                             Color.GRAY,
                             Typeface.ITALIC

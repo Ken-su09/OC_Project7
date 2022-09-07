@@ -82,6 +82,23 @@ public class SettingsViewModelTest {
     }
 
     @Test
+    public void get_main_view_state_live_data_if_get_custom_firebase_user_null() {
+        // GIVEN
+        doReturn(null).when(userRepositoryMock).getCustomFirebaseUser();
+
+        // WHEN
+        MainViewState mainViewState = TestUtils.getValueForTesting(viewModel.getMainViewStateLiveData());
+
+        // THEN
+        assertNotNull(mainViewState);
+        assertEquals(getDefaultMainViewStateEmpty(), mainViewState);
+
+        verify(userRepositoryMock, atLeastOnce()).getCustomFirebaseUser();
+
+        Mockito.verifyNoMoreInteractions(userRepositoryMock, notificationRepositoryMock);
+    }
+
+    @Test
     public void get_notification_enabled_live_data() {
         // GIVEN
 
@@ -111,6 +128,14 @@ public class SettingsViewModelTest {
                 DEFAULT_NAME,
                 DEFAULT_MAIL,
                 PICTURE_URL
+        );
+    }
+
+    private MainViewState getDefaultMainViewStateEmpty() {
+        return new MainViewState(
+                "",
+                "",
+                ""
         );
     }
 
