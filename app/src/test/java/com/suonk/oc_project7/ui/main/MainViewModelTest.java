@@ -13,7 +13,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
-import com.suonk.oc_project7.model.data.place_auto_complete.CustomSpannable;
 import com.suonk.oc_project7.model.data.place_auto_complete.PlaceAutocomplete;
 import com.suonk.oc_project7.model.data.user.CustomFirebaseUser;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
@@ -33,7 +32,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.List;
 
-//@RunWith(MockitoJUnitRunner.class)
 @RunWith(MockitoJUnitRunner.Silent.class)
 public class MainViewModelTest {
 
@@ -57,7 +55,7 @@ public class MainViewModelTest {
 
     private static final String RESTAURANT_NAME = "PIZZA HUT";
     private static final String RESTAURANT_NAME_1 = "PIZZA N PASTA";
-    private static final String RESTAURANT_NAME_2 = "OKONOMIYAKI";
+    private static final String RESTAURANT_NAME_2 = "PASTA";
 
     private static final String TEXT_TO_HIGHLIGHT = "PIZ";
 
@@ -267,6 +265,24 @@ public class MainViewModelTest {
     }
 
     @Test
+    public void get_main_view_state_live_data_if_get_custom_firebase_user_null() {
+        // GIVEN
+        doReturn(null).when(userRepositoryMock).getCustomFirebaseUser();
+
+        // WHEN
+        MainViewState mainViewState = TestUtils.getValueForTesting(viewModel.getMainViewStateLiveData());
+
+        // THEN
+        assertNotNull(mainViewState);
+        assertEquals(getDefaultMainViewStateEmpty(), mainViewState);
+
+        verify(userRepositoryMock, atLeastOnce()).getCustomFirebaseUser();
+
+        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
+                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+    }
+
+    @Test
     public void get_main_item_list_view_state_list_with_on_search_changed() {
         // GIVEN
         viewModel.onSearchChanged(TEXT_TO_HIGHLIGHT);
@@ -372,18 +388,19 @@ public class MainViewModelTest {
         );
     }
 
+    private MainViewState getDefaultMainViewStateEmpty() {
+        return new MainViewState(
+                "",
+                "",
+                ""
+        );
+    }
+
     private CustomFirebaseUser getCustomFirebaseUser() {
         return new CustomFirebaseUser(
                 DEFAULT_NAME,
                 DEFAULT_MAIL,
                 PICTURE_URL
-        );
-    }
-
-    private CustomSpannable getCustomSpannable() {
-        return new CustomSpannable(
-                start,
-                end
         );
     }
 

@@ -150,7 +150,7 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     }
 
     private void hideFragmentAndShowList(String input) {
-        if (!input.equals("") || !input.isEmpty()) {
+        if (!input.equals("")) {
             binding.recyclerView.setVisibility(View.VISIBLE);
             binding.fragmentContainer.setVisibility(View.GONE);
         } else {
@@ -214,7 +214,10 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.orange));
         binding.toolbar.setTitleTextColor(AppCompatResources.getColorStateList(this, R.color.white));
-        getSupportActionBar().setTitle(getString(R.string.main_toolbar_title));
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(getString(R.string.main_toolbar_title));
+        }
     }
 
     private void setupBottomNavigationView() {
