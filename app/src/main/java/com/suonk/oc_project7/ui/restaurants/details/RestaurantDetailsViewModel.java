@@ -2,7 +2,7 @@ package com.suonk.oc_project7.ui.restaurants.details;
 
 import static com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActivity.PLACE_ID;
 
-import android.content.Context;
+import android.app.Application;
 import android.graphics.Color;
 import android.graphics.Typeface;
 
@@ -29,7 +29,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @HiltViewModel
 public class RestaurantDetailsViewModel extends ViewModel {
@@ -46,7 +45,8 @@ public class RestaurantDetailsViewModel extends ViewModel {
     @NonNull
     private final MutableLiveData<List<WorkmateItemViewState>> workmatesViewStateLiveData = new MutableLiveData<>(new ArrayList<>());
 
-    private final Context context;
+    @NonNull
+    private final Application application;
 
     private final String placeId;
 
@@ -57,11 +57,11 @@ public class RestaurantDetailsViewModel extends ViewModel {
     public RestaurantDetailsViewModel(@NonNull WorkmatesRepository workmatesRepository,
                                       @NonNull RestaurantsRepository restaurantsRepository,
                                       @NonNull FirebaseAuth firebaseAuth,
-                                      @ApplicationContext Context context,
+                                      @NonNull Application application,
                                       SavedStateHandle savedStateHandle) {
         this.restaurantsRepository = restaurantsRepository;
         this.workmatesRepository = workmatesRepository;
-        this.context = context;
+        this.application = application;
         placeId = savedStateHandle.get(PLACE_ID);
 
         LiveData<List<Workmate>> workmatesHaveChosenLiveData = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
@@ -101,7 +101,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                 if (currentUser != null && !currentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
                     workmatesItemViews.add(new WorkmateItemViewState(
                             workmate.getId(),
-                            context.getString(R.string.workmate_has_joined, workmate.getName()),
+                            application.getString(R.string.workmate_has_joined, workmate.getName()),
                             workmate.getPictureUrl(),
                             Color.BLACK,
                             Typeface.NORMAL

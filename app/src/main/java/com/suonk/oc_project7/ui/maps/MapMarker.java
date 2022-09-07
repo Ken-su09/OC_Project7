@@ -46,7 +46,6 @@ public class MapMarker {
         return restaurantName;
     }
 
-    @NonNull
     public int getMarkerIcon() {
         return markerIcon;
     }
@@ -64,6 +63,7 @@ public class MapMarker {
         return Objects.hash(placeId, latitude, longitude, restaurantName, markerIcon);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MapMarker{" +

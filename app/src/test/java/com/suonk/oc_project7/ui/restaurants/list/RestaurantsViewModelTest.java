@@ -58,7 +58,7 @@ public class RestaurantsViewModelTest {
 
     private static final String RESTAURANT_NAME = "PIZZA HUT";
     private static final String RESTAURANT_NAME_1 = "PIZZA N PASTA";
-    private static final String RESTAURANT_NAME_2 = "OKONOMIYAKI";
+    private static final String RESTAURANT_NAME_2 = "PASTA";
 
     private static final boolean RESTAURANT_IS_OPEN_TRUE = true;
     private static final boolean RESTAURANT_IS_OPEN_FALSE = false;

@@ -1,6 +1,6 @@
 package com.suonk.oc_project7.ui.restaurants.list;
 
-import android.content.Context;
+import android.app.Application;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +25,6 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @HiltViewModel
 public class RestaurantsViewModel extends ViewModel {
@@ -38,16 +37,17 @@ public class RestaurantsViewModel extends ViewModel {
 
     private CurrentLocation currentLocation;
 
-    final Context context;
+    @NonNull
+    private final Application application;
 
     @Inject
     public RestaurantsViewModel(@NonNull CurrentLocationRepository locationRepository,
                                 @NonNull WorkmatesRepository workmatesRepository,
                                 @NonNull RestaurantsRepository restaurantsRepository,
                                 @NonNull CurrentUserSearchRepository currentUserSearchRepository,
-                                @ApplicationContext Context context) {
+                                @NonNull Application application) {
         this.locationRepository = locationRepository;
-        this.context = context;
+        this.application = application;
 
         LiveData<List<Restaurant>> restaurantsLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
             currentLocation = location;
@@ -87,9 +87,9 @@ public class RestaurantsViewModel extends ViewModel {
                 String isOpen;
 
                 if (restaurant.getOpen()) {
-                    isOpen = context.getString(R.string.is_open);
+                    isOpen = application.getString(R.string.is_open);
                 } else {
-                    isOpen = context.getString(R.string.is_close);
+                    isOpen = application.getString(R.string.is_close);
                 }
 
                 String picture;
@@ -114,8 +114,8 @@ public class RestaurantsViewModel extends ViewModel {
                             restaurant.getRestaurantName(),
                             restaurant.getAddress(),
                             isOpen,
-                            context.getString(R.string.distance_restaurant, (int) distance),
-                            context.getString(R.string.number_of_workmates, numberOfWorkmates),
+                            application.getString(R.string.distance_restaurant, (int) distance),
+                            application.getString(R.string.number_of_workmates, numberOfWorkmates),
                             (int) rating,
                             picture
                     ));
@@ -125,8 +125,8 @@ public class RestaurantsViewModel extends ViewModel {
                             restaurant.getRestaurantName(),
                             restaurant.getAddress(),
                             isOpen,
-                            context.getString(R.string.distance_restaurant, (int) distance),
-                            context.getString(R.string.number_of_workmates, numberOfWorkmates),
+                            application.getString(R.string.distance_restaurant, (int) distance),
+                            application.getString(R.string.number_of_workmates, numberOfWorkmates),
                             (int) rating,
                             picture
                     ));

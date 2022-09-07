@@ -56,7 +56,6 @@ public class ListRestaurantsFragment extends Fragment implements OnRestaurantEve
 
         binding.restaurantsList.setAdapter(listAdapter);
         binding.restaurantsList.setLayoutManager(new LinearLayoutManager(getContext()));
-//        binding.restaurantsList.setHasFixedSize(true);
     }
 
     @Override
