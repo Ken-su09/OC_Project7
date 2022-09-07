@@ -92,6 +92,7 @@ public class RestaurantDetails {
         return Objects.hash(placeId, restaurantName, phoneNumber, address, image, rating, websiteLink);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "PlaceDetails{" +

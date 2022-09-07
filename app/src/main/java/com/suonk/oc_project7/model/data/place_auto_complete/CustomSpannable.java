@@ -1,5 +1,7 @@
 package com.suonk.oc_project7.model.data.place_auto_complete;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 
 public class CustomSpannable {
@@ -35,6 +37,7 @@ public class CustomSpannable {
         return Objects.hash(start, end);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "CustomSpannable{" +

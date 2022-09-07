@@ -49,6 +49,7 @@ public class PlaceAutocomplete {
         return Objects.hash(placeId, restaurantName, address);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "PlaceAutocomplete{" +

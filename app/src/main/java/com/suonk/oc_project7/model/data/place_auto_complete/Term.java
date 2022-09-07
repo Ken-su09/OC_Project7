@@ -42,6 +42,7 @@ public class Term {
         return Objects.hash(mOffset, mValue);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Term{" +

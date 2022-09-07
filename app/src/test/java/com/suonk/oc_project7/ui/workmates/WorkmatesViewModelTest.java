@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.ui.workmates;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -51,7 +52,7 @@ public class WorkmatesViewModelTest {
 
     private static final String RESTAURANT_NAME = "PIZZA HUT";
     private static final String RESTAURANT_NAME_1 = "PIZZA N PASTA";
-    private static final String RESTAURANT_NAME_2 = "OKONOMIYAKI";
+    private static final String RESTAURANT_NAME_2 = "PASTA";
 
     private static final String EMAIL = "EMAIL";
     private static final int TEXT_COLOR_HAS_DECIDED = -16777216;
@@ -82,6 +83,7 @@ public class WorkmatesViewModelTest {
     private final MutableLiveData<List<Workmate>> workmatesMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Workmate>> workmatesHaveChosenMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<CharSequence> currentUserSearchLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
 
     //endregion
 
@@ -93,6 +95,7 @@ public class WorkmatesViewModelTest {
 
         doReturn(firebaseUser).when(auth).getCurrentUser();
         doReturn(UID).when(firebaseUser).getUid();
+        doReturn(currentUserLiveData).when(workmatesRepositoryMock).getCurrentUserLiveData(UID);
 
         doReturn(TEXT_WORKMATE_HAS_CHOSEN).when(application).getString(R.string.has_chosen,
                 WORKMATE_HAS_CHOSEN, RESTAURANT_NAME);
@@ -113,11 +116,14 @@ public class WorkmatesViewModelTest {
         workmatesMutableLiveData.setValue(getDefaultWorkmates());
         workmatesHaveChosenMutableLiveData.setValue(getDefaultWorkmatesHaveChosen());
         currentUserSearchLiveData.setValue(TEXT_TO_HIGHLIGHT);
+        currentUserLiveData.setValue(getDefaultCurrentUser());
 
         verify(workmatesRepositoryMock).getAllWorkmatesFromFirestoreLiveData();
         verify(workmatesRepositoryMock).getWorkmatesHaveChosenTodayLiveData();
         verify(currentUserSearchRepository).getCurrentUserSearchLiveData();
-        verify(auth).getCurrentUser();
+        verify(workmatesRepositoryMock).getCurrentUserLiveData(UID);
+        verify(firebaseUser).getUid();
+        verify(auth, atLeastOnce()).getCurrentUser();
     }
 
     @Test
@@ -378,10 +384,55 @@ public class WorkmatesViewModelTest {
         Mockito.verifyNoMoreInteractions(workmatesRepositoryMock, auth);
     }
 
+    @Test
+    public void get_all_workmates_from_firestore_with_search_empty_and_current_user_live_data_null() {
+        // GIVEN
+        currentUserSearchLiveData.setValue("");
+        currentUserLiveData.setValue(null);
+
+        // WHEN
+        List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
+                workmatesViewModel.getWorkmatesLiveData());
+
+        // THEN
+        assertNotNull(allWorkmatesViewState);
+        assertEquals(0, allWorkmatesViewState.size());
+
+        Mockito.verifyNoMoreInteractions(workmatesRepositoryMock, currentUserSearchRepository, auth);
+    }
+
+    @Test
+    public void get_all_workmates_from_firestore_with_search_empty_and_firebase_user_null() {
+        // GIVEN
+        doReturn(null).when(auth).getCurrentUser();
+        doReturn(null).when(firebaseUser).getUid();
+        doReturn(null).when(workmatesRepositoryMock).getCurrentUserLiveData(UID);
+        currentUserSearchLiveData.setValue("");
+
+        // WHEN
+        List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
+                workmatesViewModel.getWorkmatesLiveData());
+
+        // THEN
+        assertNotNull(allWorkmatesViewState);
+        assertEquals(7, allWorkmatesViewState.size());
+        assertEquals(getDefaultWorkmatesItemViewState(), allWorkmatesViewState);
+
+        Mockito.verifyNoMoreInteractions(workmatesRepositoryMock, currentUserSearchRepository, auth);
+    }
+
+    //region ======================================= GET DEFAULT USER =======================================
+
+    private Workmate getDefaultCurrentUser() {
+        return new Workmate(UID, U_NAME, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>());
+    }
+
+    //endregion
+
     private List<Workmate> getDefaultWorkmates() {
         List<Workmate> workmates = new ArrayList<>();
 
-        workmates.add(new Workmate(UID, U_NAME, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(getDefaultCurrentUser());
         workmates.add(new Workmate("2", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("3", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("4", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_1, new ArrayList<>()));
@@ -397,7 +448,7 @@ public class WorkmatesViewModelTest {
     private List<Workmate> getDefaultWorkmatesHaveChosen() {
         List<Workmate> workmates = new ArrayList<>();
 
-        workmates.add(new Workmate(UID, U_NAME, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(getDefaultCurrentUser());
         workmates.add(new Workmate("2", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("3", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("4", WORKMATE_HAS_CHOSEN, EMAIL, PICTURE_URL, "1", RESTAURANT_NAME_1, new ArrayList<>()));

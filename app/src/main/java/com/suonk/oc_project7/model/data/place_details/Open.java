@@ -22,14 +22,6 @@ public class Open {
         this.time = time;
     }
 
-    public Long getDay() {
-        return day;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -43,6 +35,7 @@ public class Open {
         return Objects.hash(day, time);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Open{" +

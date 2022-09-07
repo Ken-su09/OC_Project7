@@ -11,6 +11,8 @@
     <string name="restaurants">Restaurants</string>
     <string name="workmates">Collègues</string>
 
+    <string name="call">APPEL</string>
+
     <string name="lunch_drawer_item">Votre Déjeuner</string>
     <string name="settings_drawer_item">Réglages</string>
     <string name="logout_drawer_item">Déconnexion</string>

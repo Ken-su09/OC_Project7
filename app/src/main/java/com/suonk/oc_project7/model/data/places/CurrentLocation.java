@@ -7,14 +7,15 @@ import java.util.Objects;
 public class CurrentLocation {
 
     @NonNull
-    private Double lat = 0.0;
+    private final Double lat;
+
     @NonNull
-    private Double lng = 0.0;
+    private final Double lng;
 
     public CurrentLocation(
             @NonNull Double lat,
             @NonNull Double lng
-    ){
+    ) {
         this.lat = lat;
         this.lng = lng;
     }
@@ -42,6 +43,7 @@ public class CurrentLocation {
         return Objects.hash(lat, lng);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "CurrentLocation{" +

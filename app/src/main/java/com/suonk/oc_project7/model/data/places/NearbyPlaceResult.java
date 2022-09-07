@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.model.data.places;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -11,7 +12,7 @@ public class NearbyPlaceResult {
     private final String business_status;
 
     @NonNull
-    private Geometry geometry;
+    private final Geometry geometry;
 
     @NonNull
     private final String icon;
@@ -25,13 +26,13 @@ public class NearbyPlaceResult {
     @NonNull
     private final String name;
 
-    @NonNull
+    @Nullable
     private final OpeningHours opening_hours;
 
     @NonNull
     private final Boolean permanently_closed;
 
-    @NonNull
+    @Nullable
     private final List<Photo> photos;
 
     @NonNull
@@ -66,9 +67,9 @@ public class NearbyPlaceResult {
             @NonNull String icon_background_color,
             @NonNull String icon_mask_base_uri,
             @NonNull String name,
-            @NonNull OpeningHours opening_hours,
+            @Nullable OpeningHours opening_hours,
             @NonNull Boolean permanently_closed,
-            @NonNull List<Photo> photos,
+            @Nullable List<Photo> photos,
             @NonNull String placeId,
             @NonNull PlusCode plus_code,
             int price_level,
@@ -99,22 +100,8 @@ public class NearbyPlaceResult {
     }
 
     @NonNull
-    public String getBusiness_status() {
-        return business_status;
-    }
-
-    @NonNull
     public Geometry getGeometry() {
         return geometry;
-    }
-
-    public void setGeometry(@NonNull Geometry geometry) {
-        this.geometry = geometry;
-    }
-
-    @NonNull
-    public String getIcon() {
-        return icon;
     }
 
     @NonNull
@@ -122,14 +109,9 @@ public class NearbyPlaceResult {
         return name;
     }
 
-    @NonNull
+    @Nullable
     public OpeningHours getOpeningHours() {
         return opening_hours;
-    }
-
-    @NonNull
-    public Boolean getPermanently_closed() {
-        return permanently_closed;
     }
 
     @NonNull
@@ -147,7 +129,7 @@ public class NearbyPlaceResult {
         return rating;
     }
 
-    @NonNull
+    @Nullable
     public List<Photo> getPhotos() {
         return photos;
     }
@@ -156,28 +138,19 @@ public class NearbyPlaceResult {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        NearbyPlaceResult nearbyPlaceResult = (NearbyPlaceResult) o;
-        return price_level == nearbyPlaceResult.price_level && user_ratings_total == nearbyPlaceResult.user_ratings_total &&
-                business_status.equals(nearbyPlaceResult.business_status) && geometry.equals(nearbyPlaceResult.geometry) &&
-                icon.equals(nearbyPlaceResult.icon) && icon_background_color.equals(nearbyPlaceResult.icon_background_color) &&
-                icon_mask_base_uri.equals(nearbyPlaceResult.icon_mask_base_uri) && name.equals(nearbyPlaceResult.name) &&
-                opening_hours.equals(nearbyPlaceResult.opening_hours) && permanently_closed.equals(nearbyPlaceResult.permanently_closed) &&
-                photos.equals(nearbyPlaceResult.photos) && place_id.equals(nearbyPlaceResult.place_id) && plus_code.equals(nearbyPlaceResult.plus_code) &&
-                rating.equals(nearbyPlaceResult.rating) && reference.equals(nearbyPlaceResult.reference) && scope.equals(nearbyPlaceResult.scope) &&
-                types.equals(nearbyPlaceResult.types) && vicinity.equals(nearbyPlaceResult.vicinity);
+        NearbyPlaceResult that = (NearbyPlaceResult) o;
+        return price_level == that.price_level && user_ratings_total == that.user_ratings_total && business_status.equals(that.business_status) && geometry.equals(that.geometry) && icon.equals(that.icon) && icon_background_color.equals(that.icon_background_color) && icon_mask_base_uri.equals(that.icon_mask_base_uri) && name.equals(that.name) && Objects.equals(opening_hours, that.opening_hours) && permanently_closed.equals(that.permanently_closed) && Objects.equals(photos, that.photos) && place_id.equals(that.place_id) && plus_code.equals(that.plus_code) && rating.equals(that.rating) && reference.equals(that.reference) && scope.equals(that.scope) && types.equals(that.types) && vicinity.equals(that.vicinity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(business_status, geometry, icon, icon_background_color, icon_mask_base_uri,
-                name, opening_hours, permanently_closed, photos, place_id, plus_code, price_level, rating,
-                reference, scope, types, user_ratings_total, vicinity);
+        return Objects.hash(business_status, geometry, icon, icon_background_color, icon_mask_base_uri, name, opening_hours, permanently_closed, photos, place_id, plus_code, price_level, rating, reference, scope, types, user_ratings_total, vicinity);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "Result{" +
+        return "NearbyPlaceResult{" +
                 "business_status='" + business_status + '\'' +
                 ", geometry=" + geometry +
                 ", icon='" + icon + '\'' +

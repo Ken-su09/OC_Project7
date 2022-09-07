@@ -51,6 +51,7 @@ public class NotificationEntity {
         return Objects.hash(restaurantId, restaurantName, listOfWorkmates);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Notification{" +

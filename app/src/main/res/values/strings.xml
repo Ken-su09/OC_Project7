@@ -11,6 +11,8 @@
     <string name="restaurants">Restaurants</string>
     <string name="workmates">Workmates</string>
 
+    <string name="call">CALL</string>
+
     <string name="lunch_drawer_item">Your Lunch</string>
     <string name="settings_drawer_item">Settings</string>
     <string name="logout_drawer_item">Logout</string>

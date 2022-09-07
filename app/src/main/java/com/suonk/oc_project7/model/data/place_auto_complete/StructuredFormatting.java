@@ -27,14 +27,6 @@ public class StructuredFormatting {
         return mMainText;
     }
 
-    public List<MainTextMatchedSubstring> getMainTextMatchedSubstrings() {
-        return mMainTextMatchedSubstrings;
-    }
-
-    public String getSecondaryText() {
-        return mSecondaryText;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -48,6 +40,7 @@ public class StructuredFormatting {
         return Objects.hash(mMainText, mMainTextMatchedSubstrings, mSecondaryText);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "StructuredFormatting{" +

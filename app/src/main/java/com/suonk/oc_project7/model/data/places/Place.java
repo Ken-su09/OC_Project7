@@ -66,6 +66,7 @@ public class Place {
         return Objects.hash(placeId, restaurantName, latitude, longitude, isOpen);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Place{" +

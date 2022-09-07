@@ -3,8 +3,6 @@ package com.suonk.oc_project7.model.data.place_details;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.annotations.Expose;
-
 import java.util.Objects;
 
 public class Review {
@@ -51,25 +49,6 @@ public class Review {
         this.time = time;
     }
 
-    @NonNull
-    public String getAuthorName() {
-        return authorName;
-    }
-
-    @NonNull
-    public String getAuthorUrl() {
-        return authorUrl;
-    }
-
-    @NonNull
-    public String getLanguage() {
-        return language;
-    }
-
-    @NonNull
-    public String getProfilePhotoUrl() {
-        return profilePhotoUrl;
-    }
 
     @NonNull
     public Long getRating() {
@@ -77,18 +56,8 @@ public class Review {
     }
 
     @NonNull
-    public String getRelativeTimeDescription() {
-        return relativeTimeDescription;
-    }
-
-    @NonNull
     public String getText() {
         return text;
-    }
-
-    @NonNull
-    public Long getTime() {
-        return time;
     }
 
     @Override

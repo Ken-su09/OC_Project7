@@ -90,8 +90,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/restaurant_name"
-            app:layout_constraintTop_toBottomOf="@+id/restaurant_name"
-            tools:text="12 rue du Faubourg Poissonnière" />
+            app:layout_constraintTop_toBottomOf="@+id/restaurant_name" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -112,7 +111,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:text="CALL"
+        android:text="@string/call"
         android:textAlignment="center"
         android:textColor="@color/orangeSecondary"
         android:textSize="15sp"

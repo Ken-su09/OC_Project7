@@ -3,31 +3,19 @@ package com.suonk.oc_project7.model.data.place_details;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.annotations.Expose;
-
 import java.util.Objects;
 
 public class Close {
 
     @NonNull
-    @Expose
     private final Long day;
 
     @NonNull
-    @Expose
     private final String time;
 
     public Close(@NonNull Long day, @NonNull String time) {
         this.day = day;
         this.time = time;
-    }
-
-    public Long getDay() {
-        return day;
-    }
-
-    public String getTime() {
-        return time;
     }
 
     @Override
@@ -43,6 +31,7 @@ public class Close {
         return Objects.hash(day, time);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Close{" +
