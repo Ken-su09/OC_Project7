@@ -1,40 +1,33 @@
 
 package com.suonk.oc_project7.model.data.place_details;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
+
+import com.google.protobuf.Any;
 
 import java.util.List;
 import java.util.Objects;
 
-import com.google.gson.annotations.Expose;
-import com.google.gson.annotations.SerializedName;
-import com.google.protobuf.Any;
-
 public class PlaceDetailsResponse {
 
-    @Nullable
-    @SerializedName("html_attributions")
-    @Expose
-    private List<Any> htmlAttributions;
-    @Expose
-    private Result result;
-    @Expose
-    private String status;
+    @NonNull
+    private final List<Any> htmlAttributions;
 
-    public PlaceDetailsResponse(){
+    @NonNull
+    private final Result result;
 
+    @NonNull
+    private final String status;
+
+    public PlaceDetailsResponse(@NonNull List<Any> htmlAttributions, @NonNull Result result, @NonNull String status) {
+        this.htmlAttributions = htmlAttributions;
+        this.result = result;
+        this.status = status;
     }
 
-    public List<Any> getHtmlAttributions() {
-        return htmlAttributions;
-    }
-
+    @NonNull
     public Result getResult() {
         return result;
-    }
-
-    public String getStatus() {
-        return status;
     }
 
     @Override
@@ -50,6 +43,7 @@ public class PlaceDetailsResponse {
         return Objects.hash(htmlAttributions, result, status);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "PlaceDetailsResponse{" +

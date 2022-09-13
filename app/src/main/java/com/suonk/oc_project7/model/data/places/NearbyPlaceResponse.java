@@ -1,31 +1,29 @@
 package com.suonk.oc_project7.model.data.places;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.protobuf.Any;
 
 import java.util.List;
+import java.util.Objects;
 
 public class NearbyPlaceResponse {
 
-    @Nullable
+    @NonNull
     @SerializedName("html_attributions")
-    @Expose
     private final List<Any> htmlAttributions;
-    @Nullable
+
+    @NonNull
     @SerializedName("next_page_token")
-    @Expose
     private final String nextPageToken;
-    @Nullable
+
+    @NonNull
     @SerializedName("results")
-    @Expose
     private final List<NearbyPlaceResult> nearbyPlaceResults;
-    @Nullable
+
+    @NonNull
     @SerializedName("status")
-    @Expose
     private final String status;
 
     public NearbyPlaceResponse(@NonNull List<Any> htmlAttributions,
@@ -38,23 +36,32 @@ public class NearbyPlaceResponse {
         this.status = status;
     }
 
-    @Nullable
-    public List<Any> getHtmlAttributions() {
-        return htmlAttributions;
-    }
-
-    @Nullable
-    public String getNextPageToken() {
-        return nextPageToken;
-    }
-
-    @Nullable
+    @NonNull
     public List<NearbyPlaceResult> getResults() {
         return nearbyPlaceResults;
     }
 
-    @Nullable
-    public String getStatus() {
-        return status;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        NearbyPlaceResponse that = (NearbyPlaceResponse) o;
+        return htmlAttributions.equals(that.htmlAttributions) && nextPageToken.equals(that.nextPageToken) && nearbyPlaceResults.equals(that.nearbyPlaceResults) && status.equals(that.status);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(htmlAttributions, nextPageToken, nearbyPlaceResults, status);
+    }
+
+    @NonNull
+    @Override
+    public String toString() {
+        return "NearbyPlaceResponse{" +
+                "htmlAttributions=" + htmlAttributions +
+                ", nextPageToken='" + nextPageToken + '\'' +
+                ", nearbyPlaceResults=" + nearbyPlaceResults +
+                ", status='" + status + '\'' +
+                '}';
     }
 }

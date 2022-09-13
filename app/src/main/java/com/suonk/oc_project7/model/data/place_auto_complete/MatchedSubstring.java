@@ -1,29 +1,42 @@
 
 package com.suonk.oc_project7.model.data.place_auto_complete;
 
-import com.google.gson.annotations.SerializedName;
+import androidx.annotation.NonNull;
+
+import java.util.Objects;
 
 public class MatchedSubstring {
 
-    @SerializedName("length")
-    private Long mLength;
-    @SerializedName("offset")
-    private Long mOffset;
+    @NonNull
+    private final Long mLength;
 
-    public Long getLength() {
-        return mLength;
+    @NonNull
+    private final Long mOffset;
+
+    public MatchedSubstring(@NonNull Long mLength, @NonNull Long mOffset) {
+        this.mLength = mLength;
+        this.mOffset = mOffset;
     }
 
-    public void setLength(Long length) {
-        mLength = length;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MatchedSubstring that = (MatchedSubstring) o;
+        return mLength.equals(that.mLength) && mOffset.equals(that.mOffset);
     }
 
-    public Long getOffset() {
-        return mOffset;
+    @Override
+    public int hashCode() {
+        return Objects.hash(mLength, mOffset);
     }
 
-    public void setOffset(Long offset) {
-        mOffset = offset;
+    @NonNull
+    @Override
+    public String toString() {
+        return "MatchedSubstring{" +
+                "mLength=" + mLength +
+                ", mOffset=" + mOffset +
+                '}';
     }
-
 }

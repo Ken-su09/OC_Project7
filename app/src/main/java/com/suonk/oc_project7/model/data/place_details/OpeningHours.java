@@ -8,13 +8,13 @@ import java.util.Objects;
 public class OpeningHours {
 
     @NonNull
-    private Boolean open_now;
+    private final Boolean open_now;
 
     @NonNull
-    private List<Period> periods;
+    private final List<Period> periods;
 
     @NonNull
-    private List<String> weekday_text;
+    private final List<String> weekday_text;
 
     public OpeningHours(@NonNull Boolean open_now,
                         @NonNull List<Period> periods,
@@ -22,21 +22,6 @@ public class OpeningHours {
         this.open_now = open_now;
         this.periods = periods;
         this.weekday_text = weekday_text;
-    }
-
-    @NonNull
-    public Boolean getOpen_now() {
-        return open_now;
-    }
-
-    @NonNull
-    public List<Period> getPeriods() {
-        return periods;
-    }
-
-    @NonNull
-    public List<String> getWeekday_text() {
-        return weekday_text;
     }
 
     @Override
@@ -52,6 +37,7 @@ public class OpeningHours {
         return Objects.hash(open_now, periods, weekday_text);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "OpeningHours{" +
