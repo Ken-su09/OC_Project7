@@ -4,80 +4,91 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/vertical_restaurant"
     tools:context=".ui.auth.AuthActivity">
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/profile_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/center_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        app:srcCompat="@drawable/ic_go_4_lunch" />
 
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/black"
-        android:layout_marginTop="15dp"
-        android:text="test"
-        android:textStyle="italic"
+    <View
+        android:id="@+id/center_view"
+        android:layout_width="0.5dp"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/profile_image" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/facebook_layout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
+        android:layout_marginBottom="24dp"
         android:background="@drawable/rounded_corner_background_blue"
         android:textColor="@color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/google_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/facebook_icon"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="8dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_facebook" />
 
-        <com.facebook.login.widget.LoginButton
-            android:id="@+id/facebook_button"
-            android:layout_width="0dp"
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingEnd="28dp"
             android:text="@string/facebook_button"
             android:textAlignment="center"
             android:textColor="@color/white"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/facebook_icon"
             app:layout_constraintTop_toTopOf="parent" />
+
+        <com.facebook.login.widget.LoginButton
+            android:id="@+id/facebook_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="@string/facebook_button"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/google_button"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="10dp"
         android:layout_marginEnd="50dp"
+        android:layout_marginBottom="65dp"
         android:background="@drawable/rounded_corner_background_red"
         android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/facebook_layout">
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/google_icon"
@@ -90,7 +101,7 @@
             app:srcCompat="@drawable/ic_google_plus_logo" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingEnd="28dp"
             android:text="@string/google_button"
