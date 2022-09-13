@@ -23,7 +23,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityAuthBinding;
@@ -45,6 +44,8 @@ public class AuthActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i("FirebaseFirstInstance", "FirebaseAuth.getInstance().getCurrentUser() 2 : " + FirebaseAuth.getInstance().getCurrentUser());
+
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             startActivity(new Intent(this, MainActivity.class));
             finish();
@@ -59,17 +60,17 @@ public class AuthActivity extends AppCompatActivity {
         binding.facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                handleFacebookToken(binding, loginResult.getAccessToken());
+                handleFacebookToken(loginResult.getAccessToken());
             }
 
             @Override
             public void onCancel() {
-
+                Log.i("facebookLogin", "onCancel()");
             }
 
             @Override
             public void onError(@NonNull FacebookException e) {
-
+                Log.i("facebookLogin", "FacebookException : " + e);
             }
         });
         binding.googleButton.setOnClickListener(view -> signIn());
@@ -109,9 +110,10 @@ public class AuthActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                             viewModel.addWorkmateToFirestore(FirebaseAuth.getInstance().getCurrentUser());
+                            updateFirestore();
+                            startActivity(new Intent(this, MainActivity.class));
+                            finish();
                         }
-                        updateFirestore();
-                        startActivity(new Intent(this, MainActivity.class));
                     } else {
                         Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
                     }
@@ -125,18 +127,16 @@ public class AuthActivity extends AppCompatActivity {
         }
     }
 
-    private void handleFacebookToken(ActivityAuthBinding binding, AccessToken token) {
+    private void handleFacebookToken(AccessToken token) {
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                if (user != null) {
-                    binding.profileName.setText(user.getDisplayName());
-                    binding.profileImage.setImageURI(user.getPhotoUrl());
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    viewModel.addWorkmateToFirestore(FirebaseAuth.getInstance().getCurrentUser());
+                    updateFirestore();
+                    startActivity(new Intent(this, MainActivity.class));
+                    finish();
                 }
-
-                updateFirestore();
             }
         });
     }
