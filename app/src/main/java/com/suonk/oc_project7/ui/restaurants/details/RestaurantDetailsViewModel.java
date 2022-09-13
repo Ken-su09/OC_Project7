@@ -66,27 +66,29 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
         LiveData<List<Workmate>> workmatesHaveChosenLiveData = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
 
-        LiveData<RestaurantDetails> restaurantDetailsLiveData = new MutableLiveData<>();
+        final LiveData<RestaurantDetails> restaurantDetailsLiveData;
         if (placeId != null) {
             restaurantDetailsLiveData = restaurantsRepository.getRestaurantDetailsById(placeId);
+        } else {
+            restaurantDetailsLiveData = new MutableLiveData<>();
         }
-        LiveData<RestaurantDetails> finalRestaurantDetailsLiveData = restaurantDetailsLiveData;
 
-        LiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
+        LiveData<Workmate> currentUserLiveData;
         if (firebaseAuth.getCurrentUser() != null) {
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
             currentUserLiveData = workmatesRepository.getCurrentUserLiveData(firebaseUser.getUid());
+        } else {
+            currentUserLiveData = new MutableLiveData<>();
         }
-        LiveData<Workmate> finalCurrentUserLiveData = currentUserLiveData;
 
         restaurantDetailsViewStateLiveData.addSource(workmatesHaveChosenLiveData, workmatesHaveChosen ->
-                combine(workmatesHaveChosen, finalRestaurantDetailsLiveData.getValue(), finalCurrentUserLiveData.getValue()));
+                combine(workmatesHaveChosen, restaurantDetailsLiveData.getValue(), currentUserLiveData.getValue()));
 
-        restaurantDetailsViewStateLiveData.addSource(finalRestaurantDetailsLiveData, restaurantDetails ->
-                combine(workmatesHaveChosenLiveData.getValue(), restaurantDetails, finalCurrentUserLiveData.getValue()));
+        restaurantDetailsViewStateLiveData.addSource(restaurantDetailsLiveData, restaurantDetails ->
+                combine(workmatesHaveChosenLiveData.getValue(), restaurantDetails, currentUserLiveData.getValue()));
 
-        restaurantDetailsViewStateLiveData.addSource(finalCurrentUserLiveData, currentUser ->
-                combine(workmatesHaveChosenLiveData.getValue(), finalRestaurantDetailsLiveData.getValue(), currentUser));
+        restaurantDetailsViewStateLiveData.addSource(currentUserLiveData, currentUser ->
+                combine(workmatesHaveChosenLiveData.getValue(), restaurantDetailsLiveData.getValue(), currentUser));
     }
 
     private void combine(@Nullable List<Workmate> workmatesHaveChosen,
@@ -95,10 +97,25 @@ public class RestaurantDetailsViewModel extends ViewModel {
     ) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
         int selectRestaurantButtonIcon = R.drawable.ic_to_select;
+        Workmate finalCurrentUser;
+
+        if (currentUser == null) {
+            finalCurrentUser = new Workmate(
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    new ArrayList<>()
+            );
+        } else {
+            finalCurrentUser = currentUser;
+        }
 
         if (workmatesHaveChosen != null && placeId != null) {
             for (Workmate workmate : workmatesHaveChosen) {
-                if (currentUser != null && !currentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
+                if (!finalCurrentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
                     workmatesItemViews.add(new WorkmateItemViewState(
                             workmate.getId(),
                             application.getString(R.string.workmate_has_joined, workmate.getName()),
@@ -106,7 +123,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                             Color.BLACK,
                             Typeface.NORMAL
                     ));
-                } else if (currentUser != null && currentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
+                } else if (finalCurrentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
                     selectRestaurantButtonIcon = R.drawable.ic_accept;
                 }
             }

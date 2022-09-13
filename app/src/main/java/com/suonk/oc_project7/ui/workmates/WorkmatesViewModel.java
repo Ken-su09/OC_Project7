@@ -40,12 +40,13 @@ public class WorkmatesViewModel extends ViewModel {
                               @NonNull Application application) {
         this.application = application;
 
-        LiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
+        final LiveData<Workmate> currentUserLiveData;
 
         if (firebaseAuth.getCurrentUser() != null) {
             currentUserLiveData = workmatesRepository.getCurrentUserLiveData(firebaseAuth.getCurrentUser().getUid());
+        } else {
+            currentUserLiveData = new MutableLiveData<>();
         }
-        LiveData<Workmate> finalCurrentUserLiveData = currentUserLiveData;
 
         LiveData<List<Workmate>> allWorkmates = workmatesRepository.getAllWorkmatesFromFirestoreLiveData();
         LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
@@ -53,17 +54,17 @@ public class WorkmatesViewModel extends ViewModel {
 
         viewStatesLiveData.addSource(allWorkmates, workmates ->
                 combine(workmates, workmatesHaveChosen.getValue(), currentUserSearchLiveData.getValue(),
-                        finalCurrentUserLiveData.getValue()));
+                        currentUserLiveData.getValue()));
 
         viewStatesLiveData.addSource(workmatesHaveChosen, workmates ->
                 combine(allWorkmates.getValue(), workmates, currentUserSearchLiveData.getValue(),
-                        finalCurrentUserLiveData.getValue()));
+                        currentUserLiveData.getValue()));
 
         viewStatesLiveData.addSource(currentUserSearchLiveData, query ->
                 combine(allWorkmates.getValue(), workmatesHaveChosen.getValue(), query,
-                        finalCurrentUserLiveData.getValue()));
+                        currentUserLiveData.getValue()));
 
-        viewStatesLiveData.addSource(finalCurrentUserLiveData, currentUser ->
+        viewStatesLiveData.addSource(currentUserLiveData, currentUser ->
                 combine(allWorkmates.getValue(), workmatesHaveChosen.getValue(),
                         currentUserSearchLiveData.getValue(), currentUser));
     }
@@ -74,14 +75,29 @@ public class WorkmatesViewModel extends ViewModel {
                          @Nullable Workmate currentUser) {
         ArrayList<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
         List<String> ids = new ArrayList<>();
+        Workmate finalCurrentUser;
 
-        if (allWorkmates == null || workmatesHaveChosen == null || currentUser == null) {
+        if (allWorkmates == null || workmatesHaveChosen == null) {
             viewStatesLiveData.setValue(workmatesItemViews);
             return;
         }
 
+        if (currentUser == null) {
+            finalCurrentUser = new Workmate(
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    new ArrayList<>()
+            );
+        } else {
+            finalCurrentUser = currentUser;
+        }
+
         for (Workmate workmateHasChosen : workmatesHaveChosen) {
-            if (!currentUser.getId().equals(workmateHasChosen.getId())) {
+            if (!finalCurrentUser.getId().equals(workmateHasChosen.getId())) {
                 CharSequence sentence = application.getString(R.string.has_chosen,
                         workmateHasChosen.getName(), workmateHasChosen.getRestaurantName());
 
@@ -100,7 +116,7 @@ public class WorkmatesViewModel extends ViewModel {
         }
 
         for (Workmate workmate : allWorkmates) {
-            if (!currentUser.getId().equals(workmate.getId()) && !ids.contains(workmate.getId())) {
+            if (!finalCurrentUser.getId().equals(workmate.getId()) && !ids.contains(workmate.getId())) {
                 if (query == null || workmate.getRestaurantName().contains(query)) {
                     WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                             workmate.getId(),
