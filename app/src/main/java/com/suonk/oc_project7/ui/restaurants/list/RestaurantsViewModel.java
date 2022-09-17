@@ -10,13 +10,13 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.suonk.oc_project7.R;
+import com.suonk.oc_project7.domain.workmates.WorkmatesUseCases;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
-import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +42,7 @@ public class RestaurantsViewModel extends ViewModel {
 
     @Inject
     public RestaurantsViewModel(@NonNull CurrentLocationRepository locationRepository,
-                                @NonNull WorkmatesRepository workmatesRepository,
+                                @NonNull WorkmatesUseCases workmatesUseCases,
                                 @NonNull RestaurantsRepository restaurantsRepository,
                                 @NonNull CurrentUserSearchRepository currentUserSearchRepository,
                                 @NonNull Application application) {
@@ -55,7 +55,8 @@ public class RestaurantsViewModel extends ViewModel {
             return restaurantsRepository.getNearRestaurants(latLng);
         });
 
-        LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
+        LiveData<List<Workmate>> workmatesHaveChosen =
+                workmatesUseCases.getGetWorkmatesHaveChosenTodayUseCase().getWorkmatesHaveChosenTodayLiveData();
         LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
         viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> combine(restaurantsLiveData.getValue(),

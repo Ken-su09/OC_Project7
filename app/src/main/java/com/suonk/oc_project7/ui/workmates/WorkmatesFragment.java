@@ -13,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.suonk.oc_project7.databinding.FragmentWorkmatesBinding;
-import com.suonk.oc_project7.ui.main.MainActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -22,7 +21,6 @@ public class WorkmatesFragment extends Fragment {
 
     private WorkmatesViewModel viewModel;
     private FragmentWorkmatesBinding binding;
-    private MainActivity activity;
 
     public static WorkmatesFragment newInstance() {
 
@@ -36,7 +34,6 @@ public class WorkmatesFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        activity = (MainActivity) context;
     }
 
     @Override
