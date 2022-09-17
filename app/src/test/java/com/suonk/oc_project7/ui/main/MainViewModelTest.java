@@ -65,6 +65,7 @@ public class MainViewModelTest {
     private static final String ADDRESS = "ADDRESS";
     private static final String PHOTO_REFERENCE = "PHOTO_REFERENCE";
 
+    private static final String DEFAULT_ID = "DEFAULT_ID";
     private static final String DEFAULT_NAME = "DEFAULT_NAME";
     private static final String DEFAULT_MAIL = "DEFAULT_MAIL";
     private static final String PICTURE_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=key&photo_reference=" + PHOTO_REFERENCE;
@@ -201,7 +202,9 @@ public class MainViewModelTest {
         boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
         assertTrue(isPermissionsEnabled);
 
+        verify(currentLocationRepositoryMock).startLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
+//        verify(permissionChecker).hasCoarseLocationPermission();
 
         Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
                 currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
@@ -220,6 +223,7 @@ public class MainViewModelTest {
         boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
         assertTrue(isPermissionsEnabled);
 
+        verify(currentLocationRepositoryMock).startLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
         verify(permissionChecker).hasCoarseLocationPermission();
 
@@ -240,6 +244,7 @@ public class MainViewModelTest {
         boolean isPermissionsEnabled = TestUtils.getValueForTesting(viewModel.getPermissionsLiveData());
         assertFalse(isPermissionsEnabled);
 
+        verify(currentLocationRepositoryMock).stopLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
         verify(permissionChecker).hasCoarseLocationPermission();
 
@@ -388,6 +393,14 @@ public class MainViewModelTest {
         );
     }
 
+    private MainViewState getDefaultMainViewStateWithOnlyName() {
+        return new MainViewState(
+                DEFAULT_NAME,
+                "",
+                ""
+        );
+    }
+
     private MainViewState getDefaultMainViewStateEmpty() {
         return new MainViewState(
                 "",
@@ -398,9 +411,19 @@ public class MainViewModelTest {
 
     private CustomFirebaseUser getCustomFirebaseUser() {
         return new CustomFirebaseUser(
+                DEFAULT_ID,
                 DEFAULT_NAME,
                 DEFAULT_MAIL,
                 PICTURE_URL
+        );
+    }
+
+    private CustomFirebaseUser getCustomFirebaseUserWithOnlyName() {
+        return new CustomFirebaseUser(
+                DEFAULT_ID,
+                DEFAULT_NAME,
+                "",
+                ""
         );
     }
 

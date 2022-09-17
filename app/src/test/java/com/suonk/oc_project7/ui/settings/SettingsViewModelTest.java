@@ -41,6 +41,7 @@ public class SettingsViewModelTest {
 
     private static final String PHOTO_REFERENCE = "PHOTO_REFERENCE";
 
+    private static final String DEFAULT_ID = "DEFAULT_ID";
     private static final String DEFAULT_NAME = "DEFAULT_NAME";
     private static final String DEFAULT_MAIL = "DEFAULT_MAIL";
     private static final String PICTURE_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=key&photo_reference=" + PHOTO_REFERENCE;
@@ -141,6 +142,7 @@ public class SettingsViewModelTest {
 
     private CustomFirebaseUser getCustomFirebaseUser() {
         return new CustomFirebaseUser(
+                DEFAULT_ID,
                 DEFAULT_NAME,
                 DEFAULT_MAIL,
                 PICTURE_URL
