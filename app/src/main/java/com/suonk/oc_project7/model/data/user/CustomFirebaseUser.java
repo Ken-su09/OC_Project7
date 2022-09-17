@@ -7,6 +7,9 @@ import java.util.Objects;
 public class CustomFirebaseUser {
 
     @NonNull
+    private final String id;
+
+    @NonNull
     private final String displayName;
 
     @NonNull
@@ -15,12 +18,19 @@ public class CustomFirebaseUser {
     @NonNull
     private final String photoUrl;
 
-    public CustomFirebaseUser(@NonNull String displayName,
+    public CustomFirebaseUser(@NonNull String id,
+                              @NonNull String displayName,
                               @NonNull String email,
                               @NonNull String photoUrl) {
+        this.id = id;
         this.displayName = displayName;
         this.email = email;
         this.photoUrl = photoUrl;
+    }
+
+    @NonNull
+    public String getId() {
+        return id;
     }
 
     @NonNull
@@ -43,19 +53,19 @@ public class CustomFirebaseUser {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         CustomFirebaseUser that = (CustomFirebaseUser) o;
-        return displayName.equals(that.displayName) && email.equals(that.email) && photoUrl.equals(that.photoUrl);
+        return id.equals(that.id) && displayName.equals(that.displayName) && email.equals(that.email) && photoUrl.equals(that.photoUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(displayName, email, photoUrl);
+        return Objects.hash(id, displayName, email, photoUrl);
     }
 
-    @NonNull
     @Override
     public String toString() {
         return "CustomFirebaseUser{" +
-                "displayName='" + displayName + '\'' +
+                "id='" + id + '\'' +
+                ", displayName='" + displayName + '\'' +
                 ", email='" + email + '\'' +
                 ", photoUrl='" + photoUrl + '\'' +
                 '}';
