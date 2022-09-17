@@ -20,4 +20,7 @@ public interface RestaurantsRepository {
     void toggleIsRestaurantLiked(@NonNull Workmate currentUser,
                                  @NonNull String restaurantId,
                                  @NonNull String restaurantName);
+
+    @NonNull
+    String getRestaurantPictureURL(@NonNull String photo_reference);
 }

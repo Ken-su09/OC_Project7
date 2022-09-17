@@ -55,31 +55,29 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
                         List<Restaurant> restaurants = new ArrayList<>();
 
                         if (response.body() != null) {
-                            if (response.body().getResults() != null) {
-                                for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
+                            for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
 
-                                    String photoReference = "";
-                                    Boolean isOpen = false;
+                                String photoReference = "";
+                                Boolean isOpen = false;
 
-                                    if (nearbyPlaceResult.getPhotos() != null) {
-                                        photoReference = nearbyPlaceResult.getPhotos().get(0).getPhotoReference();
-                                    }
-
-                                    if (nearbyPlaceResult.getOpeningHours() != null) {
-                                        isOpen = nearbyPlaceResult.getOpeningHours().getOpenNow();
-                                    }
-
-                                    restaurants.add(new Restaurant(
-                                            nearbyPlaceResult.getPlaceId(),
-                                            nearbyPlaceResult.getName(),
-                                            nearbyPlaceResult.getVicinity(),
-                                            isOpen,
-                                            nearbyPlaceResult.getRating(),
-                                            nearbyPlaceResult.getGeometry().getLocation().getLat(),
-                                            nearbyPlaceResult.getGeometry().getLocation().getLng(),
-                                            getRestaurantPictureURL(photoReference)
-                                    ));
+                                if (nearbyPlaceResult.getPhotos() != null) {
+                                    photoReference = nearbyPlaceResult.getPhotos().get(0).getPhotoReference();
                                 }
+
+                                if (nearbyPlaceResult.getOpeningHours() != null) {
+                                    isOpen = nearbyPlaceResult.getOpeningHours().getOpenNow();
+                                }
+
+                                restaurants.add(new Restaurant(
+                                        nearbyPlaceResult.getPlaceId(),
+                                        nearbyPlaceResult.getName(),
+                                        nearbyPlaceResult.getVicinity(),
+                                        isOpen,
+                                        nearbyPlaceResult.getRating(),
+                                        nearbyPlaceResult.getGeometry().getLocation().getLat(),
+                                        nearbyPlaceResult.getGeometry().getLocation().getLng(),
+                                        getRestaurantPictureURL(photoReference)
+                                ));
                             }
                         }
 
@@ -152,8 +150,8 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
 
     @Override
     public void toggleIsRestaurantLiked(@NonNull Workmate currentUser,
-                               @NonNull String restaurantId,
-                               @NonNull String restaurantName) {
+                                        @NonNull String restaurantId,
+                                        @NonNull String restaurantName) {
         final String id = currentUser.getId();
 
         ArrayList<String> likedRestaurants = new ArrayList<>(currentUser.getLikedRestaurants());
@@ -175,20 +173,15 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
 
         firebaseFirestore.collection(ALL_WORKMATES)
                 .document(id)
-                .set(workmateToAdd)
-                .addOnSuccessListener(unused -> {
-
-                })
-                .addOnFailureListener(e -> {
-
-                });
+                .set(workmateToAdd);
     }
 
-    private String getRestaurantPictureURL(@NonNull String photo_reference) {
+    @NonNull
+    public String getRestaurantPictureURL(@NonNull String photo_reference) {
         return "https://maps.googleapis.com/" +
                 "maps/api/place/photo" +
                 "?maxwidth=400" +
-                "&key=" + BuildConfig.MAPS_API_KEY +
+                "&key=" + BuildConfig.PLACES_API_KEY +
                 "&photo_reference=" + photo_reference;
     }
 }

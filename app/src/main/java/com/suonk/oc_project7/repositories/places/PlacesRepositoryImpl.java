@@ -36,36 +36,34 @@ public class PlacesRepositoryImpl implements PlacesRepository {
     public LiveData<List<Place>> getNearbyPlaceResponse(@NonNull String location) {
         MutableLiveData<List<Place>> placesLiveData = new MutableLiveData<>();
 
-        if (apiService.getNearbyPlacesResponse(location) != null) {
-            apiService.getNearbyPlacesResponse(location).enqueue(new Callback<NearbyPlaceResponse>() {
-                @Override
-                public void onResponse(@NonNull Call<NearbyPlaceResponse> call, @NonNull Response<NearbyPlaceResponse> response) {
-                    if (response.isSuccessful()) {
-                        List<Place> places = new ArrayList<>();
+        apiService.getNearbyPlacesResponse(location).enqueue(new Callback<NearbyPlaceResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<NearbyPlaceResponse> call, @NonNull Response<NearbyPlaceResponse> response) {
+                if (response.isSuccessful()) {
+                    List<Place> places = new ArrayList<>();
 
-                        if (response.body() != null) {
-                            if (response.body().getResults() != null) {
-                                for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
-                                    places.add(new Place(
-                                            nearbyPlaceResult.getPlaceId(),
-                                            nearbyPlaceResult.getName(),
-                                            nearbyPlaceResult.getGeometry().getLocation().getLat(),
-                                            nearbyPlaceResult.getGeometry().getLocation().getLng(),
-                                            true));
-                                }
+                    if (response.body() != null) {
+                        if (response.body().getResults() != null) {
+                            for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
+                                places.add(new Place(
+                                        nearbyPlaceResult.getPlaceId(),
+                                        nearbyPlaceResult.getName(),
+                                        nearbyPlaceResult.getGeometry().getLocation().getLat(),
+                                        nearbyPlaceResult.getGeometry().getLocation().getLng(),
+                                        true));
                             }
                         }
-
-                        placesLiveData.setValue(places);
                     }
-                }
 
-                @Override
-                public void onFailure(@NonNull Call<NearbyPlaceResponse> call, @NonNull Throwable t) {
-                    t.printStackTrace();
+                    placesLiveData.setValue(places);
                 }
-            });
-        }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<NearbyPlaceResponse> call, @NonNull Throwable t) {
+                t.printStackTrace();
+            }
+        });
 
         return placesLiveData;
     }
@@ -84,14 +82,12 @@ public class PlacesRepositoryImpl implements PlacesRepository {
                         List<PlaceAutocomplete> places = new ArrayList<>();
 
                         if (response.body() != null) {
-                            if (response.body().getPredictions() != null) {
-                                for (Prediction prediction : response.body().getPredictions()) {
+                            for (Prediction prediction : response.body().getPredictions()) {
 
-                                    places.add(new PlaceAutocomplete(
-                                            prediction.getPlaceId(),
-                                            prediction.getStructuredFormatting().getMainText(),
-                                            prediction.getStructuredFormatting().getMainText()));
-                                }
+                                places.add(new PlaceAutocomplete(
+                                        prediction.getPlaceId(),
+                                        prediction.getStructuredFormatting().getMainText(),
+                                        prediction.getStructuredFormatting().getMainText()));
                             }
                         }
 
@@ -108,44 +104,4 @@ public class PlacesRepositoryImpl implements PlacesRepository {
 
         return placesLiveData;
     }
-
-//    @NonNull
-//    @Override
-//    public LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@NonNull String language,
-//                                                                   @NonNull String location,
-//                                                                   @NonNull String input) {
-//        MutableLiveData<List<PlaceAutocomplete>> placesLiveData = new MutableLiveData<>();
-//
-//        if (apiService.getPlacesAutocomplete(language, location, input) != null) {
-//            apiService.getPlacesAutocomplete(language, location, input).enqueue(new Callback<AutocompleteResponse>() {
-//                @Override
-//                public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
-//                    if (response.isSuccessful()) {
-//                        List<PlaceAutocomplete> places = new ArrayList<>();
-//
-//                        if (response.body() != null) {
-//                            if (response.body().getPredictions() != null) {
-//                                for (Prediction prediction : response.body().getPredictions()) {
-//
-//                                    places.add(new PlaceAutocomplete(
-//                                            prediction.getPlaceId(),
-//                                            prediction.getStructuredFormatting().getMainText(),
-//                                            prediction.getStructuredFormatting().getMainText()));
-//                                }
-//                            }
-//                        }
-//
-//                        placesLiveData.setValue(places);
-//                    }
-//                }
-//
-//                @Override
-//                public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
-//                    t.printStackTrace();
-//                }
-//            });
-//        }
-//
-//        return placesLiveData;
-//    }
 }
