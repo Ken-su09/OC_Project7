@@ -1,7 +1,6 @@
 package com.suonk.oc_project7.ui.main;
 
 import android.annotation.SuppressLint;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -129,6 +128,7 @@ public class MainViewModel extends ViewModel {
     @SuppressLint("MissingPermission")
     public void onStart() {
         if (permissionChecker.hasFineLocationPermission() || permissionChecker.hasCoarseLocationPermission()) {
+
             locationRepository.startLocationUpdates();
             isPermissionEnabledLiveData.setValue(true);
         } else {
@@ -137,10 +137,13 @@ public class MainViewModel extends ViewModel {
         }
     }
 
+    @SuppressLint("MissingPermission")
     public void onResume() {
         if (permissionChecker.hasFineLocationPermission() || permissionChecker.hasCoarseLocationPermission()) {
+            locationRepository.startLocationUpdates();
             isPermissionEnabledLiveData.setValue(true);
         } else {
+            locationRepository.stopLocationUpdates();
             isPermissionEnabledLiveData.setValue(false);
         }
     }

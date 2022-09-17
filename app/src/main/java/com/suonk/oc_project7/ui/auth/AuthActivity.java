@@ -44,8 +44,6 @@ public class AuthActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.i("FirebaseFirstInstance", "FirebaseAuth.getInstance().getCurrentUser() 2 : " + FirebaseAuth.getInstance().getCurrentUser());
-
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
             startActivity(new Intent(this, MainActivity.class));
             finish();
@@ -109,7 +107,7 @@ public class AuthActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                            viewModel.addWorkmateToFirestore(FirebaseAuth.getInstance().getCurrentUser());
+                            viewModel.addWorkmateToFirestore();
                             updateFirestore();
                             startActivity(new Intent(this, MainActivity.class));
                             finish();
@@ -132,7 +130,7 @@ public class AuthActivity extends AppCompatActivity {
         FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
             if (task.isSuccessful()) {
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                    viewModel.addWorkmateToFirestore(FirebaseAuth.getInstance().getCurrentUser());
+                    viewModel.addWorkmateToFirestore();
                     updateFirestore();
                     startActivity(new Intent(this, MainActivity.class));
                     finish();

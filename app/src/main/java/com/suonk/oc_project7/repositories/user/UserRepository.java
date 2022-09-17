@@ -20,18 +20,14 @@ public class UserRepository {
 
     @Nullable
     public CustomFirebaseUser getCustomFirebaseUser() {
-        if (auth.getCurrentUser() != null &&
-                auth.getCurrentUser().getDisplayName() != null &&
-                auth.getCurrentUser().getEmail() != null &&
-                auth.getCurrentUser().getPhotoUrl() != null
-        ) {
+        if (auth.getCurrentUser() != null) {
             return new CustomFirebaseUser(
-                    auth.getCurrentUser().getDisplayName(),
-                    auth.getCurrentUser().getEmail(),
-                    auth.getCurrentUser().getPhotoUrl().toString()
+                    auth.getCurrentUser().getUid(),
+                    auth.getCurrentUser().getDisplayName() != null ? auth.getCurrentUser().getDisplayName() : "",
+                    auth.getCurrentUser().getEmail() != null ? auth.getCurrentUser().getEmail() : "",
+                    auth.getCurrentUser().getPhotoUrl() != null ? auth.getCurrentUser().getEmail() : ""
             );
         }
-
         return null;
     }
 }

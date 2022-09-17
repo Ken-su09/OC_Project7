@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,6 +56,8 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.i("FirebaseFirstInstance", "FirebaseAuth.getInstance().getCurrentUser() 1 : " + FirebaseAuth.getInstance().getCurrentUser());
+
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             startActivity(new Intent(this, AuthActivity.class));
             finish();
@@ -66,11 +69,6 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, MapsFragment.newInstance())
-                    .commit();
-        }
         isMapsEnabled();
         getLocationPermission();
 
@@ -149,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
         binding.fragmentContainer.setVisibility(View.VISIBLE);
     }
 
-    private void hideFragmentAndShowList(String input) {
+    private void hideFragmentAndShowList(@NonNull String input) {
         if (!input.equals("")) {
             binding.recyclerView.setVisibility(View.VISIBLE);
             binding.fragmentContainer.setVisibility(View.GONE);
@@ -173,6 +171,7 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
             startActivity(new Intent(this, SettingsActivity.class));
         } else if (item.getItemId() == R.id.logout) {
             if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                FirebaseAuth.getInstance().getCurrentUser().delete();
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(this, AuthActivity.class));
                 finish();
@@ -282,6 +281,10 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
                 ActivityCompat.requestPermissions(this,
                         new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                         PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+            } else {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, MapsFragment.newInstance())
+                        .commit();
             }
         });
     }
@@ -291,6 +294,11 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
+
+        }
+
     }
 
     @Override

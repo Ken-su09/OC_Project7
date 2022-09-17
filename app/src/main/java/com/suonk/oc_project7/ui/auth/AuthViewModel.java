@@ -3,8 +3,7 @@ package com.suonk.oc_project7.ui.auth;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
-import com.google.firebase.auth.FirebaseUser;
-import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
+import com.suonk.oc_project7.domain.workmates.add.AddWorkmateToFirestoreUseCase;
 
 import javax.inject.Inject;
 
@@ -14,14 +13,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class AuthViewModel extends ViewModel {
 
     @NonNull
-    private final WorkmatesRepository workmatesRepository;
+    private final AddWorkmateToFirestoreUseCase addWorkmateToFirestoreUseCase;
 
     @Inject
-    public AuthViewModel(@NonNull WorkmatesRepository workmatesRepository) {
-        this.workmatesRepository = workmatesRepository;
+    public AuthViewModel(@NonNull AddWorkmateToFirestoreUseCase addWorkmateToFirestoreUseCase) {
+        this.addWorkmateToFirestoreUseCase = addWorkmateToFirestoreUseCase;
     }
 
-    public void addWorkmateToFirestore(@NonNull FirebaseUser firebaseUser) {
-        workmatesRepository.addWorkmateToFirestore(firebaseUser);
+    public void addWorkmateToFirestore() {
+        addWorkmateToFirestoreUseCase.addWorkmateToFirestore();
     }
 }

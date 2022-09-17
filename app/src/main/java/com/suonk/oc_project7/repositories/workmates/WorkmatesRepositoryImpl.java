@@ -3,21 +3,17 @@ package com.suonk.oc_project7.repositories.workmates;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.Tasks;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import javax.inject.Inject;
 
@@ -34,37 +30,43 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
         this.firebaseFirestore = firebaseFirestore;
     }
 
-    @Nullable
+    @NonNull
     @Override
     public Workmate getUserByIdFromFirestore(@NonNull String userId) {
-        try {
-            LocalDate dateToday = LocalDate.now();
-            int year = dateToday.getYear();
-            int month = dateToday.getMonthValue();
-            int day = dateToday.getDayOfMonth();
+        Workmate currentUser = null;
 
-            String today = year + "-" + month + "-" + day;
+        LocalDate dateToday = LocalDate.now();
+        int year = dateToday.getYear();
+        int month = dateToday.getMonthValue();
+        int day = dateToday.getDayOfMonth();
 
-            final DocumentSnapshot documentSnapshot = Tasks.await(
-                    firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
-                            .document(userId)
-                            .get()
-            );
+        String today = year + "-" + month + "-" + day;
 
-            if (documentSnapshot == null) {
-                return null;
+        final DocumentSnapshot documentSnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
+                .document(userId)
+                .get()
+                .getResult();
+
+        if (documentSnapshot != null) {
+            if (documentSnapshot.toObject(Workmate.class) != null) {
+                currentUser = documentSnapshot.toObject(Workmate.class);
             }
-
-            return documentSnapshot.toObject(Workmate.class);
-
-        } catch (ExecutionException | InterruptedException e) {
-            return null;
         }
+
+        return currentUser != null ? currentUser : new Workmate(
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                new ArrayList<>()
+        );
     }
 
     @NonNull
     @Override
-    public LiveData<Workmate> getCurrentUserLiveData(@NonNull String userId) {
+    public LiveData<Workmate> getCurrentUserByIdLiveData(@NonNull String userId) {
         MutableLiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
         firebaseFirestore.collection(ALL_WORKMATES)
                 .document(userId)
@@ -81,9 +83,9 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
         return currentUserLiveData;
     }
 
-    @Nullable
+    @NonNull
     @Override
-    public List<Workmate> getWorkmatesThatHaveChosenThisRestaurant(@NonNull String restaurantId) {
+    public List<Workmate> getAllWorkmatesThatHaveChosenToday() {
         final List<Workmate> workmates = new ArrayList<>();
 
         LocalDate dateToday = LocalDate.now();
@@ -93,25 +95,12 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
         String today = year + "-" + month + "-" + day;
 
-        firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
-                .addSnapshotListener((querySnapshot, error) -> {
-                    if (querySnapshot != null) {
-                        try {
-                            workmates.addAll(querySnapshot.toObjects(Workmate.class));
-                        } catch (Exception e) {
-                            Log.i("", "" + e);
-                        }
-                    }
-                });
+        final QuerySnapshot querySnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
+                .get()
+                .getResult();
 
-        if (!workmates.isEmpty()) {
-            for (Iterator<Workmate> iterator = workmates.iterator(); iterator.hasNext(); ) {
-                Workmate workmate = iterator.next();
-                if (workmate.getRestaurantId().equals(restaurantId)) {
-                    iterator.remove();
-                    break;
-                }
-            }
+        if (querySnapshot != null) {
+            workmates.addAll(querySnapshot.toObjects(Workmate.class));
         }
 
         return workmates;
@@ -165,62 +154,22 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
     }
 
     @Override
-    public void addWorkmateToHaveChosenTodayList(@NonNull Workmate currentUser,
-                                                 @NonNull String restaurantId,
-                                                 @NonNull String restaurantName) {
-        final String id = currentUser.getId();
-
-        final Workmate workmateToAdd = new Workmate(
-                id,
-                currentUser.getName(),
-                currentUser.getEmail(),
-                currentUser.getPictureUrl(),
-                restaurantId,
-                restaurantName,
-                currentUser.getLikedRestaurants()
-        );
-
+    public void addWorkmateToHaveChosenTodayList(@NonNull String id, @NonNull Workmate workmateToAdd) {
         LocalDate dateToday = LocalDate.now();
         int year = dateToday.getYear();
         int month = dateToday.getMonthValue();
         int day = dateToday.getDayOfMonth();
 
         String today = year + "-" + month + "-" + day;
-
         firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
                 .document(id)
-                .set(workmateToAdd)
-                .addOnSuccessListener(unused -> {
-
-                })
-                .addOnFailureListener(e -> {
-
-                });
+                .set(workmateToAdd);
     }
 
     @Override
-    public void addWorkmateToFirestore(@NonNull FirebaseUser firebaseUser) {
-        final String id = firebaseUser.getUid();
-
-        if (firebaseUser.getEmail() != null && firebaseUser.getDisplayName() != null) {
-            final Workmate workmateToAdd = new Workmate(
-                    id,
-                    firebaseUser.getDisplayName(),
-                    firebaseUser.getEmail(),
-                    firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : null,
-                    "",
-                    "",
-                    new ArrayList<>()
-            );
-            firebaseFirestore.collection(ALL_WORKMATES)
-                    .document(id)
-                    .set(workmateToAdd)
-                    .addOnSuccessListener(unused -> {
-
-                    })
-                    .addOnFailureListener(e -> {
-
-                    });
-        }
+    public void addWorkmateToFirestore(@NonNull String id, @NonNull Workmate workmateToAdd) {
+        firebaseFirestore.collection(ALL_WORKMATES)
+                .document(id)
+                .set(workmateToAdd);
     }
 }
