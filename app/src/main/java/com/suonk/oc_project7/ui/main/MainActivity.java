@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,8 +32,10 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityMainBinding;
-import com.suonk.oc_project7.events.OnRestaurantEventListener;
+import com.suonk.oc_project7.events.OnClickEventListener;
 import com.suonk.oc_project7.ui.auth.AuthActivity;
+import com.suonk.oc_project7.ui.chat.details.ChatDetailsActivity;
+import com.suonk.oc_project7.ui.chat.list.ChatsListActivity;
 import com.suonk.oc_project7.ui.maps.MapsFragment;
 import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActivity;
 import com.suonk.oc_project7.ui.restaurants.list.ListRestaurantsFragment;
@@ -44,7 +45,7 @@ import com.suonk.oc_project7.ui.workmates.WorkmatesFragment;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity implements OnRestaurantEventListener, NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements OnClickEventListener, NavigationView.OnNavigationItemSelectedListener {
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -55,8 +56,6 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Log.i("FirebaseFirstInstance", "FirebaseAuth.getInstance().getCurrentUser() 1 : " + FirebaseAuth.getInstance().getCurrentUser());
 
         if (FirebaseAuth.getInstance().getCurrentUser() == null) {
             startActivity(new Intent(this, AuthActivity.class));
@@ -169,6 +168,8 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.settings) {
             startActivity(new Intent(this, SettingsActivity.class));
+        } else if (item.getItemId() == R.id.messages) {
+            startActivity(new Intent(this, ChatsListActivity.class));
         } else if (item.getItemId() == R.id.logout) {
             if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                 FirebaseAuth.getInstance().getCurrentUser().delete();
@@ -304,6 +305,11 @@ public class MainActivity extends AppCompatActivity implements OnRestaurantEvent
     @Override
     public void onRestaurantClick(View view, String id) {
         startActivity(RestaurantDetailsActivity.navigate(this, id));
+    }
+
+    @Override
+    public void onWorkmateClick(View view, String id) {
+        startActivity(ChatDetailsActivity.navigate(this, id));
     }
 
     @Override

@@ -13,7 +13,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.domain.workmates.WorkmatesUseCases;
 import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
@@ -48,7 +47,6 @@ public class RestaurantsViewModelTest {
     private final Application application = Mockito.mock(Application.class);
     private final CurrentLocationRepository currentLocationRepositoryMock = mock(CurrentLocationRepositoryImpl.class);
 
-    private final WorkmatesUseCases workmatesUseCasesMock = mock(WorkmatesUseCases.class);
     private final GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCaseMock = mock(GetWorkmatesHaveChosenTodayUseCase.class);
     
     private final RestaurantsRepository restaurantsRepositoryMock = mock(RestaurantsRepositoryImpl.class);
@@ -111,7 +109,6 @@ public class RestaurantsViewModelTest {
         doReturn(currentLocationMutableLiveData).when(currentLocationRepositoryMock).getLocationMutableLiveData();
         doReturn(restaurantsLiveData).when(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
 
-        doReturn(getWorkmatesHaveChosenTodayUseCaseMock).when(workmatesUseCasesMock).getGetWorkmatesHaveChosenTodayUseCase();
         doReturn(workmatesHaveChosenLiveData).when(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
 
         doReturn(searchInputLiveData).when(currentUserSearchRepositoryMock).getCurrentUserSearchLiveData();
@@ -135,14 +132,13 @@ public class RestaurantsViewModelTest {
 
         restaurantsViewModel = new RestaurantsViewModel(
                 currentLocationRepositoryMock,
-                workmatesUseCasesMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
                 restaurantsRepositoryMock,
                 currentUserSearchRepositoryMock,
                 application
         );
 
         verify(currentLocationRepositoryMock).getLocationMutableLiveData();
-        verify(workmatesUseCasesMock).getGetWorkmatesHaveChosenTodayUseCase();
         verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
         verify(currentUserSearchRepositoryMock).getCurrentUserSearchLiveData();
     }
@@ -172,7 +168,7 @@ public class RestaurantsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -199,7 +195,7 @@ public class RestaurantsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES);
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -228,7 +224,7 @@ public class RestaurantsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, NUMBER_OF_WORKMATES_1);
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -248,7 +244,7 @@ public class RestaurantsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -265,7 +261,7 @@ public class RestaurantsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -293,7 +289,7 @@ public class RestaurantsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -320,7 +316,7 @@ public class RestaurantsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.distance_restaurant, (int) DISTANCE_TO_RESTAURANT);
         verify(application, atLeastOnce()).getString(R.string.number_of_workmates, 0);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -340,7 +336,7 @@ public class RestaurantsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 
@@ -359,7 +355,7 @@ public class RestaurantsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLng();
         verify(restaurantsRepositoryMock).getNearRestaurants(LOCATION);
 
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, workmatesUseCasesMock,
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, currentLocation, getWorkmatesHaveChosenTodayUseCaseMock,
                 currentUserSearchRepositoryMock, currentLocationRepositoryMock, application);
     }
 

@@ -16,12 +16,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityRestaurantDetailsBinding;
+import com.suonk.oc_project7.events.OnClickEventListener;
 import com.suonk.oc_project7.ui.workmates.WorkmatesListAdapter;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class RestaurantDetailsActivity extends AppCompatActivity {
+public class RestaurantDetailsActivity extends AppCompatActivity implements OnClickEventListener {
 
     public static final String PLACE_ID = "PLACE_ID";
 
@@ -89,11 +90,20 @@ public class RestaurantDetailsActivity extends AppCompatActivity {
     }
 
     private void getWorkmatesWhoHaveChosenThisRestaurant(ActivityRestaurantDetailsBinding binding, RestaurantDetailsViewModel viewModel) {
-        WorkmatesListAdapter listAdapter = new WorkmatesListAdapter();
+        WorkmatesListAdapter listAdapter = new WorkmatesListAdapter(this);
 
         viewModel.getWorkmatesViewStateLiveData().observe(this, listAdapter::submitList);
         binding.workmatesRecyclerView.setAdapter(listAdapter);
         binding.workmatesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         binding.workmatesRecyclerView.setHasFixedSize(true);
+    }
+
+    @Override
+    public void onRestaurantClick(View view, String id) {
+    }
+
+    @Override
+    public void onWorkmateClick(View view, String id) {
+
     }
 }

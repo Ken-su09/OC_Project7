@@ -13,19 +13,19 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.suonk.oc_project7.databinding.FragmentWorkmatesBinding;
+import com.suonk.oc_project7.events.OnClickEventListener;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class WorkmatesFragment extends Fragment {
+public class WorkmatesFragment extends Fragment implements OnClickEventListener {
 
+    private OnClickEventListener listener;
     private WorkmatesViewModel viewModel;
     private FragmentWorkmatesBinding binding;
 
     public static WorkmatesFragment newInstance() {
-
         Bundle args = new Bundle();
-
         WorkmatesFragment fragment = new WorkmatesFragment();
         fragment.setArguments(args);
         return fragment;
@@ -34,6 +34,7 @@ public class WorkmatesFragment extends Fragment {
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
+        listener = (OnClickEventListener) context;
     }
 
     @Override
@@ -58,11 +59,20 @@ public class WorkmatesFragment extends Fragment {
     }
 
     private void getWorkmatesListFromViewModel() {
-        WorkmatesListAdapter listAdapter = new WorkmatesListAdapter();
+        WorkmatesListAdapter listAdapter = new WorkmatesListAdapter(listener);
 
         viewModel.getWorkmatesLiveData().observe(getViewLifecycleOwner(), listAdapter::submitList);
         binding.workmatesList.setAdapter(listAdapter);
         binding.workmatesList.setLayoutManager(new LinearLayoutManager(getContext()));
         binding.workmatesList.setHasFixedSize(true);
+    }
+
+    @Override
+    public void onRestaurantClick(View view, String id) {
+    }
+
+    @Override
+    public void onWorkmateClick(View view, String id) {
+        listener.onWorkmateClick(view, id);
     }
 }

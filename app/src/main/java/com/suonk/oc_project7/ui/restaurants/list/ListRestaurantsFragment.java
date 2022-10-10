@@ -12,20 +12,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.suonk.oc_project7.databinding.FragmentListRestaurantsBinding;
-import com.suonk.oc_project7.events.OnRestaurantEventListener;
-import com.suonk.oc_project7.ui.main.MainActivity;
+import com.suonk.oc_project7.events.OnClickEventListener;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class ListRestaurantsFragment extends Fragment implements OnRestaurantEventListener {
+public class ListRestaurantsFragment extends Fragment implements OnClickEventListener {
 
-    private OnRestaurantEventListener listener;
-    private MainActivity activity;
+    private OnClickEventListener listener;
 
     public static ListRestaurantsFragment newInstance() {
         Bundle args = new Bundle();
-
         ListRestaurantsFragment fragment = new ListRestaurantsFragment();
         fragment.setArguments(args);
         return fragment;
@@ -34,8 +31,7 @@ public class ListRestaurantsFragment extends Fragment implements OnRestaurantEve
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
-        listener = (OnRestaurantEventListener) context;
-        activity = (MainActivity) context;
+        listener = (OnClickEventListener) context;
     }
 
     @Override
@@ -50,7 +46,7 @@ public class ListRestaurantsFragment extends Fragment implements OnRestaurantEve
     }
 
     private void getRestaurantsListFromViewModel(@NonNull RestaurantsViewModel viewModel, @NonNull FragmentListRestaurantsBinding binding) {
-        RestaurantsListAdapter listAdapter = new RestaurantsListAdapter(this, activity);
+        RestaurantsListAdapter listAdapter = new RestaurantsListAdapter(this);
 
         viewModel.getRestaurantsLiveData().observe(getViewLifecycleOwner(), listAdapter::submitList);
 
@@ -61,5 +57,10 @@ public class ListRestaurantsFragment extends Fragment implements OnRestaurantEve
     @Override
     public void onRestaurantClick(View view, String id) {
         listener.onRestaurantClick(view, id);
+    }
+
+    @Override
+    public void onWorkmateClick(View view, String id) {
+
     }
 }

@@ -15,9 +15,8 @@ import androidx.lifecycle.MutableLiveData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.domain.workmates.WorkmatesUseCases;
 import com.suonk.oc_project7.domain.workmates.get.GetAllWorkmatesFromFirestoreUseCase;
-import com.suonk.oc_project7.domain.workmates.get.GetCurrentUserUseCase;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmateByIdUseCase;
 import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
@@ -42,8 +41,7 @@ public class WorkmatesViewModelTest {
 
     //region ============================================= MOCK =============================================
 
-    private final WorkmatesUseCases workmatesUseCasesMock = mock(WorkmatesUseCases.class);
-    private final GetCurrentUserUseCase getCurrentUserUseCaseMock = mock(GetCurrentUserUseCase.class);
+    private final GetWorkmateByIdUseCase getWorkmateByIdUseCaseMock = mock(GetWorkmateByIdUseCase.class);
     private final GetAllWorkmatesFromFirestoreUseCase getAllWorkmatesFromFirestoreUseCaseMock = mock(GetAllWorkmatesFromFirestoreUseCase.class);
     private final GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCaseMock = mock(GetWorkmatesHaveChosenTodayUseCase.class);
 
@@ -95,17 +93,13 @@ public class WorkmatesViewModelTest {
 
     @Before
     public void setup() {
-        doReturn(getAllWorkmatesFromFirestoreUseCaseMock).when(workmatesUseCasesMock).getGetAllWorkmatesFromFirestoreUseCase();
-        doReturn(getWorkmatesHaveChosenTodayUseCaseMock).when(workmatesUseCasesMock).getGetWorkmatesHaveChosenTodayUseCase();
-        doReturn(getCurrentUserUseCaseMock).when(workmatesUseCasesMock).getGetCurrentUserUseCase();
-
         doReturn(workmatesMutableLiveData).when(getAllWorkmatesFromFirestoreUseCaseMock).getAllWorkmatesFromFirestoreLiveData();
         doReturn(workmatesHaveChosenMutableLiveData).when(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
         doReturn(currentUserSearchLiveData).when(currentUserSearchRepository).getCurrentUserSearchLiveData();
 
         doReturn(firebaseUser).when(auth).getCurrentUser();
         doReturn(UID).when(firebaseUser).getUid();
-        doReturn(currentUserLiveData).when(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        doReturn(currentUserLiveData).when(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
 
         doReturn(TEXT_WORKMATE_HAS_CHOSEN).when(application).getString(R.string.has_chosen,
                 WORKMATE_HAS_CHOSEN, RESTAURANT_NAME);
@@ -130,10 +124,17 @@ public class WorkmatesViewModelTest {
         verify(currentUserSearchRepository).getCurrentUserSearchLiveData();
         verify(auth, atLeastOnce()).getCurrentUser();
 
-        verify(workmatesUseCasesMock).getGetAllWorkmatesFromFirestoreUseCase();
-        verify(workmatesUseCasesMock).getGetWorkmatesHaveChosenTodayUseCase();
+        Mockito.verifyNoMoreInteractions(getAllWorkmatesFromFirestoreUseCaseMock, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository, auth);
+    }
 
-        Mockito.verifyNoMoreInteractions(workmatesUseCasesMock, currentUserSearchRepository, auth);
+    private WorkmatesViewModel initViewModel() {
+        return new WorkmatesViewModel(
+                getAllWorkmatesFromFirestoreUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
+                currentUserSearchRepository,
+                auth,
+                application);
     }
 
     @Test
@@ -141,11 +142,7 @@ public class WorkmatesViewModelTest {
         // GIVEN
         currentUserSearchLiveData.setValue("");
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -156,20 +153,14 @@ public class WorkmatesViewModelTest {
         assertEquals(7, allWorkmatesViewState.size());
         assertEquals(getDefaultWorkmatesItemViewState(), allWorkmatesViewState);
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
     @Test
     public void get_all_workmates_from_firestore_with_search() {
         // GIVEN
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -180,9 +171,7 @@ public class WorkmatesViewModelTest {
         assertEquals(3, allWorkmatesViewState.size());
         assertEquals(getDefaultWorkmatesItemViewStateWithSearch(), allWorkmatesViewState);
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -191,11 +180,7 @@ public class WorkmatesViewModelTest {
         // GIVEN
         currentUserSearchLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -206,9 +191,7 @@ public class WorkmatesViewModelTest {
         assertEquals(7, allWorkmatesViewState.size());
         assertEquals(getDefaultWorkmatesItemViewState(), allWorkmatesViewState);
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -219,11 +202,7 @@ public class WorkmatesViewModelTest {
         workmatesHaveChosenMutableLiveData.setValue(null);
         workmatesMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -233,9 +212,7 @@ public class WorkmatesViewModelTest {
         assertNotNull(allWorkmatesViewState);
         assertEquals(0, allWorkmatesViewState.size());
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -245,11 +222,7 @@ public class WorkmatesViewModelTest {
         workmatesHaveChosenMutableLiveData.setValue(null);
         workmatesMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -259,9 +232,7 @@ public class WorkmatesViewModelTest {
         assertNotNull(allWorkmatesViewState);
         assertEquals(0, allWorkmatesViewState.size());
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -272,11 +243,7 @@ public class WorkmatesViewModelTest {
         workmatesHaveChosenMutableLiveData.setValue(null);
         workmatesMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -286,9 +253,7 @@ public class WorkmatesViewModelTest {
         assertNotNull(allWorkmatesViewState);
         assertEquals(0, allWorkmatesViewState.size());
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -298,11 +263,7 @@ public class WorkmatesViewModelTest {
         currentUserSearchLiveData.setValue("");
         workmatesMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -312,9 +273,7 @@ public class WorkmatesViewModelTest {
         assertNotNull(allWorkmatesViewState);
         assertEquals(0, allWorkmatesViewState.size());
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -323,11 +282,7 @@ public class WorkmatesViewModelTest {
         // GIVEN
         workmatesMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -338,8 +293,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -349,11 +303,7 @@ public class WorkmatesViewModelTest {
         currentUserSearchLiveData.setValue(null);
         workmatesMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -364,8 +314,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -375,11 +324,7 @@ public class WorkmatesViewModelTest {
         currentUserSearchLiveData.setValue("");
         workmatesHaveChosenMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -390,8 +335,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -400,11 +344,7 @@ public class WorkmatesViewModelTest {
         // GIVEN
         workmatesHaveChosenMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -415,8 +355,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -426,11 +365,7 @@ public class WorkmatesViewModelTest {
         currentUserSearchLiveData.setValue(null);
         workmatesHaveChosenMutableLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -441,8 +376,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -453,11 +387,7 @@ public class WorkmatesViewModelTest {
         workmatesHaveChosenMutableLiveData.setValue(new ArrayList<>());
         workmatesMutableLiveData.setValue(new ArrayList<>());
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -468,8 +398,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -479,11 +408,7 @@ public class WorkmatesViewModelTest {
         workmatesHaveChosenMutableLiveData.setValue(new ArrayList<>());
         workmatesMutableLiveData.setValue(new ArrayList<>());
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -494,8 +419,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -506,11 +430,7 @@ public class WorkmatesViewModelTest {
         workmatesHaveChosenMutableLiveData.setValue(new ArrayList<>());
         workmatesMutableLiveData.setValue(new ArrayList<>());
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -521,8 +441,7 @@ public class WorkmatesViewModelTest {
         assertEquals(0, allWorkmatesViewState.size());
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -532,11 +451,7 @@ public class WorkmatesViewModelTest {
         currentUserSearchLiveData.setValue("");
         currentUserLiveData.setValue(null);
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(
@@ -546,9 +461,7 @@ public class WorkmatesViewModelTest {
         assertNotNull(allWorkmatesViewState);
         assertEquals(8, allWorkmatesViewState.size());
 
-
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(UID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(UID);
         verify(firebaseUser).getUid();
     }
 
@@ -558,11 +471,7 @@ public class WorkmatesViewModelTest {
         doReturn(null).when(auth).getCurrentUser();
         currentUserSearchLiveData.setValue("");
 
-        WorkmatesViewModel workmatesViewModel = new WorkmatesViewModel(
-                workmatesUseCasesMock,
-                currentUserSearchRepository,
-                auth,
-                application);
+        WorkmatesViewModel workmatesViewModel = initViewModel();
 
         // WHEN
         List<WorkmateItemViewState> allWorkmatesViewState = TestUtils.getValueForTesting(

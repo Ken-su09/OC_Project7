@@ -1,33 +1,34 @@
 package com.suonk.oc_project7.repositories.places;
 
-import static org.junit.Assert.*;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.location.Location;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.maps.model.LatLng;
 import com.suonk.oc_project7.api.PlacesApiService;
-import com.suonk.oc_project7.model.data.places.Place;
-import com.suonk.oc_project7.model.data.restaurant.Restaurant;
-import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
-import com.suonk.oc_project7.utils.TestUtils;
+import com.suonk.oc_project7.model.data.place_auto_complete.PlaceAutocomplete;
+import com.suonk.oc_project7.model.data.places.NearbyPlaceResponse;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.List;
+import java.io.IOException;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PlacesRepositoryImplTest {
@@ -35,29 +36,104 @@ public class PlacesRepositoryImplTest {
     @Rule
     public final InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
+    private PlacesRepository placesRepository;
+
+    //region ============================================= MOCK =============================================
+
     @NonNull
     private final PlacesApiService placesApiServiceMock = mock(PlacesApiService.class);
 
     @NonNull
     private final Location locationMock = mock(Location.class);
+    private final Call<NearbyPlaceResponse> mockedCall = Mockito.mock(Call.class);
+    private final Response<NearbyPlaceResponse> mockedResponse = Mockito.mock(Response.class);
 
-    private PlacesRepository placesRepository;
+    private final Call<PlaceAutocomplete> mockedCallAutocomplete = Mockito.mock(Call.class);
+    private final Response<PlaceAutocomplete> mockedResponseAutocomplete = Mockito.mock(Response.class);
+
+    //endregion
+
+    private static final double DEFAULT_LATITUDE = 48.9575329;
+    private static final double DEFAULT_LONGITUDE = 2.5594583;
+    private String DEFAULT_LOCATION = DEFAULT_LATITUDE + "," + DEFAULT_LONGITUDE;
+
+    private final String DEFAULT_INPUT = "DEFAULT_INPUT";
 
     @Before
-    public void setUp() {
-        doReturn(48.9575329).when(locationMock).getLatitude();
-        doReturn(2.5594583).when(locationMock).getLongitude();
+    public void setup() throws IOException {
+        doReturn(DEFAULT_LATITUDE).when(locationMock).getLatitude();
+        doReturn(DEFAULT_LONGITUDE).when(locationMock).getLongitude();
+
+        DEFAULT_LOCATION = locationMock.getLatitude() + "," + locationMock.getLongitude();
+
         placesRepository = new PlacesRepositoryImpl(placesApiServiceMock);
     }
 
     @Test
     public void get_nearby_places_with_default_location() {
+        // GIVEN
+        doReturn(mockedCall).when(placesApiServiceMock).getNearbyPlacesResponse(DEFAULT_LOCATION);
+
+        ArgumentCaptor<Callback<NearbyPlaceResponse>> nearbyPlaceResponseCallBackCaptor =
+                ArgumentCaptor.forClass(Callback.class);
+
         // WHEN
-        String defaultLocation = locationMock.getLatitude() + "," + locationMock.getLongitude();
-        placesRepository.getNearbyPlaceResponse(defaultLocation);
+        placesRepository.getNearbyPlaceResponse(DEFAULT_LOCATION);
 
         // THEN
-        verify(placesApiServiceMock).getNearbyPlacesResponse(defaultLocation);
+        verify(mockedCall).enqueue(nearbyPlaceResponseCallBackCaptor.capture());
+        Callback<NearbyPlaceResponse> callback = nearbyPlaceResponseCallBackCaptor.getValue();
+
+        // WHEN II
+        callback.onResponse(mockedCall, mockedResponse);
+
+        // THEN
+        verify(placesApiServiceMock).getNearbyPlacesResponse(DEFAULT_LOCATION);
+        verifyNoMoreInteractions(placesApiServiceMock);
+    }
+
+    @Test
+    public void get_nearby_places_with_empty_location() {
+        // WHEN
+//        placesRepository.getNearbyPlaceResponse(DEFAULT_LOCATION);
+//
+//        // THEN
+//        verify(placesApiServiceMock).getNearbyPlacesResponse(DEFAULT_LOCATION);
+//        verifyNoMoreInteractions(placesApiServiceMock);
+    }
+
+    @Test
+    public void get_places_autocomplete() {
+        // GIVEN
+        doReturn(mockedCallAutocomplete).when(placesApiServiceMock)
+                .getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+
+        ArgumentCaptor<Callback<PlaceAutocomplete>> placesAutoCompleteCallBackCaptor =
+                ArgumentCaptor.forClass(Callback.class);
+
+        // WHEN
+        placesRepository.getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+
+        // THEN
+        verify(mockedCallAutocomplete).enqueue(placesAutoCompleteCallBackCaptor.capture());
+        Callback<PlaceAutocomplete> callback = placesAutoCompleteCallBackCaptor.getValue();
+
+        // WHEN II
+        callback.onResponse(mockedCallAutocomplete, mockedResponseAutocomplete);
+
+        // THEN
+        verify(placesApiServiceMock, atLeastOnce())
+                .getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+        verifyNoMoreInteractions(placesApiServiceMock);
+    }
+
+    @Test
+    public void get_places_autocomplete_with_get_places_null() {
+        // WHEN
+        placesRepository.getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+
+        // THEN
+        verify(placesApiServiceMock).getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
         verifyNoMoreInteractions(placesApiServiceMock);
     }
 }

@@ -19,10 +19,8 @@ import androidx.lifecycle.SavedStateHandle;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.domain.workmates.add.AddWorkmateToFirestoreUseCase;
 import com.suonk.oc_project7.domain.workmates.add.AddWorkmateToHaveChosenTodayUseCase;
-import com.suonk.oc_project7.domain.workmates.WorkmatesUseCases;
-import com.suonk.oc_project7.domain.workmates.get.GetCurrentUserUseCase;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmateByIdUseCase;
 import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
@@ -52,11 +50,9 @@ public class RestaurantDetailsViewModelTest {
 
     //region ============================================= MOCK =============================================
 
-    private final WorkmatesUseCases workmatesUseCasesMock = mock(WorkmatesUseCases.class);
-    private final AddWorkmateToFirestoreUseCase addWorkmateToFirestoreUseCaseMock = mock(AddWorkmateToFirestoreUseCase.class);
     private final AddWorkmateToHaveChosenTodayUseCase addWorkmateToHaveChosenTodayUseCaseMock = mock(AddWorkmateToHaveChosenTodayUseCase.class);
     private final GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCaseMock = mock(GetWorkmatesHaveChosenTodayUseCase.class);
-    private final GetCurrentUserUseCase getCurrentUserUseCaseMock = mock(GetCurrentUserUseCase.class);
+    private final GetWorkmateByIdUseCase getWorkmateByIdUseCaseMock = mock(GetWorkmateByIdUseCase.class);
 
     private final RestaurantsRepository restaurantsRepositoryMock = mock(RestaurantsRepositoryImpl.class);
     private final FirebaseAuth auth = mock(FirebaseAuth.class);
@@ -124,11 +120,6 @@ public class RestaurantDetailsViewModelTest {
     public void setup() {
         doReturn(PLACE_ID_VALUE).when(savedStateHandle).get(PLACE_ID);
         doReturn(restaurantDetailsMutableLiveData).when(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
-        doReturn(getWorkmatesHaveChosenTodayUseCaseMock).when(workmatesUseCasesMock).getGetWorkmatesHaveChosenTodayUseCase();
-        doReturn(getCurrentUserUseCaseMock).when(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        doReturn(addWorkmateToHaveChosenTodayUseCaseMock).when(workmatesUseCasesMock).getAddWorkmateToHaveChosenTodayUseCase();
-
         doReturn(workmatesHaveChosenMutableLiveData).when(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
 
         doNothing().when(addWorkmateToHaveChosenTodayUseCaseMock).addWorkmateToHaveChosenTodayList(
@@ -141,7 +132,7 @@ public class RestaurantDetailsViewModelTest {
         doReturn(firebaseUser).when(auth).getCurrentUser();
         doReturn(CURRENT_FIREBASE_USER_ID).when(firebaseUser).getUid();
 
-        doReturn(currentUserLiveData).when(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        doReturn(currentUserLiveData).when(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
 
         restaurantDetailsMutableLiveData.setValue(getDefaultRestaurantDetails());
         workmatesHaveChosenMutableLiveData.setValue(getDefaultWorkmatesHaveChosen());
@@ -151,12 +142,12 @@ public class RestaurantDetailsViewModelTest {
     @After
     public void tearDown() {
         verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
-        verify(workmatesUseCasesMock).getGetWorkmatesHaveChosenTodayUseCase();
         verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
         verify(auth, atLeastOnce()).getCurrentUser();
 
         // THEN
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, workmatesUseCasesMock, savedStateHandle, auth, application);
+        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock, addWorkmateToHaveChosenTodayUseCaseMock, savedStateHandle, auth, application);
     }
 
     //region ==================================== GET RESTAURANT DETAILS ====================================
@@ -169,7 +160,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -191,8 +184,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -203,7 +195,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -219,8 +213,7 @@ public class RestaurantDetailsViewModelTest {
         verify(savedStateHandle).get(PLACE_ID);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -231,7 +224,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(null);
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -248,8 +243,7 @@ public class RestaurantDetailsViewModelTest {
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, FORMATTED_WORKMATES_HAS_JOINED);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
     }
@@ -262,7 +256,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -280,8 +276,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -292,7 +287,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -310,8 +307,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -322,7 +318,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUserWithLikedRestaurantsThatDoNotContainPlaceId());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -344,8 +342,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -358,7 +355,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -377,8 +376,7 @@ public class RestaurantDetailsViewModelTest {
         assertEquals(getDefaultRestaurantDetailsViewStateIfPlaceIdNotCorrectlyMatch(), restaurantDetailsViewState);
 
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -392,7 +390,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -412,8 +412,7 @@ public class RestaurantDetailsViewModelTest {
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_WRONG_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -426,7 +425,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -459,7 +460,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -473,8 +476,7 @@ public class RestaurantDetailsViewModelTest {
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     //region ========================================= ADD WORKMATE =========================================
@@ -487,7 +489,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -504,9 +508,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(workmatesUseCasesMock).getAddWorkmateToHaveChosenTodayUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -517,7 +519,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -529,8 +533,7 @@ public class RestaurantDetailsViewModelTest {
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -541,7 +544,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(null);
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -558,8 +563,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -570,7 +574,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -583,8 +589,7 @@ public class RestaurantDetailsViewModelTest {
         // THEN
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     //endregion
@@ -597,7 +602,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -613,8 +620,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -625,7 +631,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -638,8 +646,7 @@ public class RestaurantDetailsViewModelTest {
         // THEN
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -650,7 +657,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(null);
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -666,8 +675,7 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     @Test
@@ -678,7 +686,9 @@ public class RestaurantDetailsViewModelTest {
         currentUserLiveData.setValue(getDefaultCurrentUser());
 
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(
-                workmatesUseCasesMock,
+                addWorkmateToHaveChosenTodayUseCaseMock,
+                getWorkmatesHaveChosenTodayUseCaseMock,
+                getWorkmateByIdUseCaseMock,
                 restaurantsRepositoryMock,
                 auth,
                 application,
@@ -691,8 +701,7 @@ public class RestaurantDetailsViewModelTest {
         // THEN
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
 
-        verify(workmatesUseCasesMock).getGetCurrentUserUseCase();
-        verify(getCurrentUserUseCaseMock).getCurrentUserByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
     }
 
     //region ====================================== RESTAURANT DETAILS ======================================

@@ -14,13 +14,13 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.suonk.oc_project7.databinding.ItemRestaurantBinding;
-import com.suonk.oc_project7.events.OnRestaurantEventListener;
+import com.suonk.oc_project7.events.OnClickEventListener;
 
 public class MainListAdapter extends ListAdapter<MainItemViewState, MainListAdapter.ViewHolder> {
 
-    private final OnRestaurantEventListener callback;
+    private final OnClickEventListener callback;
 
-    public MainListAdapter(OnRestaurantEventListener callback) {
+    public MainListAdapter(OnClickEventListener callback) {
         super(new MainListAdapter.ItemCallBack());
         this.callback = callback;
     }
@@ -45,7 +45,7 @@ public class MainListAdapter extends ListAdapter<MainItemViewState, MainListAdap
             this.binding = binding;
         }
 
-        public void onBind(MainItemViewState restaurant, OnRestaurantEventListener callback) {
+        public void onBind(MainItemViewState restaurant, OnClickEventListener callback) {
             Spannable wordToSpan = new SpannableString(restaurant.getRestaurantName());
             wordToSpan.setSpan(new BackgroundColorSpan(Color.LTGRAY), restaurant.getStart(),
                     restaurant.getEnd(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

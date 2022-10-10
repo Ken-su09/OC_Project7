@@ -10,7 +10,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.domain.workmates.WorkmatesUseCases;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
 import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
@@ -42,7 +42,7 @@ public class RestaurantsViewModel extends ViewModel {
 
     @Inject
     public RestaurantsViewModel(@NonNull CurrentLocationRepository locationRepository,
-                                @NonNull WorkmatesUseCases workmatesUseCases,
+                                @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase,
                                 @NonNull RestaurantsRepository restaurantsRepository,
                                 @NonNull CurrentUserSearchRepository currentUserSearchRepository,
                                 @NonNull Application application) {
@@ -55,8 +55,7 @@ public class RestaurantsViewModel extends ViewModel {
             return restaurantsRepository.getNearRestaurants(latLng);
         });
 
-        LiveData<List<Workmate>> workmatesHaveChosen =
-                workmatesUseCases.getGetWorkmatesHaveChosenTodayUseCase().getWorkmatesHaveChosenTodayLiveData();
+        LiveData<List<Workmate>> workmatesHaveChosen = getWorkmatesHaveChosenTodayUseCase.getWorkmatesHaveChosenTodayLiveData();
         LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
         viewStatesLiveData.addSource(workmatesHaveChosen, workmates -> combine(restaurantsLiveData.getValue(),

@@ -23,6 +23,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.suonk.oc_project7.R;
+import com.suonk.oc_project7.ui.main.MainViewModel;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -31,12 +32,23 @@ public class MapsFragment extends SupportMapFragment {
 
     private GoogleMap googleMap;
     private MapsViewModel mapsViewModel;
+    private MainViewModel mainViewModel;
+
+    @NonNull
+    public static MapsFragment newInstance() {
+        Bundle args = new Bundle();
+
+        MapsFragment fragment = new MapsFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         mapsViewModel = new ViewModelProvider(this).get(MapsViewModel.class);
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         setupGoogleMap();
     }
 
@@ -44,7 +56,10 @@ public class MapsFragment extends SupportMapFragment {
     private void setupGoogleMap() {
         getMapAsync(mMap -> {
             googleMap = mMap;
-            googleMap.setMyLocationEnabled(true);
+            mainViewModel.getPermissionsLiveData().observe(getViewLifecycleOwner(), isPermissionsEnabled -> {
+                googleMap.setMyLocationEnabled(isPermissionsEnabled);
+                    }
+            );
 
             mapsViewModel.getMapMakersLiveData().observe(getViewLifecycleOwner(), mapMarkers -> {
                 for (MapMarker mapMaker : mapMarkers) {
@@ -60,12 +75,12 @@ public class MapsFragment extends SupportMapFragment {
                 }
             });
 
-//            mapsViewModel.getCameraPositionSingleEvent().observe(getViewLifecycleOwner(), currentLatLng -> {
-//                if (currentLatLng != null) {
-//                    CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
-//                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-//                }
-//            });
+            mapsViewModel.getCameraPositionSingleEvent().observe(getViewLifecycleOwner(), currentLatLng -> {
+                if (currentLatLng != null) {
+                    CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                }
+            });
         });
     }
 

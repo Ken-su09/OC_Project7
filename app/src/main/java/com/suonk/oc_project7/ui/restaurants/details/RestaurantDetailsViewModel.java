@@ -17,7 +17,9 @@ import androidx.lifecycle.ViewModel;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.domain.workmates.WorkmatesUseCases;
+import com.suonk.oc_project7.domain.workmates.add.AddWorkmateToHaveChosenTodayUseCase;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmateByIdUseCase;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
@@ -34,7 +36,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class RestaurantDetailsViewModel extends ViewModel {
 
     @NonNull
-    private final WorkmatesUseCases workmatesUseCases;
+    private final AddWorkmateToHaveChosenTodayUseCase addWorkmateToHaveChosenTodayUseCase;
 
     @NonNull
     private final RestaurantsRepository restaurantsRepository;
@@ -54,18 +56,19 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private Workmate user;
 
     @Inject
-    public RestaurantDetailsViewModel(@NonNull WorkmatesUseCases workmatesUseCases,
+    public RestaurantDetailsViewModel(@NonNull AddWorkmateToHaveChosenTodayUseCase addWorkmateToHaveChosenTodayUseCase,
+                                      @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase,
+                                      @NonNull GetWorkmateByIdUseCase getWorkmateByIdUseCase,
                                       @NonNull RestaurantsRepository restaurantsRepository,
                                       @NonNull FirebaseAuth firebaseAuth,
                                       @NonNull Application application,
                                       SavedStateHandle savedStateHandle) {
         this.restaurantsRepository = restaurantsRepository;
-        this.workmatesUseCases = workmatesUseCases;
+        this.addWorkmateToHaveChosenTodayUseCase = addWorkmateToHaveChosenTodayUseCase;
         this.application = application;
         placeId = savedStateHandle.get(PLACE_ID);
 
-        LiveData<List<Workmate>> workmatesHaveChosenLiveData =
-                workmatesUseCases.getGetWorkmatesHaveChosenTodayUseCase().getWorkmatesHaveChosenTodayLiveData();
+        LiveData<List<Workmate>> workmatesHaveChosenLiveData = getWorkmatesHaveChosenTodayUseCase.getWorkmatesHaveChosenTodayLiveData();
 
         final LiveData<RestaurantDetails> restaurantDetailsLiveData;
         if (placeId != null) {
@@ -77,8 +80,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
         LiveData<Workmate> currentUserLiveData;
         if (firebaseAuth.getCurrentUser() != null) {
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-            currentUserLiveData =
-                    workmatesUseCases.getGetCurrentUserUseCase().getCurrentUserByIdLiveData(firebaseUser.getUid());
+            currentUserLiveData = getWorkmateByIdUseCase.getWorkmateByIdLiveData(firebaseUser.getUid());
         } else {
             currentUserLiveData = new MutableLiveData<>();
         }
@@ -189,8 +191,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     public void addWorkmate() {
         if (restaurantName != null && user != null) {
-            workmatesUseCases.getAddWorkmateToHaveChosenTodayUseCase()
-                    .addWorkmateToHaveChosenTodayList(user, placeId, restaurantName);
+            addWorkmateToHaveChosenTodayUseCase.addWorkmateToHaveChosenTodayList(user, placeId, restaurantName);
         }
     }
 

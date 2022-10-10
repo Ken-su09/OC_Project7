@@ -45,4 +45,9 @@
 
     <string name="has_chosen"> %1$s has chosen %2$s</string>
     <string name="has_not_chosen_yet"> %1$s has not chosen yet</string>
+
+    <string name="chat_search_hint">Search</string>
+    <string name="online">Online</string>
+    <string name="messages">Messages</string>
+    <string name="toast_empty_message">Message should not be empty</string>
 </resources>

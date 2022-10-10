@@ -9,12 +9,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.suonk.oc_project7.R;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.places.Place;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
-import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 import com.suonk.oc_project7.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
@@ -32,18 +32,21 @@ public class MapsViewModel extends ViewModel {
 
     private final SingleLiveEvent<LatLng> cameraPositionSingleEvent = new SingleLiveEvent<>();
 
+    private LatLng latLng;
+
     @Inject
     public MapsViewModel(@NonNull CurrentLocationRepository locationRepository,
                          @NonNull PlacesRepository placesRepository,
-                         @NonNull WorkmatesRepository workmatesRepository,
+                         @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase,
                          @NonNull CurrentUserSearchRepository currentUserSearchRepository) {
 
         LiveData<List<Place>> listPlacesLiveData = Transformations.switchMap(locationRepository.getLocationMutableLiveData(), location -> {
+            latLng = new LatLng(location.getLat(), location.getLng());
             String latLng = location.getLat() + "," + location.getLng();
             return placesRepository.getNearbyPlaceResponse(latLng);
         });
 
-        LiveData<List<Workmate>> workmatesHaveChosen = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
+        LiveData<List<Workmate>> workmatesHaveChosen = getWorkmatesHaveChosenTodayUseCase.getWorkmatesHaveChosenTodayLiveData();
         LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
         viewStatesLiveData.addSource(listPlacesLiveData, places ->
@@ -58,6 +61,7 @@ public class MapsViewModel extends ViewModel {
 
     private void combine(@Nullable List<Place> places, @Nullable List<Workmate> workmates,
                          @Nullable CharSequence query) {
+
         List<String> restaurantIds = new ArrayList<>();
 
         if (workmates != null) {
@@ -75,7 +79,7 @@ public class MapsViewModel extends ViewModel {
                     defaultIcon = R.drawable.ic_custom_google_marker_blue;
                 }
 
-                if(query == null || place.getRestaurantName().contains(query)){
+                if (query == null || place.getRestaurantName().contains(query)) {
                     listMapMaker.add(new MapMarker(
                             place.getPlaceId(),
                             place.getLatitude(),
@@ -95,11 +99,11 @@ public class MapsViewModel extends ViewModel {
         return viewStatesLiveData;
     }
 
-//    @NonNull
-//    public SingleLiveEvent<LatLng> getCameraPositionSingleEvent() {
-//        if (cameraPositionSingleEvent.getValue() == null) {
-//            cameraPositionSingleEvent.setValue(latLng);
-//        }
-//        return cameraPositionSingleEvent;
-//    }
+    @NonNull
+    public SingleLiveEvent<LatLng> getCameraPositionSingleEvent() {
+        if (cameraPositionSingleEvent.getValue() == null) {
+            cameraPositionSingleEvent.setValue(latLng);
+        }
+        return cameraPositionSingleEvent;
+    }
 }

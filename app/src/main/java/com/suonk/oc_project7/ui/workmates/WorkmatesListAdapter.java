@@ -11,11 +11,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.suonk.oc_project7.databinding.ItemWorkmateBinding;
+import com.suonk.oc_project7.events.OnClickEventListener;
 
 public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, WorkmatesListAdapter.ViewHolder> {
 
-    public WorkmatesListAdapter() {
+
+    private final OnClickEventListener callback;
+
+    public WorkmatesListAdapter(OnClickEventListener callback) {
         super(new WorkmatesListAdapter.ItemCallBack());
+        this.callback = callback;
     }
 
     @NonNull
@@ -27,7 +32,7 @@ public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, Wor
 
     @Override
     public void onBindViewHolder(@NonNull WorkmatesListAdapter.ViewHolder holder, int position) {
-        holder.onBind(getItem(position));
+        holder.onBind(getItem(position), callback);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -39,7 +44,7 @@ public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, Wor
         }
 
         @SuppressLint("WrongConstant")
-        public void onBind(WorkmateItemViewState workmateItemViewState) {
+        public void onBind(WorkmateItemViewState workmateItemViewState, OnClickEventListener callback) {
             binding.name.setText(workmateItemViewState.getSentence());
             binding.name.setTypeface(binding.name.getTypeface(), workmateItemViewState.getTextStyle());
             binding.name.setTextColor(workmateItemViewState.getTextColor());
@@ -48,6 +53,8 @@ public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, Wor
                     .load(workmateItemViewState.getPictureUrl())
                     .centerCrop()
                     .into(binding.image);
+
+            binding.getRoot().setOnClickListener(view -> callback.onWorkmateClick(view, workmateItemViewState.getId()));
         }
     }
 

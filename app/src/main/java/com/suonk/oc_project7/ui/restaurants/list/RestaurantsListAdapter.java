@@ -12,18 +12,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.suonk.oc_project7.databinding.ItemRestaurantBinding;
-import com.suonk.oc_project7.events.OnRestaurantEventListener;
-import com.suonk.oc_project7.ui.main.MainActivity;
+import com.suonk.oc_project7.events.OnClickEventListener;
 
 public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState, RestaurantsListAdapter.ViewHolder> {
 
-    private final OnRestaurantEventListener callback;
-    private final MainActivity activity;
+    private final OnClickEventListener callback;
 
-    public RestaurantsListAdapter(OnRestaurantEventListener callback, MainActivity activity) {
+    public RestaurantsListAdapter(OnClickEventListener callback) {
         super(new RestaurantsListAdapter.ItemCallBack());
         this.callback = callback;
-        this.activity = activity;
     }
 
     @NonNull
@@ -35,7 +32,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        holder.onBind(getItem(position), callback, activity);
+        holder.onBind(getItem(position), callback);
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -46,8 +43,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
             this.binding = binding;
         }
 
-        public void onBind(RestaurantItemViewState restaurant, OnRestaurantEventListener callback,
-                           MainActivity activity) {
+        public void onBind(RestaurantItemViewState restaurant, OnClickEventListener callback) {
             binding.name.setText(restaurant.getRestaurantName());
             binding.address.setText(restaurant.getAddress());
             binding.openText.setText(restaurant.getOpenDescription());
@@ -59,7 +55,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
                     binding.twoStars,
                     binding.threeStars);
 
-            Glide.with(activity)
+            Glide.with(binding.image)
                     .load(restaurant.getPictureUrl())
                     .centerCrop()
                     .into(binding.image);

@@ -13,7 +13,9 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.suonk.oc_project7.R;
-import com.suonk.oc_project7.domain.workmates.WorkmatesUseCases;
+import com.suonk.oc_project7.domain.workmates.get.GetAllWorkmatesFromFirestoreUseCase;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmateByIdUseCase;
+import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 
@@ -34,7 +36,9 @@ public class WorkmatesViewModel extends ViewModel {
     private final Application application;
 
     @Inject
-    public WorkmatesViewModel(@NonNull WorkmatesUseCases workmatesUseCases,
+    public WorkmatesViewModel(@NonNull GetAllWorkmatesFromFirestoreUseCase getAllWorkmatesFromFirestoreUseCase,
+                              @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase,
+                              @NonNull GetWorkmateByIdUseCase getWorkmateByIdUseCase,
                               @NonNull CurrentUserSearchRepository currentUserSearchRepository,
                               @NonNull FirebaseAuth firebaseAuth,
                               @NonNull Application application) {
@@ -43,16 +47,14 @@ public class WorkmatesViewModel extends ViewModel {
         final LiveData<Workmate> currentUserLiveData;
 
         if (firebaseAuth.getCurrentUser() != null) {
-            currentUserLiveData = workmatesUseCases.getGetCurrentUserUseCase().
-                    getCurrentUserByIdLiveData(firebaseAuth.getCurrentUser().getUid());
+            currentUserLiveData = getWorkmateByIdUseCase.getWorkmateByIdLiveData(firebaseAuth.getCurrentUser().getUid());
         } else {
             currentUserLiveData = new MutableLiveData<>();
         }
 
-        LiveData<List<Workmate>> allWorkmates = workmatesUseCases.getGetAllWorkmatesFromFirestoreUseCase()
+        LiveData<List<Workmate>> allWorkmates = getAllWorkmatesFromFirestoreUseCase
                 .getAllWorkmatesFromFirestoreLiveData();
-        LiveData<List<Workmate>> workmatesHaveChosen = workmatesUseCases.getGetWorkmatesHaveChosenTodayUseCase()
-                .getWorkmatesHaveChosenTodayLiveData();
+        LiveData<List<Workmate>> workmatesHaveChosen = getWorkmatesHaveChosenTodayUseCase.getWorkmatesHaveChosenTodayLiveData();
         LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 
         viewStatesLiveData.addSource(allWorkmates, workmates ->
