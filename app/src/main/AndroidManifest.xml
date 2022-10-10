@@ -24,8 +24,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OC_Project7">
         <activity
+            android:name=".ui.chat.list.ChatsListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.chat.details.ChatDetailsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
@@ -65,7 +72,6 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
         <meta-data
             android:name="com.facebook.sdk.ClientToken"
             android:value="@string/facebook_client_token" />

@@ -29,7 +29,7 @@ public class NearbyPlaceResult {
     @Nullable
     private final OpeningHours opening_hours;
 
-    @NonNull
+    @Nullable
     private final Boolean permanently_closed;
 
     @Nullable
@@ -68,7 +68,7 @@ public class NearbyPlaceResult {
             @NonNull String icon_mask_base_uri,
             @NonNull String name,
             @Nullable OpeningHours opening_hours,
-            @NonNull Boolean permanently_closed,
+            @Nullable Boolean permanently_closed,
             @Nullable List<Photo> photos,
             @NonNull String placeId,
             @NonNull PlusCode plus_code,
@@ -139,7 +139,7 @@ public class NearbyPlaceResult {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NearbyPlaceResult that = (NearbyPlaceResult) o;
-        return price_level == that.price_level && user_ratings_total == that.user_ratings_total && business_status.equals(that.business_status) && geometry.equals(that.geometry) && icon.equals(that.icon) && icon_background_color.equals(that.icon_background_color) && icon_mask_base_uri.equals(that.icon_mask_base_uri) && name.equals(that.name) && Objects.equals(opening_hours, that.opening_hours) && permanently_closed.equals(that.permanently_closed) && Objects.equals(photos, that.photos) && place_id.equals(that.place_id) && plus_code.equals(that.plus_code) && rating.equals(that.rating) && reference.equals(that.reference) && scope.equals(that.scope) && types.equals(that.types) && vicinity.equals(that.vicinity);
+        return price_level == that.price_level && user_ratings_total == that.user_ratings_total && business_status.equals(that.business_status) && geometry.equals(that.geometry) && icon.equals(that.icon) && icon_background_color.equals(that.icon_background_color) && icon_mask_base_uri.equals(that.icon_mask_base_uri) && name.equals(that.name) && Objects.equals(opening_hours, that.opening_hours) && Objects.equals(permanently_closed, that.permanently_closed) && Objects.equals(photos, that.photos) && place_id.equals(that.place_id) && plus_code.equals(that.plus_code) && rating.equals(that.rating) && reference.equals(that.reference) && scope.equals(that.scope) && types.equals(that.types) && vicinity.equals(that.vicinity);
     }
 
     @Override

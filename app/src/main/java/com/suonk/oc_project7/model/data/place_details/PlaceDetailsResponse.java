@@ -24,7 +24,6 @@ public class PlaceDetailsResponse {
         this.result = result;
         this.status = status;
     }
-
     @NonNull
     public Result getResult() {
         return result;
