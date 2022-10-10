@@ -9,7 +9,9 @@ import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class GetWorkmatesHaveChosenTodayUseCase {
 
     @NonNull

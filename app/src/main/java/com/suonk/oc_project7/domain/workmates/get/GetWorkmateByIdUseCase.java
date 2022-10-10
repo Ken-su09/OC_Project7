@@ -7,19 +7,21 @@ import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
-public class GetCurrentUserUseCase {
+@Singleton
+public class GetWorkmateByIdUseCase {
 
     @NonNull
     private final WorkmatesRepository workmatesRepository;
 
     @Inject
-    public GetCurrentUserUseCase(@NonNull WorkmatesRepository workmatesRepository) {
+    public GetWorkmateByIdUseCase(@NonNull WorkmatesRepository workmatesRepository) {
         this.workmatesRepository = workmatesRepository;
     }
 
     @NonNull
-    public LiveData<Workmate> getCurrentUserByIdLiveData(@NonNull String userId) {
-        return workmatesRepository.getCurrentUserByIdLiveData(userId);
+    public LiveData<Workmate> getWorkmateByIdLiveData(@NonNull String id) {
+        return workmatesRepository.getWorkmateByIdLiveData(id);
     }
 }

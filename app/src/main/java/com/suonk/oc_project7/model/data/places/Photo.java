@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.model.data.places;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 import java.util.Objects;
@@ -9,7 +10,7 @@ public class Photo {
 
     private final int height;
 
-    @NonNull
+    @Nullable
     private final List<String> htmlAttributions;
 
     @NonNull
@@ -19,7 +20,7 @@ public class Photo {
 
 
     public Photo(int height,
-                 @NonNull List<String> htmlAttributions,
+                 @Nullable List<String> htmlAttributions,
                  @NonNull String photo_reference,
                  int width) {
         this.height = height;
@@ -46,7 +47,7 @@ public class Photo {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Photo photo = (Photo) o;
-        return height == photo.height && width == photo.width && htmlAttributions.equals(photo.htmlAttributions) && photo_reference.equals(photo.photo_reference);
+        return height == photo.height && width == photo.width && Objects.equals(htmlAttributions, photo.htmlAttributions) && photo_reference.equals(photo.photo_reference);
     }
 
     @Override

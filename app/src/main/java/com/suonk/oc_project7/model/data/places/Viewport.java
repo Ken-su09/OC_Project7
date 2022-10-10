@@ -1,18 +1,20 @@
 package com.suonk.oc_project7.model.data.places;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
 public class Viewport {
 
-    @NonNull
+    @Nullable
     private final NorthEast northEast;
-    @NonNull
+
+    @Nullable
     private final SouthWest southWest;
 
-    public Viewport(@NonNull NorthEast northeast,
-            @NonNull SouthWest southWest){
+    public Viewport(@Nullable NorthEast northeast,
+                    @Nullable SouthWest southWest) {
         this.northEast = northeast;
         this.southWest = southWest;
     }
@@ -22,7 +24,7 @@ public class Viewport {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Viewport viewport = (Viewport) o;
-        return northEast.equals(viewport.northEast) && southWest.equals(viewport.southWest);
+        return Objects.equals(northEast, viewport.northEast) && Objects.equals(southWest, viewport.southWest);
     }
 
     @Override

@@ -42,10 +42,11 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
         String today = year + "-" + month + "-" + day;
 
-        final DocumentSnapshot documentSnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
-                .document(userId)
-                .get()
-                .getResult();
+        final DocumentSnapshot documentSnapshot =
+                firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
+                        .document(userId)
+                        .get()
+                        .getResult();
 
         if (documentSnapshot != null) {
             if (documentSnapshot.toObject(Workmate.class) != null) {
@@ -66,10 +67,10 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
     @NonNull
     @Override
-    public LiveData<Workmate> getCurrentUserByIdLiveData(@NonNull String userId) {
+    public LiveData<Workmate> getWorkmateByIdLiveData(@NonNull String id) {
         MutableLiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
         firebaseFirestore.collection(ALL_WORKMATES)
-                .document(userId)
+                .document(id)
                 .addSnapshotListener((querySnapshot, error) -> {
                     if (querySnapshot != null) {
                         try {

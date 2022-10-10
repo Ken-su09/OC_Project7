@@ -2,6 +2,7 @@ package com.suonk.oc_project7.repositories.current_location;
 
 import android.location.Location;
 import android.os.Looper;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresPermission;
 import androidx.lifecycle.LiveData;
@@ -51,7 +52,7 @@ public class CurrentLocationRepositoryImpl implements CurrentLocationRepository 
 
     @Override
     public float getDistanceFromTwoLocations(double startLat, double startLng,
-                                              double endLat, double endLng) {
+                                             double endLat, double endLng) {
         Location startPoint = new Location("currentLocation");
         startPoint.setLatitude(startLat);
         startPoint.setLongitude(startLng);
@@ -73,10 +74,12 @@ public class CurrentLocationRepositoryImpl implements CurrentLocationRepository 
                 @Override
                 public void onLocationResult(@NonNull LocationResult locationResult) {
 
-                    locationMutableLiveData.setValue(new CurrentLocation(
-                            locationResult.getLastLocation().getLatitude(),
-                            locationResult.getLastLocation().getLongitude()
-                    ));
+                    if (locationResult.getLastLocation() != null) {
+                        locationMutableLiveData.setValue(new CurrentLocation(
+                                locationResult.getLastLocation().getLatitude(),
+                                locationResult.getLastLocation().getLongitude()
+                        ));
+                    }
                 }
             };
         }

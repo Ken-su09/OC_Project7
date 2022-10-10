@@ -19,7 +19,7 @@ public interface WorkmatesRepository {
     Workmate getUserByIdFromFirestore(@NonNull String userId);
 
     @NonNull
-    LiveData<Workmate> getCurrentUserByIdLiveData(@NonNull String userId);
+    LiveData<Workmate> getWorkmateByIdLiveData(@NonNull String id);
 
     @NonNull
     List<Workmate> getAllWorkmatesThatHaveChosenToday();

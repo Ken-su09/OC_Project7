@@ -10,7 +10,9 @@ import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 import java.util.ArrayList;
 
 import javax.inject.Inject;
+import javax.inject.Singleton;
 
+@Singleton
 public class AddWorkmateToFirestoreUseCase {
 
     @NonNull

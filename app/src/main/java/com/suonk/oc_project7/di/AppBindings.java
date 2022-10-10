@@ -2,6 +2,8 @@ package com.suonk.oc_project7.di;
 
 import com.suonk.oc_project7.domain.notification.GetNotificationUseCase;
 import com.suonk.oc_project7.domain.notification.GetNotificationUseCaseImpl;
+import com.suonk.oc_project7.repositories.chat.ChatsRepository;
+import com.suonk.oc_project7.repositories.chat.ChatsRepositoryImpl;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepositoryImpl;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
@@ -53,4 +55,8 @@ public abstract class AppBindings {
     @Binds
     @Singleton
     abstract GetNotificationUseCase bindNotificationUseCase(GetNotificationUseCaseImpl impl);
+
+    @Binds
+    @Singleton
+    abstract ChatsRepository bindChatsRepository(ChatsRepositoryImpl impl);
 }

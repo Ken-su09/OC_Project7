@@ -9,6 +9,7 @@ import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.notification.NotificationRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,17 +43,23 @@ public class GetNotificationUseCaseImpl implements GetNotificationUseCase {
             if (firebaseAuth.getCurrentUser() != null) {
                 Workmate currentUser = workmatesRepository.getUserByIdFromFirestore(firebaseAuth.getCurrentUser().getUid());
 
-                if (currentUser != null) {
-                    final List<Workmate> workmates = workmatesRepository.getWorkmatesThatHaveChosenThisRestaurant(currentUser.getRestaurantId());
+                final List<Workmate> workmates = workmatesRepository.getAllWorkmatesThatHaveChosenToday();
 
-                    if (workmates != null) {
-                        return new NotificationEntity(
-                                currentUser.getRestaurantId(),
-                                currentUser.getRestaurantName(),
-                                convertListToString(currentUser, workmates)
-                        );
+                if (!workmates.isEmpty()) {
+                    for (Iterator<Workmate> iterator = workmates.iterator(); iterator.hasNext(); ) {
+                        Workmate workmate = iterator.next();
+                        if (workmate.getRestaurantId().equals(currentUser.getRestaurantId())) {
+                            iterator.remove();
+                            break;
+                        }
                     }
                 }
+
+                return new NotificationEntity(
+                        currentUser.getRestaurantId(),
+                        currentUser.getRestaurantName(),
+                        convertListToString(currentUser, workmates)
+                );
             }
         }
 
