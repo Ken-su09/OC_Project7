@@ -1,7 +1,7 @@
 package com.suonk.oc_project7.ui.chat.details;
 
-import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -39,19 +39,29 @@ public class ChatDetailsListAdapter extends ListAdapter<ChatDetailsViewState, Ch
         }
 
         public void onBind(ChatDetailsViewState chat) {
-            Log.i("getChatDetails", "chat : " + chat);
-
-            Glide.with(binding.workmateImage)
-                    .load(chat.getPictureUrl())
-                    .centerCrop()
-                    .into(binding.workmateImage);
-
             binding.messageLayout.setBackgroundResource(chat.getBackgroundColor());
 
             binding.messageContent.setTextColor(chat.getTextColor());
             binding.messageContent.setText(chat.getContent());
             binding.messageTimestamp.setTextColor(chat.getTextColor());
             binding.messageTimestamp.setText(chat.getTimestamp());
+
+            if (chat.getIsSendByMe()) {
+                binding.userImageLayout.setVisibility(View.VISIBLE);
+                binding.userImage.setVisibility(View.VISIBLE);
+                binding.workmateImageLayout.setVisibility(View.INVISIBLE);
+                binding.workmateImage.setVisibility(View.INVISIBLE);
+
+                Glide.with(binding.userImage)
+                        .load(chat.getPictureUrl())
+                        .centerCrop()
+                        .into(binding.userImage);
+            } else {
+                binding.userImageLayout.setVisibility(View.INVISIBLE);
+                binding.userImage.setVisibility(View.INVISIBLE);
+                binding.workmateImageLayout.setVisibility(View.VISIBLE);
+                binding.workmateImage.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -65,8 +75,6 @@ public class ChatDetailsListAdapter extends ListAdapter<ChatDetailsViewState, Ch
         public boolean areContentsTheSame(@NonNull ChatDetailsViewState oldItem, @NonNull ChatDetailsViewState newItem) {
             return oldItem.getContent().equals(newItem.getContent()) &&
                     oldItem.getId().equals(newItem.getId()) &&
-                    oldItem.getWorkmateName().equals(newItem.getWorkmateName()) &&
-                    oldItem.getPictureUrl().equals(newItem.getPictureUrl()) &&
                     oldItem.getTimestamp().equals(newItem.getTimestamp()) &&
                     oldItem.getBackgroundColor() == newItem.getBackgroundColor() &&
                     oldItem.getTextColor() == newItem.getTextColor();

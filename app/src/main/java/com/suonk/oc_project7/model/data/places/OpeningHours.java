@@ -1,10 +1,12 @@
 package com.suonk.oc_project7.model.data.places;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 
 public class OpeningHours {
 
-    private Boolean open_now = false;
+    private final Boolean open_now;
 
     public OpeningHours(Boolean open_now) {
         this.open_now = open_now;
@@ -27,6 +29,7 @@ public class OpeningHours {
         return Objects.hash(open_now);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "OpeningHours{" +

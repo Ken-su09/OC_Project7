@@ -22,7 +22,6 @@ public class WorkmatesFragment extends Fragment implements OnClickEventListener 
 
     private OnClickEventListener listener;
     private WorkmatesViewModel viewModel;
-    private FragmentWorkmatesBinding binding;
 
     public static WorkmatesFragment newInstance() {
         Bundle args = new Bundle();
@@ -40,25 +39,19 @@ public class WorkmatesFragment extends Fragment implements OnClickEventListener 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
+        FragmentWorkmatesBinding binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
+        viewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
+        getWorkmatesListFromViewModel(binding);
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        viewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
-        getWorkmatesListFromViewModel();
     }
 
-    private void getWorkmatesListFromViewModel() {
+    private void getWorkmatesListFromViewModel(@NonNull FragmentWorkmatesBinding binding) {
         WorkmatesListAdapter listAdapter = new WorkmatesListAdapter(listener);
 
         viewModel.getWorkmatesLiveData().observe(getViewLifecycleOwner(), listAdapter::submitList);

@@ -3,8 +3,10 @@ package com.suonk.oc_project7.ui.chat.details;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityChatDetailsBinding;
+import com.suonk.oc_project7.ui.main.MainActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -32,13 +35,24 @@ public class ChatDetailsActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         ChatDetailsViewModel viewModel = new ViewModelProvider(this).get(ChatDetailsViewModel.class);
-        getAllMessagesFromViewModel(binding, viewModel);
-        sendMessage(binding, viewModel);
 
-        setupActionBar(binding);
+        viewModel.getIsThereError().observe(this, isThereError -> {
+            if (isThereError) {
+                Toast.makeText(this, R.string.chat_details_error_message, Toast.LENGTH_LONG).show();
+                startActivity(new Intent(this, MainActivity.class));
+                finish();
+            } else {
+                getAllMessagesFromViewModel(binding, viewModel);
+                sendMessage(binding, viewModel);
+
+                setupActionBar(binding);
+            }
+        });
     }
 
-    private void getAllMessagesFromViewModel(ActivityChatDetailsBinding binding, ChatDetailsViewModel viewModel) {
+    private void getAllMessagesFromViewModel(
+            @NonNull ActivityChatDetailsBinding binding,
+            @NonNull ChatDetailsViewModel viewModel) {
         ChatDetailsListAdapter listAdapter = new ChatDetailsListAdapter();
 
         viewModel.getChatDetails().observe(this, listAdapter::submitList);
@@ -51,7 +65,9 @@ public class ChatDetailsActivity extends AppCompatActivity {
         binding.messages.setLayoutManager(linearLayoutManager);
     }
 
-    private void sendMessage(ActivityChatDetailsBinding binding, ChatDetailsViewModel viewModel) {
+    private void sendMessage(
+            @NonNull ActivityChatDetailsBinding binding,
+            @NonNull ChatDetailsViewModel viewModel) {
         viewModel.getIsMessageEmpty().observe(this, isMessageEmpty -> {
             if (isMessageEmpty) {
                 Toast.makeText(this, R.string.toast_empty_message, Toast.LENGTH_LONG).show();
@@ -66,7 +82,7 @@ public class ChatDetailsActivity extends AppCompatActivity {
         });
     }
 
-    private void setupActionBar(ActivityChatDetailsBinding binding) {
+    private void setupActionBar(@NonNull ActivityChatDetailsBinding binding) {
         setSupportActionBar(binding.toolbar);
         binding.toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.orange));
         binding.toolbar.setTitleTextColor(AppCompatResources.getColorStateList(this, R.color.white));
@@ -75,5 +91,15 @@ public class ChatDetailsActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(getString(R.string.main_toolbar_title));
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

@@ -44,10 +44,6 @@ public class GetWorkmatesHaveChosenTodayUseCaseTest {
     private static final String RESTAURANT_NAME_1 = "PIZZA N PASTA";
     private static final String RESTAURANT_NAME_2 = "PASTA";
 
-    private static final int TEXT_COLOR_HAS_DECIDED = -16777216;
-    private static final int TEXT_STYLE_HAS_DECIDED = 0;
-    private static final int TEXT_COLOR_HAS_NOT_DECIDED = -7829368;
-    private static final int TEXT_STYLE_HAS_NOT_DECIDED = 2;
     private static final String PHOTO_REFERENCE = "PHOTO_REFERENCE";
     private static final String PICTURE_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=key&photo_reference=" + PHOTO_REFERENCE;
 
@@ -55,16 +51,7 @@ public class GetWorkmatesHaveChosenTodayUseCaseTest {
     private static final String U_NAME = "U_NAME";
     private static final String EMAIL = "EMAIL";
 
-    private static final String TEXT_TO_HIGHLIGHT = "PIZ";
-
     private static final String WORKMATE_HAS_CHOSEN = "WORKMATE_HAS_CHOSEN";
-    private static final String WORKMATE_HAS_NOT_CHOSEN_YET = "WORKMATE_HAS_NOT_CHOSEN_YET";
-
-    private static final String TEXT_WORKMATE_HAS_CHOSEN = WORKMATE_HAS_CHOSEN + " has chosen " + RESTAURANT_NAME;
-    private static final String TEXT_WORKMATE_HAS_CHOSEN_1 = WORKMATE_HAS_CHOSEN + " has chosen " + RESTAURANT_NAME_1;
-    private static final String TEXT_WORKMATE_HAS_CHOSEN_2 = WORKMATE_HAS_CHOSEN + " has chosen " + RESTAURANT_NAME_2;
-
-    private static final String TEXT_WORKMATE_HAS_NOT_CHOSEN_YET = " has not chosen yet";
 
     //endregion
 

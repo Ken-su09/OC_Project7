@@ -35,9 +35,6 @@ public class AuthActivity extends AppCompatActivity {
 
     private final static int RC_SIGN_IN_GOOGLE = 1;
 
-    @NonNull
-    private final CallbackManager callbackManager = CallbackManager.Factory.create();
-
     private AuthViewModel viewModel;
 
     @Override
@@ -55,7 +52,7 @@ public class AuthActivity extends AppCompatActivity {
         ActivityAuthBinding binding = ActivityAuthBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        binding.facebookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        binding.facebookButton.registerCallback(CallbackManager.Factory.create(), new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 handleFacebookToken(loginResult.getAccessToken());
@@ -91,17 +88,22 @@ public class AuthActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == RC_SIGN_IN_GOOGLE) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            try {
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-                Log.d("Nino", "firebaseAuthWithGoogle:" + account.getId());
-                firebaseAuthWithGoogle(account.getIdToken());
-            } catch (ApiException e) {
-                Log.w("Nino", "Google sign in failed", e);
+            if (task.getException() == null) {
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    if (account.getIdToken() != null) {
+                        firebaseAuthWithGoogle(account.getIdToken());
+                    }
+                } catch (ApiException e) {
+                    Log.w("Nino", "Google sign in failed", e);
+                }
+            } else {
+                task.getException().printStackTrace();
             }
         }
     }
 
-    private void firebaseAuthWithGoogle(String idToken) {
+    private void firebaseAuthWithGoogle(@NonNull String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
         FirebaseAuth.getInstance().signInWithCredential(credential)
                 .addOnCompleteListener(this, task -> {

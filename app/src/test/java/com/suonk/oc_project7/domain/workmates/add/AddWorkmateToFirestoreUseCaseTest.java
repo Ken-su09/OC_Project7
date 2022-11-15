@@ -14,7 +14,6 @@ import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.user.UserRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -43,10 +42,6 @@ public class AddWorkmateToFirestoreUseCaseTest {
 
 
     //endregion
-
-    @Before
-    public void setup() {
-    }
 
     @Test
     public void test_add_workmate_to_firestore() {

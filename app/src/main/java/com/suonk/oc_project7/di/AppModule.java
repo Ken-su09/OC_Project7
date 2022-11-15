@@ -10,10 +10,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.suonk.oc_project7.api.PlacesApiHolder;
 import com.suonk.oc_project7.api.PlacesApiService;
 import com.suonk.oc_project7.domain.chat.add.AddNewChatToRoomUseCase;
-import com.suonk.oc_project7.domain.chat.add.AddNewRoomToFirestoreUseCase;
-import com.suonk.oc_project7.domain.chat.get.GetAllRoomsFromFirestoreUseCase;
 import com.suonk.oc_project7.domain.chat.get.GetChatListByRoomIdUseCase;
-import com.suonk.oc_project7.domain.chat.get.GetRoomByIdFromFirestoreUseCase;
 import com.suonk.oc_project7.domain.workmates.add.AddWorkmateToFirestoreUseCase;
 import com.suonk.oc_project7.domain.workmates.add.AddWorkmateToHaveChosenTodayUseCase;
 import com.suonk.oc_project7.domain.workmates.get.GetAllWorkmatesFromFirestoreUseCase;
@@ -23,6 +20,9 @@ import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
 import com.suonk.oc_project7.repositories.chat.ChatsRepository;
 import com.suonk.oc_project7.repositories.user.UserRepository;
 import com.suonk.oc_project7.repositories.workmates.WorkmatesRepository;
+
+import java.time.Clock;
+import java.time.ZoneId;
 
 import javax.inject.Singleton;
 
@@ -73,6 +73,16 @@ public class AppModule {
     }
 
     @Provides
+    public static Clock provideClock() {
+        return Clock.systemDefaultZone();
+    }
+
+    @Provides
+    public static ZoneId provideSystemDefaultZoneId() {
+        return ZoneId.systemDefault();
+    }
+
+    @Provides
     @Singleton
     public static AddWorkmateToFirestoreUseCase provideAddWorkmateToFirestoreUseCase(WorkmatesRepository workmatesRepository,
                                                                                      UserRepository userRepository) {
@@ -105,31 +115,13 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public static GetChatListByRoomIdUseCase provideGetChatListByRoomIdUseCase(ChatsRepository chatsRepository) {
-        return new GetChatListByRoomIdUseCase(chatsRepository);
-    }
-
-    @Provides
-    @Singleton
-    public static GetAllRoomsFromFirestoreUseCase provideGetAllRoomsFromFirestoreUseCase(ChatsRepository chatsRepository) {
-        return new GetAllRoomsFromFirestoreUseCase(chatsRepository);
-    }
-
-    @Provides
-    @Singleton
-    public static GetRoomByIdFromFirestoreUseCase provideGetRoomByIdFromFirestoreUseCase(ChatsRepository chatsRepository) {
-        return new GetRoomByIdFromFirestoreUseCase(chatsRepository);
-    }
-
-    @Provides
-    @Singleton
     public static AddNewChatToRoomUseCase provideAddNewChatToRoomUseCase(ChatsRepository chatsRepository) {
         return new AddNewChatToRoomUseCase(chatsRepository);
     }
 
     @Provides
     @Singleton
-    public static AddNewRoomToFirestoreUseCase provideAddNewRoomToFirestoreUseCase(ChatsRepository chatsRepository) {
-        return new AddNewRoomToFirestoreUseCase(chatsRepository);
+    public static GetChatListByRoomIdUseCase provideGetChatListByRoomIdUseCase(ChatsRepository chatsRepository) {
+        return new GetChatListByRoomIdUseCase(chatsRepository);
     }
 }

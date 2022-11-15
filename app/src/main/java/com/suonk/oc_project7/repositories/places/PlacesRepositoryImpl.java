@@ -43,15 +43,13 @@ public class PlacesRepositoryImpl implements PlacesRepository {
                     List<Place> places = new ArrayList<>();
 
                     if (response.body() != null) {
-                        if (response.body().getResults() != null) {
-                            for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
-                                places.add(new Place(
-                                        nearbyPlaceResult.getPlaceId(),
-                                        nearbyPlaceResult.getName(),
-                                        nearbyPlaceResult.getGeometry().getLocation().getLat(),
-                                        nearbyPlaceResult.getGeometry().getLocation().getLng(),
-                                        true));
-                            }
+                        for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
+                            places.add(new Place(
+                                    nearbyPlaceResult.getPlaceId(),
+                                    nearbyPlaceResult.getName(),
+                                    nearbyPlaceResult.getGeometry().getLocation().getLat(),
+                                    nearbyPlaceResult.getGeometry().getLocation().getLng(),
+                                    true));
                         }
                     }
 

@@ -114,26 +114,23 @@ public class RestaurantsRepositoryImpl implements RestaurantsRepository {
                 public void onResponse(@NonNull Call<PlaceDetailsResponse> call, @NonNull Response<PlaceDetailsResponse> response) {
                     if (response.isSuccessful()) {
                         if (response.body() != null) {
-                            if (response.body().getResult() != null) {
-                                Result result = response.body().getResult();
+                            Result result = response.body().getResult();
 
-                                String photo = null;
-                                Boolean isOpen = false;
+                            String photo = null;
 
-                                if (result.getPhotos() != null && !result.getPhotos().isEmpty()) {
-                                    photo = getRestaurantPictureURL(result.getPhotos().get(0).getPhotoReference());
-                                }
-
-                                restaurantDetailsLiveData.setValue(new RestaurantDetails(
-                                        result.getPlace_id(),
-                                        result.getName(),
-                                        result.getInternational_phone_number(),
-                                        result.getFormatted_address(),
-                                        photo,
-                                        result.getRating(),
-                                        result.getWebsite()
-                                ));
+                            if (result.getPhotos() != null && !result.getPhotos().isEmpty()) {
+                                photo = getRestaurantPictureURL(result.getPhotos().get(0).getPhotoReference());
                             }
+
+                            restaurantDetailsLiveData.setValue(new RestaurantDetails(
+                                    result.getPlace_id(),
+                                    result.getName(),
+                                    result.getInternational_phone_number(),
+                                    result.getFormatted_address(),
+                                    photo,
+                                    result.getRating(),
+                                    result.getWebsite()
+                            ));
                         }
                     }
                 }

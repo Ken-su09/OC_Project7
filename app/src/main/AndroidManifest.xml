@@ -24,9 +24,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.OC_Project7">
         <activity
-            android:name=".ui.chat.list.ChatsListActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.chat.details.ChatDetailsActivity"
             android:exported="false" />
         <activity
@@ -82,5 +79,4 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
     </application>
-
 </manifest>

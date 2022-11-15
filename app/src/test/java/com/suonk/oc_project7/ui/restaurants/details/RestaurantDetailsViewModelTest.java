@@ -119,6 +119,7 @@ public class RestaurantDetailsViewModelTest {
     @Before
     public void setup() {
         doReturn(PLACE_ID_VALUE).when(savedStateHandle).get(PLACE_ID);
+
         doReturn(restaurantDetailsMutableLiveData).when(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
         doReturn(workmatesHaveChosenMutableLiveData).when(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
 

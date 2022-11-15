@@ -25,7 +25,7 @@ public class UserRepository {
                     auth.getCurrentUser().getUid(),
                     auth.getCurrentUser().getDisplayName() != null ? auth.getCurrentUser().getDisplayName() : "",
                     auth.getCurrentUser().getEmail() != null ? auth.getCurrentUser().getEmail() : "",
-                    auth.getCurrentUser().getPhotoUrl() != null ? auth.getCurrentUser().getEmail() : ""
+                    auth.getCurrentUser().getPhotoUrl() != null ? auth.getCurrentUser().getPhotoUrl().toString() : ""
             );
         }
         return null;

@@ -30,6 +30,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class PlacesRepositoryImplTest {
 
@@ -93,23 +94,12 @@ public class PlacesRepositoryImplTest {
     }
 
     @Test
-    public void get_nearby_places_with_empty_location() {
-        // WHEN
-//        placesRepository.getNearbyPlaceResponse(DEFAULT_LOCATION);
-//
-//        // THEN
-//        verify(placesApiServiceMock).getNearbyPlacesResponse(DEFAULT_LOCATION);
-//        verifyNoMoreInteractions(placesApiServiceMock);
-    }
-
-    @Test
     public void get_places_autocomplete() {
         // GIVEN
         doReturn(mockedCallAutocomplete).when(placesApiServiceMock)
                 .getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
 
-        ArgumentCaptor<Callback<PlaceAutocomplete>> placesAutoCompleteCallBackCaptor =
-                ArgumentCaptor.forClass(Callback.class);
+        ArgumentCaptor<Callback<PlaceAutocomplete>> placesAutoCompleteCallBackCaptor = ArgumentCaptor.forClass(Callback.class);
 
         // WHEN
         placesRepository.getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);

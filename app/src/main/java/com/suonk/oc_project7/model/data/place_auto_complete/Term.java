@@ -20,11 +20,6 @@ public class Term {
         this.mValue = mValue;
     }
 
-    @NonNull
-    public Long getmOffset() {
-        return mOffset;
-    }
-
     public String getValue() {
         return mValue;
     }

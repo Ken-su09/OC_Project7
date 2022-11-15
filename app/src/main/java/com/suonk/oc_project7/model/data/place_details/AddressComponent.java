@@ -3,8 +3,6 @@ package com.suonk.oc_project7.model.data.place_details;
 
 import androidx.annotation.NonNull;
 
-import com.google.gson.annotations.Expose;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -17,7 +15,6 @@ public class AddressComponent {
     private final String shortName;
 
     @NonNull
-    @Expose
     private final List<String> types;
 
     public AddressComponent(@NonNull String longName, @NonNull String shortName, @NonNull List<String> types) {

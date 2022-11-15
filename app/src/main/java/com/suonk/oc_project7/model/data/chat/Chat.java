@@ -6,23 +6,19 @@ import java.util.Objects;
 
 public class Chat {
 
-    @NonNull
     private String id;
 
-    @NonNull
     private String senderId;
 
-    @NonNull
     private String message;
 
-    @NonNull
     private Long timestamp;
 
     public Chat(
-            @NonNull String id,
-            @NonNull String senderId,
-            @NonNull String message,
-            @NonNull Long timestamp) {
+            String id,
+            String senderId,
+            String message,
+            Long timestamp) {
         this.id = id;
         this.senderId = senderId;
         this.message = message;
@@ -72,7 +68,7 @@ public class Chat {
                 "id='" + id + '\'' +
                 ", senderId='" + senderId + '\'' +
                 ", message='" + message + '\'' +
-                ", timestamp='" + timestamp + '\'' +
+                ", timestamp=" + timestamp +
                 '}';
     }
 }

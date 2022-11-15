@@ -50,5 +50,7 @@
     <string name="chat_search_hint">Rechercher</string>
     <string name="online">En ligne</string>
     <string name="messages">Messages</string>
-    <string name="toast_empty_message">Message should not be empty</string>
+    <string name="toast_empty_message">Le message ne doit pas être vide</string>
+    <string name="chat_details_error_message">Désolé, il y a eu une erreur</string>
+    <string name="website">SITE WEB</string>
 </resources>

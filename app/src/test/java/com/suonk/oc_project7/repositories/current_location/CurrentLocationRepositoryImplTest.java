@@ -35,13 +35,10 @@ public class CurrentLocationRepositoryImplTest {
 
     private final FusedLocationProviderClient fusedLocationProviderClientMock = mock(FusedLocationProviderClient.class);
     private final Location currentLocationMock = mock(Location.class);
-    private final Location restaurantLocationMock = mock(Location.class);
-    private final LocationCallback locationCallback = mock(LocationCallback.class);
     private final Looper myLooper = mock(Looper.class);
 
     private CurrentLocationRepository currentLocationRepository;
 
-    private static final float DEFAULT_DISTANCE_TO = 100;
     private static final double DEFAULT_LATITUDE = 48.9575329;
     private static final double DEFAULT_LONGITUDE = 2.5594583;
     private static final double END_DEFAULT_LATITUDE = 26.9575329;
@@ -49,12 +46,6 @@ public class CurrentLocationRepositoryImplTest {
 
     @Before
     public void setup() {
-//        doNothing().when(currentLocationMock).setLatitude(DEFAULT_LATITUDE);
-//        doNothing().when(currentLocationMock).setLatitude(DEFAULT_LONGITUDE);
-//        doNothing().when(restaurantLocationMock).setLatitude(END_DEFAULT_LATITUDE);
-//        doNothing().when(restaurantLocationMock).setLatitude(END_DEFAULT_LONGITUDE);
-//        doReturn(DEFAULT_DISTANCE_TO).when(currentLocationMock).distanceTo(restaurantLocationMock);
-
         currentLocationRepository = new CurrentLocationRepositoryImpl(fusedLocationProviderClientMock, myLooper);
     }
 
@@ -145,11 +136,6 @@ public class CurrentLocationRepositoryImplTest {
 
         // THEN
 
-//        verify(currentLocationMock).setLatitude(DEFAULT_LATITUDE);
-//        verify(currentLocationMock).setLatitude(DEFAULT_LONGITUDE);
-//        verify(restaurantLocationMock).setLatitude(END_DEFAULT_LATITUDE);
-//        verify(restaurantLocationMock).setLatitude(END_DEFAULT_LONGITUDE);
-//        verify(currentLocationMock).distanceTo(restaurantLocationMock);
         verifyNoMoreInteractions(fusedLocationProviderClientMock, myLooper, currentLocationMock);
     }
 

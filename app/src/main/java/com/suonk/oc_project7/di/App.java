@@ -8,7 +8,6 @@ import androidx.work.Configuration;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import com.facebook.FacebookSdk;
 import com.suonk.oc_project7.background.NotificationWorker;
 
 import java.time.Duration;
@@ -29,8 +28,6 @@ public class App extends Application implements Configuration.Provider {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        FacebookSdk.sdkInitialize(getApplicationContext());
 
         Calendar calendar = Calendar.getInstance();
         calendar.getTimeInMillis();

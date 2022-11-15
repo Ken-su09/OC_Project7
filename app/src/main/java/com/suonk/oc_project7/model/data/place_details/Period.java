@@ -21,10 +21,12 @@ public class Period {
         this.open = open;
     }
 
+    @NonNull
     public Close getClose() {
         return close;
     }
 
+    @NonNull
     public Open getOpen() {
         return open;
     }
@@ -42,6 +44,7 @@ public class Period {
         return Objects.hash(close, open);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "Period{" +

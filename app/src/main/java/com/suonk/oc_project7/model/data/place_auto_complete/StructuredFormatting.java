@@ -23,6 +23,7 @@ public class StructuredFormatting {
         this.mSecondaryText = mSecondaryText;
     }
 
+    @NonNull
     public String getMainText() {
         return mMainText;
     }

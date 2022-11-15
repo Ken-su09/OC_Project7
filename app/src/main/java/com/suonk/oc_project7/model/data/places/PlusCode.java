@@ -33,6 +33,7 @@ public class PlusCode {
         return Objects.hash(compound_code, global_code);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "PlusCode{" +

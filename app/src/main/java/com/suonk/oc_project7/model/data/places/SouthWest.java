@@ -19,16 +19,6 @@ public class SouthWest {
         this.lng = lng;
     }
 
-    @NonNull
-    public Double getLat() {
-        return lat;
-    }
-
-    @NonNull
-    public Double getLng() {
-        return lng;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

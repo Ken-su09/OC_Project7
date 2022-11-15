@@ -10,13 +10,13 @@ import java.util.List;
 
 public interface ChatsRepository {
 
-    LiveData<List<Room>> getAllRoomsFromFirestoreLiveData();
-
-    LiveData<Room> getRoomByIdFromFirestoreLiveData(@NonNull List<String> ids);
+    LiveData<String> getRoomIdByWorkmateIds(@NonNull List<String> ids);
 
     LiveData<List<Chat>> getChatListByRoomId(@NonNull String id);
 
-    void addNewRoomToFirestore(@NonNull String id, @NonNull Room room);
+    void addNewRoomToFirestore(@NonNull Room room);
 
-    void addNewChatToRoom(@NonNull String id, @NonNull Chat chat);
+    void addNewChatToRoom(@NonNull String roomId,
+                          @NonNull String senderId,
+                          @NonNull String message);
 }

@@ -49,5 +49,7 @@
     <string name="chat_search_hint">Search</string>
     <string name="online">Online</string>
     <string name="messages">Messages</string>
-    <string name="toast_empty_message">Message should not be empty</string>
+    <string name="toast_empty_message">The message should not be empty</string>
+    <string name="chat_details_error_message">Sorry, there was an error</string>
+    <string name="website">WEBSITE</string>
 </resources>

@@ -7,23 +7,18 @@ import java.util.Objects;
 
 public class Workmate {
 
-    @NonNull
     private String id;
 
-    @NonNull
     private String name;
 
-    @NonNull
     private String email;
 
-    @NonNull
     private String pictureUrl;
 
     private String restaurantId;
 
     private String restaurantName;
 
-    @NonNull
     private List<String> likedRestaurants;
 
     public Workmate(

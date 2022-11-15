@@ -33,7 +33,7 @@ public class RestaurantsViewModel extends ViewModel {
     private final MediatorLiveData<List<RestaurantItemViewState>> viewStatesLiveData = new MediatorLiveData<>();
 
     @NonNull
-    CurrentLocationRepository locationRepository;
+    private final CurrentLocationRepository locationRepository;
 
     private CurrentLocation currentLocation;
 

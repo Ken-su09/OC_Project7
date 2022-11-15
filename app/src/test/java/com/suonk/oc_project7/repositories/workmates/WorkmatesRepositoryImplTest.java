@@ -23,7 +23,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.utils.TestUtils;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class WorkmatesRepositoryImplTest {
 
@@ -65,16 +65,10 @@ public class WorkmatesRepositoryImplTest {
     private static final String PLACE_ID_VALUE = "PLACE_ID_VALUE";
     private static final String PLACE_ID_VALUE_NO_PICTURE = "PLACE_ID_VALUE_NO_PICTURE";
 
-    private static final String PLACE_ID = "PLACE_ID";
     private static final String RESTAURANT_NAME = "RESTAURANT_NAME";
-    private static final String PHONE_NUMBER = "PHONE_NUMBER";
-    private static final String ADDRESS = "ADDRESS";
     private static final String PHOTO_REFERENCE = "PHOTO_REFERENCE";
     private static final String PICTURE_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=key&photo_reference=" + PHOTO_REFERENCE;
-    private static final int RATING = 4;
-    private static final String WEBSITE = "WEBSITE";
     private static final String DISPLAY_NAME = "DISPLAY_NAME";
-    private static final boolean IS_LIKED = false;
 
     private static final String CURRENT_FIREBASE_USER_ID = "CURRENT_FIREBASE_USER_ID";
     private static final String CURRENT_FIREBASE_USER_NAME = "CURRENT_FIREBASE_USER_NAME";
@@ -96,10 +90,6 @@ public class WorkmatesRepositoryImplTest {
     private final String HAVE_CHOSEN_TODAY_COLLECTION_PATH = HAVE_CHOSEN_TODAY + "_" + today;
 
     //endregion
-
-    @Before
-    public void setup() {
-    }
 
     //region ========================================= GET WORKMATES ========================================
 
@@ -137,8 +127,11 @@ public class WorkmatesRepositoryImplTest {
         // WHEN
         LiveData<List<Workmate>> livedata = workmatesRepository.getWorkmatesHaveChosenTodayLiveData();
         livedata.observeForever(t -> {
+            List<Workmate> captured = livedata.getValue();
+            assertNotNull(captured);
         });
-        List<Workmate> captured = livedata.getValue();
+
+        //TODO
 
         verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
         verify(collectionReferenceMock).addSnapshotListener(querySnapshotListenerCaptor.capture());
@@ -181,8 +174,6 @@ public class WorkmatesRepositoryImplTest {
         doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
 
         ArgumentCaptor<EventListener<DocumentSnapshot>> documentSnapshotListenerCaptor = ArgumentCaptor.forClass(EventListener.class);
-//        ArgumentCaptor<DocumentSnapshot> documentSnapshotCaptor = ArgumentCaptor.forClass(DocumentSnapshot.class);
-//        doReturn(listenerRegistrationMock).when(documentReferenceMock).addSnapshotListener(documentSnapshotListenerCaptor.capture());
         doReturn(getDefaultCurrentUser()).when(documentSnapshotMock).toObject(Workmate.class);
 
         workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
@@ -359,18 +350,6 @@ public class WorkmatesRepositoryImplTest {
         );
     }
 
-    private Workmate getDefaultCurrentUserWithNoRestaurantsLiked() {
-        return new Workmate(
-                CURRENT_FIREBASE_USER_ID,
-                CURRENT_FIREBASE_USER_NAME,
-                "mail",
-                PICTURE_URL,
-                PLACE_ID_VALUE,
-                RESTAURANT_NAME,
-                new ArrayList<>()
-        );
-    }
-
     //endregion
 
     private List<Workmate> getDefaultAllWorkmates() {
@@ -382,27 +361,6 @@ public class WorkmatesRepositoryImplTest {
         workmates.add(new Workmate("4", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE_NO_PICTURE, RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("5", DISPLAY_NAME, "mail", PICTURE_URL, "", RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("6", DISPLAY_NAME, "mail", PICTURE_URL, "", RESTAURANT_NAME, new ArrayList<>()));
-
-        return workmates;
-    }
-
-    private List<Workmate> getDefaultWorkmatesHaveChosen() {
-        List<Workmate> workmates = new ArrayList<>();
-
-        workmates.add(getDefaultCurrentUser());
-        workmates.add(new Workmate("2", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
-        workmates.add(new Workmate("3", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
-        workmates.add(new Workmate("4", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE_NO_PICTURE, RESTAURANT_NAME, new ArrayList<>()));
-
-        return workmates;
-    }
-
-    private List<Workmate> getDefaultWorkmatesThatHaveChosenThisRestaurant() {
-        List<Workmate> workmates = new ArrayList<>();
-
-        workmates.add(getDefaultCurrentUser());
-        workmates.add(new Workmate("2", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
-        workmates.add(new Workmate("3", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
 
         return workmates;
     }

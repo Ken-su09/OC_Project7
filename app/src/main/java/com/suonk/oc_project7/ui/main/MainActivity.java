@@ -35,7 +35,6 @@ import com.suonk.oc_project7.databinding.ActivityMainBinding;
 import com.suonk.oc_project7.events.OnClickEventListener;
 import com.suonk.oc_project7.ui.auth.AuthActivity;
 import com.suonk.oc_project7.ui.chat.details.ChatDetailsActivity;
-import com.suonk.oc_project7.ui.chat.list.ChatsListActivity;
 import com.suonk.oc_project7.ui.maps.MapsFragment;
 import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActivity;
 import com.suonk.oc_project7.ui.restaurants.list.ListRestaurantsFragment;
@@ -49,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    private final boolean locationPermissionGranted = false;
 
     private MainViewModel mainViewModel;
 
@@ -168,8 +166,6 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.settings) {
             startActivity(new Intent(this, SettingsActivity.class));
-        } else if (item.getItemId() == R.id.messages) {
-            startActivity(new Intent(this, ChatsListActivity.class));
         } else if (item.getItemId() == R.id.logout) {
             if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                 FirebaseAuth.getInstance().getCurrentUser().delete();
@@ -295,11 +291,6 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION) {
-
-        }
-
     }
 
     @Override

@@ -61,6 +61,7 @@ public class CustomFirebaseUser {
         return Objects.hash(id, displayName, email, photoUrl);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "CustomFirebaseUser{" +

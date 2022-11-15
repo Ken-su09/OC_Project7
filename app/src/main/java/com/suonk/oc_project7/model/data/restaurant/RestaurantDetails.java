@@ -84,7 +84,10 @@ public class RestaurantDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantDetails that = (RestaurantDetails) o;
-        return placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && phoneNumber.equals(that.phoneNumber) && address.equals(that.address) && image.equals(that.image) && rating.equals(that.rating) && websiteLink.equals(that.websiteLink);
+        if (!placeId.equals(that.placeId) || !restaurantName.equals(that.restaurantName) || !phoneNumber.equals(that.phoneNumber) || !address.equals(that.address))
+            return false;
+        assert image != null;
+        return image.equals(that.image) && rating.equals(that.rating) && websiteLink.equals(that.websiteLink);
     }
 
     @Override

@@ -56,10 +56,7 @@ public class MapsFragment extends SupportMapFragment {
     private void setupGoogleMap() {
         getMapAsync(mMap -> {
             googleMap = mMap;
-            mainViewModel.getPermissionsLiveData().observe(getViewLifecycleOwner(), isPermissionsEnabled -> {
-                googleMap.setMyLocationEnabled(isPermissionsEnabled);
-                    }
-            );
+            mainViewModel.getPermissionsLiveData().observe(getViewLifecycleOwner(), isPermissionsEnabled -> googleMap.setMyLocationEnabled(isPermissionsEnabled));
 
             mapsViewModel.getMapMakersLiveData().observe(getViewLifecycleOwner(), mapMarkers -> {
                 for (MapMarker mapMaker : mapMarkers) {
