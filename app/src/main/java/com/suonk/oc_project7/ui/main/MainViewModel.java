@@ -128,7 +128,6 @@ public class MainViewModel extends ViewModel {
     @SuppressLint("MissingPermission")
     public void onStart() {
         if (permissionChecker.hasFineLocationPermission() || permissionChecker.hasCoarseLocationPermission()) {
-
             locationRepository.startLocationUpdates();
             isPermissionEnabledLiveData.setValue(true);
         } else {

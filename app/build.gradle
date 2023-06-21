@@ -39,6 +39,7 @@ android {
     hilt {
         enableAggregatingTask = true
     }
+    namespace 'com.suonk.oc_project7'
 }
 
 dependencies {
@@ -76,7 +77,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-analytics'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.android.gms:play-services-auth:20.3.0'
-    implementation 'com.google.firebase:firebase-firestore:24.3.1'
+    implementation 'com.google.firebase:firebase-firestore:24.4.1'
 
     // Facebook
     implementation 'com.facebook.android:facebook-android-sdk:13.0.0'
@@ -84,7 +85,7 @@ dependencies {
 
     // Google Maps
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
-    implementation 'com.google.android.gms:play-services-location:20.0.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
     implementation "androidx.work:work-runtime:2.7.1"
 

@@ -42,11 +42,7 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
         String today = year + "-" + month + "-" + day;
 
-        final DocumentSnapshot documentSnapshot =
-                firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
-                        .document(userId)
-                        .get()
-                        .getResult();
+        final DocumentSnapshot documentSnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).document(userId).get().getResult();
 
         if (documentSnapshot != null) {
             if (documentSnapshot.toObject(Workmate.class) != null) {
@@ -54,32 +50,22 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
             }
         }
 
-        return currentUser != null ? currentUser : new Workmate(
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                new ArrayList<>()
-        );
+        return currentUser != null ? currentUser : new Workmate("", "", "", "", "", "", new ArrayList<>());
     }
 
     @NonNull
     @Override
     public LiveData<Workmate> getWorkmateByIdLiveData(@NonNull String id) {
         MutableLiveData<Workmate> currentUserLiveData = new MutableLiveData<>();
-        firebaseFirestore.collection(ALL_WORKMATES)
-                .document(id)
-                .addSnapshotListener((querySnapshot, error) -> {
-                    if (querySnapshot != null) {
-                        try {
-                            currentUserLiveData.setValue(querySnapshot.toObject(Workmate.class));
-                        } catch (Exception e) {
-                            Log.i("", "" + e);
-                        }
-                    }
-                });
+        firebaseFirestore.collection(ALL_WORKMATES).document(id).addSnapshotListener((querySnapshot, error) -> {
+            if (querySnapshot != null) {
+                try {
+                    currentUserLiveData.setValue(querySnapshot.toObject(Workmate.class));
+                } catch (Exception e) {
+                    Log.i("", "" + e);
+                }
+            }
+        });
 
         return currentUserLiveData;
     }
@@ -96,9 +82,7 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
         String today = year + "-" + month + "-" + day;
 
-        final QuerySnapshot querySnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
-                .get()
-                .getResult();
+        final QuerySnapshot querySnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).get().getResult();
 
         if (querySnapshot != null) {
             workmates.addAll(querySnapshot.toObjects(Workmate.class));
@@ -112,17 +96,16 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
     public LiveData<List<Workmate>> getAllWorkmatesFromFirestoreLiveData() {
         final MutableLiveData<List<Workmate>> workmatesMutableLiveData = new MutableLiveData<>();
 
-        firebaseFirestore.collection(ALL_WORKMATES)
-                .addSnapshotListener((querySnapshot, error) -> {
-                    if (querySnapshot != null) {
-                        try {
-                            List<Workmate> list = querySnapshot.toObjects(Workmate.class);
-                            workmatesMutableLiveData.setValue(list);
-                        } catch (Exception e) {
-                            Log.i("getWorkmates", "" + e);
-                        }
-                    }
-                });
+        firebaseFirestore.collection(ALL_WORKMATES).addSnapshotListener((querySnapshot, error) -> {
+            if (querySnapshot != null) {
+                try {
+                    List<Workmate> list = querySnapshot.toObjects(Workmate.class);
+                    workmatesMutableLiveData.setValue(list);
+                } catch (Exception e) {
+                    Log.i("getWorkmates", "" + e);
+                }
+            }
+        });
 
         return workmatesMutableLiveData;
     }
@@ -140,16 +123,15 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
         String today = year + "-" + month + "-" + day;
 
-        firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
-                .addSnapshotListener((querySnapshot, error) -> {
-                    if (querySnapshot != null) {
-                        try {
-                            workmatesMutableLiveData.setValue(querySnapshot.toObjects(Workmate.class));
-                        } catch (Exception e) {
-                            Log.i("", "" + e);
-                        }
-                    }
-                });
+        firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).addSnapshotListener((querySnapshot, error) -> {
+            if (querySnapshot != null) {
+                try {
+                    workmatesMutableLiveData.setValue(querySnapshot.toObjects(Workmate.class));
+                } catch (Exception e) {
+                    Log.i("", "" + e);
+                }
+            }
+        });
 
         return workmatesMutableLiveData;
     }
@@ -162,15 +144,22 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
         int day = dateToday.getDayOfMonth();
 
         String today = year + "-" + month + "-" + day;
-        firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today)
-                .document(id)
-                .set(workmateToAdd);
+        firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).document(id).set(workmateToAdd);
+    }
+
+    @Override
+    public void removeWorkmateToHaveChosenTodayList(@NonNull String id, @NonNull Workmate workmateToRemove) {
+        LocalDate dateToday = LocalDate.now();
+        int year = dateToday.getYear();
+        int month = dateToday.getMonthValue();
+        int day = dateToday.getDayOfMonth();
+
+        String today = year + "-" + month + "-" + day;
+        firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).document(id).delete();
     }
 
     @Override
     public void addWorkmateToFirestore(@NonNull String id, @NonNull Workmate workmateToAdd) {
-        firebaseFirestore.collection(ALL_WORKMATES)
-                .document(id)
-                .set(workmateToAdd);
+        firebaseFirestore.collection(ALL_WORKMATES).document(id).set(workmateToAdd);
     }
 }

@@ -1,4 +1,4 @@
-package com.suonk.oc_project7.ui.maps;
+package com.suonk.oc_project7.ui.map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -36,7 +36,7 @@ public class MapsViewModelTest {
     @Rule
     public final InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private MapsViewModel viewModel;
+    private MapViewModel viewModel;
 
     //region ============================================= MOCK =============================================
 
@@ -103,7 +103,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(getDefaultWorkmatesHaveChosen());
         currentUserSearchLiveData.setValue(TEXT_TO_HIGHLIGHT);
 
-        viewModel = new MapsViewModel(
+        viewModel = new MapViewModel(
                 locationRepository,
                 placesRepository,
                 getWorkmatesHaveChosenTodayUseCaseMock,

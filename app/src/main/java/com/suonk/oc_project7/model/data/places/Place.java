@@ -13,6 +13,9 @@ public class Place {
     private final String restaurantName;
 
     @NonNull
+    private final String restaurantAddress;
+
+    @NonNull
     private final Double latitude;
 
     @NonNull
@@ -21,9 +24,10 @@ public class Place {
     private final boolean isOpen;
 
 
-    public Place(@NonNull String placeId, @NonNull String restaurantName, @NonNull Double latitude, @NonNull Double longitude, Boolean isOpen) {
+    public Place(@NonNull String placeId, @NonNull String restaurantName, @NonNull String restaurantAddress, @NonNull Double latitude, @NonNull Double longitude, Boolean isOpen) {
         this.placeId = placeId;
         this.restaurantName = restaurantName;
+        this.restaurantAddress = restaurantAddress;
         this.latitude = latitude;
         this.longitude = longitude;
         this.isOpen = isOpen;
@@ -37,6 +41,11 @@ public class Place {
     @NonNull
     public String getRestaurantName() {
         return restaurantName;
+    }
+
+    @NonNull
+    public String getRestaurantAddress() {
+        return restaurantAddress;
     }
 
     public boolean isOpen() {
@@ -58,20 +67,20 @@ public class Place {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Place place = (Place) o;
-        return isOpen == place.isOpen && placeId.equals(place.placeId) && restaurantName.equals(place.restaurantName) && latitude.equals(place.latitude) && longitude.equals(place.longitude);
+        return isOpen == place.isOpen && placeId.equals(place.placeId) && restaurantName.equals(place.restaurantName) && restaurantAddress.equals(place.restaurantAddress) && latitude.equals(place.latitude) && longitude.equals(place.longitude);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, restaurantName, latitude, longitude, isOpen);
+        return Objects.hash(placeId, restaurantName, restaurantAddress, latitude, longitude, isOpen);
     }
 
-    @NonNull
     @Override
     public String toString() {
         return "Place{" +
                 "placeId='" + placeId + '\'' +
                 ", restaurantName='" + restaurantName + '\'' +
+                ", restaurantAddress='" + restaurantAddress + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", isOpen=" + isOpen +

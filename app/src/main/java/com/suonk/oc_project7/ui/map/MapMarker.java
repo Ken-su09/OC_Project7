@@ -1,4 +1,4 @@
-package com.suonk.oc_project7.ui.maps;
+package com.suonk.oc_project7.ui.map;
 
 import androidx.annotation.NonNull;
 
@@ -14,15 +14,17 @@ public class MapMarker {
     private final Double longitude;
     @NonNull
     private final String restaurantName;
+    @NonNull
+    private final String restaurantAddress;
 
     private final int markerIcon;
 
-    public MapMarker(@NonNull String placeId, @NonNull Double latitude, @NonNull Double longitude,
-                     @NonNull String restaurantName, int markerIcon) {
+    public MapMarker(@NonNull String placeId, @NonNull Double latitude, @NonNull Double longitude, @NonNull String restaurantName, @NonNull String restaurantAddress, int markerIcon) {
         this.placeId = placeId;
         this.latitude = latitude;
         this.longitude = longitude;
         this.restaurantName = restaurantName;
+        this.restaurantAddress = restaurantAddress;
         this.markerIcon = markerIcon;
     }
 
@@ -46,6 +48,11 @@ public class MapMarker {
         return restaurantName;
     }
 
+    @NonNull
+    public String getRestaurantAddress() {
+        return restaurantAddress;
+    }
+
     public int getMarkerIcon() {
         return markerIcon;
     }
@@ -55,15 +62,14 @@ public class MapMarker {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MapMarker mapMarker = (MapMarker) o;
-        return markerIcon == mapMarker.markerIcon && placeId.equals(mapMarker.placeId) && latitude.equals(mapMarker.latitude) && longitude.equals(mapMarker.longitude) && restaurantName.equals(mapMarker.restaurantName);
+        return markerIcon == mapMarker.markerIcon && placeId.equals(mapMarker.placeId) && latitude.equals(mapMarker.latitude) && longitude.equals(mapMarker.longitude) && restaurantName.equals(mapMarker.restaurantName) && restaurantAddress.equals(mapMarker.restaurantAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, latitude, longitude, restaurantName, markerIcon);
+        return Objects.hash(placeId, latitude, longitude, restaurantName, restaurantAddress, markerIcon);
     }
 
-    @NonNull
     @Override
     public String toString() {
         return "MapMarker{" +
@@ -71,6 +77,7 @@ public class MapMarker {
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", restaurantName='" + restaurantName + '\'' +
+                ", restaurantAddress='" + restaurantAddress + '\'' +
                 ", markerIcon=" + markerIcon +
                 '}';
     }

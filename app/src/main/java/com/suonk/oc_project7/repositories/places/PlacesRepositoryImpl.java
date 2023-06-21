@@ -47,6 +47,7 @@ public class PlacesRepositoryImpl implements PlacesRepository {
                             places.add(new Place(
                                     nearbyPlaceResult.getPlaceId(),
                                     nearbyPlaceResult.getName(),
+                                    "",
                                     nearbyPlaceResult.getGeometry().getLocation().getLat(),
                                     nearbyPlaceResult.getGeometry().getLocation().getLng(),
                                     true));

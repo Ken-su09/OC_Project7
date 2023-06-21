@@ -6,7 +6,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -47,7 +46,6 @@ public class NotificationWorker extends Worker {
     }
 
     private void buildNotificationWorker(@Nullable NotificationEntity notificationEntity) {
-        Log.i("buildNotificationWorker", "1 : " + notificationEntity);
         if (notificationEntity != null) {
             final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
             String CHANNEL_ID = "CHANNEL_ID";

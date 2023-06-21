@@ -26,5 +26,7 @@ public interface WorkmatesRepository {
 
     void addWorkmateToHaveChosenTodayList(@NonNull String id, @NonNull Workmate workmateToAdd);
 
+    void removeWorkmateToHaveChosenTodayList(@NonNull String id, @NonNull Workmate workmateToRemove);
+
     void addWorkmateToFirestore(@NonNull String id, @NonNull Workmate workmateToAdd);
 }

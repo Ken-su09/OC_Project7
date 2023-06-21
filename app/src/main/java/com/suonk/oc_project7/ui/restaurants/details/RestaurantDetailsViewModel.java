@@ -20,10 +20,12 @@ import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.domain.workmates.add.AddWorkmateToHaveChosenTodayUseCase;
 import com.suonk.oc_project7.domain.workmates.get.GetWorkmateByIdUseCase;
 import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
+import com.suonk.oc_project7.domain.workmates.remove.RemoveWorkmateToHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.restaurant.RestaurantDetails;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.ui.workmates.WorkmateItemViewState;
+import com.suonk.oc_project7.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,9 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     @NonNull
     private final AddWorkmateToHaveChosenTodayUseCase addWorkmateToHaveChosenTodayUseCase;
+
+    @NonNull
+    private final RemoveWorkmateToHaveChosenTodayUseCase removeWorkmateToHaveChosenTodayUseCase;
 
     @NonNull
     private final RestaurantsRepository restaurantsRepository;
@@ -55,16 +60,14 @@ public class RestaurantDetailsViewModel extends ViewModel {
     private String restaurantName;
     private Workmate user;
 
+    private final SingleLiveEvent<String> toastMessage = new SingleLiveEvent<>();
+    private Boolean isChosen = false;
+
     @Inject
-    public RestaurantDetailsViewModel(@NonNull AddWorkmateToHaveChosenTodayUseCase addWorkmateToHaveChosenTodayUseCase,
-                                      @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase,
-                                      @NonNull GetWorkmateByIdUseCase getWorkmateByIdUseCase,
-                                      @NonNull RestaurantsRepository restaurantsRepository,
-                                      @NonNull FirebaseAuth firebaseAuth,
-                                      @NonNull Application application,
-                                      SavedStateHandle savedStateHandle) {
+    public RestaurantDetailsViewModel(@NonNull AddWorkmateToHaveChosenTodayUseCase addWorkmateToHaveChosenTodayUseCase, @NonNull RemoveWorkmateToHaveChosenTodayUseCase removeWorkmateToHaveChosenTodayUseCase, @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase, @NonNull GetWorkmateByIdUseCase getWorkmateByIdUseCase, @NonNull RestaurantsRepository restaurantsRepository, @NonNull FirebaseAuth firebaseAuth, @NonNull Application application, SavedStateHandle savedStateHandle) {
         this.restaurantsRepository = restaurantsRepository;
         this.addWorkmateToHaveChosenTodayUseCase = addWorkmateToHaveChosenTodayUseCase;
+        this.removeWorkmateToHaveChosenTodayUseCase = removeWorkmateToHaveChosenTodayUseCase;
         this.application = application;
         placeId = savedStateHandle.get(PLACE_ID);
 
@@ -85,34 +88,20 @@ public class RestaurantDetailsViewModel extends ViewModel {
             currentUserLiveData = new MutableLiveData<>();
         }
 
-        restaurantDetailsViewStateLiveData.addSource(workmatesHaveChosenLiveData, workmatesHaveChosen ->
-                combine(workmatesHaveChosen, restaurantDetailsLiveData.getValue(), currentUserLiveData.getValue()));
+        restaurantDetailsViewStateLiveData.addSource(workmatesHaveChosenLiveData, workmatesHaveChosen -> combine(workmatesHaveChosen, restaurantDetailsLiveData.getValue(), currentUserLiveData.getValue()));
 
-        restaurantDetailsViewStateLiveData.addSource(restaurantDetailsLiveData, restaurantDetails ->
-                combine(workmatesHaveChosenLiveData.getValue(), restaurantDetails, currentUserLiveData.getValue()));
+        restaurantDetailsViewStateLiveData.addSource(restaurantDetailsLiveData, restaurantDetails -> combine(workmatesHaveChosenLiveData.getValue(), restaurantDetails, currentUserLiveData.getValue()));
 
-        restaurantDetailsViewStateLiveData.addSource(currentUserLiveData, currentUser ->
-                combine(workmatesHaveChosenLiveData.getValue(), restaurantDetailsLiveData.getValue(), currentUser));
+        restaurantDetailsViewStateLiveData.addSource(currentUserLiveData, currentUser -> combine(workmatesHaveChosenLiveData.getValue(), restaurantDetailsLiveData.getValue(), currentUser));
     }
 
-    private void combine(@Nullable List<Workmate> workmatesHaveChosen,
-                         @Nullable RestaurantDetails restaurantDetails,
-                         @Nullable Workmate currentUser
-    ) {
+    private void combine(@Nullable List<Workmate> workmatesHaveChosen, @Nullable RestaurantDetails restaurantDetails, @Nullable Workmate currentUser) {
         List<WorkmateItemViewState> workmatesItemViews = new ArrayList<>();
         int selectRestaurantButtonIcon = R.drawable.ic_to_select;
         Workmate finalCurrentUser;
 
         if (currentUser == null) {
-            finalCurrentUser = new Workmate(
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    new ArrayList<>()
-            );
+            finalCurrentUser = new Workmate("", "", "", "", "", "", new ArrayList<>());
         } else {
             finalCurrentUser = currentUser;
         }
@@ -120,15 +109,10 @@ public class RestaurantDetailsViewModel extends ViewModel {
         if (workmatesHaveChosen != null && placeId != null) {
             for (Workmate workmate : workmatesHaveChosen) {
                 if (!finalCurrentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
-                    workmatesItemViews.add(new WorkmateItemViewState(
-                            workmate.getId(),
-                            application.getString(R.string.workmate_has_joined, workmate.getName()),
-                            workmate.getPictureUrl(),
-                            Color.BLACK,
-                            Typeface.NORMAL
-                    ));
+                    workmatesItemViews.add(new WorkmateItemViewState(workmate.getId(), application.getString(R.string.workmate_has_joined, workmate.getName()), workmate.getPictureUrl(), Color.BLACK, Typeface.NORMAL));
                 } else if (finalCurrentUser.getId().equals(workmate.getId()) && placeId.equals(workmate.getRestaurantId())) {
                     selectRestaurantButtonIcon = R.drawable.ic_accept;
+                    isChosen = true;
                 }
             }
             workmatesViewStateLiveData.setValue(workmatesItemViews);
@@ -157,27 +141,9 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
             restaurantName = restaurantDetails.getRestaurantName();
 
-            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(
-                    restaurantDetails.getPlaceId(),
-                    restaurantDetails.getRestaurantName(),
-                    restaurantDetails.getAddress(),
-                    (int) rating,
-                    picture,
-                    restaurantDetails.getPhoneNumber(),
-                    restaurantDetails.getWebsiteLink(),
-                    selectRestaurantButtonIcon,
-                    likeButtonText));
+            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(restaurantDetails.getPlaceId(), restaurantDetails.getRestaurantName(), restaurantDetails.getAddress(), (int) rating, picture, restaurantDetails.getPhoneNumber(), restaurantDetails.getWebsiteLink(), selectRestaurantButtonIcon, likeButtonText));
         } else {
-            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(
-                    "1",
-                    "",
-                    "",
-                    0,
-                    "",
-                    "",
-                    "",
-                    R.drawable.ic_to_select,
-                    likeButtonText));
+            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState("1", "", "", 0, "", "", "", R.drawable.ic_to_select, likeButtonText));
         }
     }
 
@@ -191,7 +157,15 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     public void addWorkmate() {
         if (restaurantName != null && user != null) {
-            addWorkmateToHaveChosenTodayUseCase.addWorkmateToHaveChosenTodayList(user, placeId, restaurantName);
+            if (!isChosen) {
+                toastMessage.setValue(application.getString(R.string.restaurant_is_chosen));
+                isChosen = true;
+                addWorkmateToHaveChosenTodayUseCase.addWorkmateToHaveChosenTodayList(user, placeId, restaurantName);
+            } else {
+                toastMessage.setValue(application.getString(R.string.restaurant_is_unchosen));
+                isChosen = false;
+                removeWorkmateToHaveChosenTodayUseCase.removeWorkmateToHaveChosenTodayList(user, placeId, restaurantName);
+            }
         }
     }
 
@@ -199,5 +173,9 @@ public class RestaurantDetailsViewModel extends ViewModel {
         if (restaurantName != null && user != null) {
             restaurantsRepository.toggleIsRestaurantLiked(user, placeId, restaurantName);
         }
+    }
+
+    public SingleLiveEvent<String> getToastMessage() {
+        return toastMessage;
     }
 }

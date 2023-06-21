@@ -22,6 +22,9 @@ public class RestaurantItemViewState {
     private final String distance;
 
     @NonNull
+    private final float distanceValue;
+
+    @NonNull
     private final String numberOfWorkmates;
 
     private final int rating;
@@ -29,16 +32,13 @@ public class RestaurantItemViewState {
     @NonNull
     private final String pictureUrl;
 
-    public RestaurantItemViewState(@NonNull String placeId, @NonNull String restaurantName,
-                                   @NonNull String address, @NonNull String openDescription,
-                                   @NonNull String distance, @NonNull String numberOfWorkmates,
-                                   int rating, @NonNull String pictureUrl
-    ) {
+    public RestaurantItemViewState(@NonNull String placeId, @NonNull String restaurantName, @NonNull String address, @NonNull String openDescription, @NonNull String distance, @NonNull Float distanceValue, @NonNull String numberOfWorkmates, int rating, @NonNull String pictureUrl) {
         this.placeId = placeId;
         this.restaurantName = restaurantName;
         this.address = address;
         this.openDescription = openDescription;
         this.distance = distance;
+        this.distanceValue = distanceValue;
         this.numberOfWorkmates = numberOfWorkmates;
         this.rating = rating;
         this.pictureUrl = pictureUrl;
@@ -70,6 +70,11 @@ public class RestaurantItemViewState {
     }
 
     @NonNull
+    public float getDistanceValue() {
+        return distanceValue;
+    }
+
+    @NonNull
     public String getNumberOfWorkmates() {
         return numberOfWorkmates;
     }
@@ -88,26 +93,16 @@ public class RestaurantItemViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantItemViewState that = (RestaurantItemViewState) o;
-        return rating == that.rating && placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && openDescription.equals(that.openDescription) && distance.equals(that.distance) && numberOfWorkmates.equals(that.numberOfWorkmates) && pictureUrl.equals(that.pictureUrl);
+        return Float.compare(that.distanceValue, distanceValue) == 0 && rating == that.rating && placeId.equals(that.placeId) && restaurantName.equals(that.restaurantName) && address.equals(that.address) && openDescription.equals(that.openDescription) && distance.equals(that.distance) && numberOfWorkmates.equals(that.numberOfWorkmates) && pictureUrl.equals(that.pictureUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, restaurantName, address, openDescription, distance, numberOfWorkmates, rating, pictureUrl);
+        return Objects.hash(placeId, restaurantName, address, openDescription, distance, distanceValue, numberOfWorkmates, rating, pictureUrl);
     }
 
-    @NonNull
     @Override
     public String toString() {
-        return "RestaurantItemViewState{" +
-                "placeId='" + placeId + '\'' +
-                ", restaurantName='" + restaurantName + '\'' +
-                ", address='" + address + '\'' +
-                ", openDescription='" + openDescription + '\'' +
-                ", distance='" + distance + '\'' +
-                ", numberOfWorkmates='" + numberOfWorkmates + '\'' +
-                ", rating=" + rating +
-                ", pictureUrl='" + pictureUrl + '\'' +
-                '}';
+        return "RestaurantItemViewState{" + "placeId='" + placeId + '\'' + ", restaurantName='" + restaurantName + '\'' + ", address='" + address + '\'' + ", openDescription='" + openDescription + '\'' + ", distance='" + distance + '\'' + ", distanceValue=" + distanceValue + ", numberOfWorkmates='" + numberOfWorkmates + '\'' + ", rating=" + rating + ", pictureUrl='" + pictureUrl + '\'' + '}';
     }
 }

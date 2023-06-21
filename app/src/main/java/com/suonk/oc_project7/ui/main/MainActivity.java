@@ -35,7 +35,7 @@ import com.suonk.oc_project7.databinding.ActivityMainBinding;
 import com.suonk.oc_project7.events.OnClickEventListener;
 import com.suonk.oc_project7.ui.auth.AuthActivity;
 import com.suonk.oc_project7.ui.chat.details.ChatDetailsActivity;
-import com.suonk.oc_project7.ui.maps.MapsFragment;
+import com.suonk.oc_project7.ui.map.MapFragment;
 import com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActivity;
 import com.suonk.oc_project7.ui.restaurants.list.ListRestaurantsFragment;
 import com.suonk.oc_project7.ui.settings.SettingsActivity;
@@ -228,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
                 fragmentToCommit = WorkmatesFragment.newInstance();
             } else {
                 showFragmentAndHideList();
-                fragmentToCommit = MapsFragment.newInstance();
+                fragmentToCommit = MapFragment.newInstance();
             }
 
             getSupportFragmentManager().beginTransaction()
@@ -280,7 +280,7 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
                         PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             } else {
                 getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, MapsFragment.newInstance())
+                        .replace(R.id.fragment_container, MapFragment.newInstance())
                         .commit();
             }
         });

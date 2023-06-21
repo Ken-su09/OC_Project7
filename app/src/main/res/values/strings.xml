@@ -37,6 +37,7 @@
     <string name="distance_restaurant">%1$d m</string>
     <string name="number_of_workmates">(%1$d)</string>
     <string name="restaurant_is_chosen">You have chosen this restaurant !</string>
+    <string name="restaurant_is_unchosen">You have withdrawn your choice !</string>
 
     <string name="like">LIKE</string>
     <string name="dislike">UNLIKE</string>
