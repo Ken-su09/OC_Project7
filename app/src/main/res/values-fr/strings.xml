@@ -54,4 +54,7 @@
     <string name="toast_empty_message">Le message ne doit pas être vide</string>
     <string name="chat_details_error_message">Désolé, il y a eu une erreur</string>
     <string name="website">SITE WEB</string>
+
+    <string name="my_position">Ma Position</string>
+    <string name="fab_jump_to_position">Saut à la position</string>
 </resources>
