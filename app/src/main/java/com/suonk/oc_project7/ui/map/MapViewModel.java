@@ -1,5 +1,7 @@
 package com.suonk.oc_project7.ui.map;
 
+import android.app.Application;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -19,7 +21,6 @@ import com.suonk.oc_project7.repositories.places.PlacesRepository;
 import com.suonk.oc_project7.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -30,14 +31,18 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class MapViewModel extends ViewModel {
 
     @NonNull
-    private final MediatorLiveData<MapViewState> viewStatesLiveData = new MediatorLiveData<>();
+    private final MediatorLiveData<List<MapMarker>> viewStatesLiveData = new MediatorLiveData<>();
 
     private final SingleLiveEvent<LatLng> cameraPositionSingleEvent = new SingleLiveEvent<>();
 
     private LatLng latLng;
 
+    private final Application application;
+
     @Inject
-    public MapViewModel(@NonNull CurrentLocationRepository locationRepository, @NonNull PlacesRepository placesRepository, @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase, @NonNull CurrentUserSearchRepository currentUserSearchRepository) {
+    public MapViewModel(@NonNull CurrentLocationRepository locationRepository, @NonNull PlacesRepository placesRepository, @NonNull GetWorkmatesHaveChosenTodayUseCase getWorkmatesHaveChosenTodayUseCase, @NonNull CurrentUserSearchRepository currentUserSearchRepository, Application application) {
+        this.application = application;
+
         LiveData<CurrentLocation> currentLocationLiveData = locationRepository.getLocationMutableLiveData();
 
         LiveData<List<Place>> listPlacesLiveData = Transformations.switchMap(currentLocationLiveData, location -> {
@@ -57,9 +62,6 @@ public class MapViewModel extends ViewModel {
 
     private void combine(@Nullable CurrentLocation currentLocation, @Nullable List<Place> places, @Nullable List<Workmate> workmates, @Nullable CharSequence query) {
         List<String> restaurantIds = new ArrayList<>();
-        MapViewState mapViewState = new MapViewState(0.0, 0.0, Collections.emptyList(), R.drawable.custom_google_marker_user);
-
-
         if (workmates != null) {
             for (Workmate workmate : workmates) {
                 restaurantIds.add(workmate.getRestaurantId());
@@ -84,15 +86,15 @@ public class MapViewModel extends ViewModel {
             }
 
             if (currentLocation != null) {
-                mapViewState = new MapViewState(currentLocation.getLat(), currentLocation.getLng(), listMapMaker, R.drawable.custom_google_marker_user);
+                listMapMaker.add(new MapMarker("", currentLocation.getLat(), currentLocation.getLng(), application.getString(R.string.my_position), "", R.drawable.custom_google_marker_user));
             }
         }
 
-        viewStatesLiveData.setValue(mapViewState);
+        viewStatesLiveData.setValue(listMapMaker);
     }
 
     @NonNull
-    public LiveData<MapViewState> getMapViewStateLiveData() {
+    public LiveData<List<MapMarker>> getMapViewStateLiveData() {
         return viewStatesLiveData;
     }
 

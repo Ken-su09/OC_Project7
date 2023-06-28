@@ -21,10 +21,12 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.FragmentMapBinding;
 import com.suonk.oc_project7.ui.main.MainViewModel;
 
@@ -61,29 +63,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.map.onCreate(savedInstanceState);
-        binding.map.getMapAsync(this);
-        setupGoogleMap();
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map_fragment);
+        if (mapFragment != null) {
+            mapFragment.onCreate(savedInstanceState);
+            mapFragment.getMapAsync(this);
+
+            setupGoogleMap();
+        }
     }
 
     private void jumpToLocation(LatLng location) {
-        binding.jumpTo.setOnClickListener(view -> {
-            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f));
-        });
+        binding.jumpTo.setOnClickListener(view -> googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 15f)));
     }
 
     @SuppressLint("MissingPermission")
     private void setupGoogleMap() {
         mainViewModel.getPermissionsLiveData().observe(getViewLifecycleOwner(), isPermissionsEnabled -> googleMap.setMyLocationEnabled(isPermissionsEnabled));
 
-        mapsViewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapViewState -> {
-            jumpToLocation(new LatLng(mapViewState.getLatitude(), mapViewState.getLongitude()));
-            for (MapMarker mapMaker : mapViewState.getMapMarkers()) {
+        mapsViewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapMarkers -> {
+            for (MapMarker mapMaker : mapMarkers) {
                 LatLng currentLatLng = new LatLng(mapMaker.getLatitude(), mapMaker.getLongitude());
                 googleMap.addMarker(new MarkerOptions().position(currentLatLng).title(mapMaker.getRestaurantName()).snippet(mapMaker.getRestaurantAddress()).icon(BitmapDescriptorFactory.fromBitmap(getBitmap(getContext(), mapMaker.getMarkerIcon()))));
 
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+
+                if(mapMaker.getMarkerIcon() == R.drawable.custom_google_marker_user){
+                    jumpToLocation(currentLatLng);
+                }
             }
         });
 
@@ -116,6 +124,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMapReady) {
-        googleMap = googleMapReady;
+        this.googleMap = googleMapReady;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }
