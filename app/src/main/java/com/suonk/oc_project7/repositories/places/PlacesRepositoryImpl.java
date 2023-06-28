@@ -9,8 +9,8 @@ import com.suonk.oc_project7.model.data.place_auto_complete.AutocompleteResponse
 import com.suonk.oc_project7.model.data.place_auto_complete.PlaceAutocomplete;
 import com.suonk.oc_project7.model.data.place_auto_complete.Prediction;
 import com.suonk.oc_project7.model.data.places.NearbyPlaceResponse;
-import com.suonk.oc_project7.model.data.places.Place;
 import com.suonk.oc_project7.model.data.places.NearbyPlaceResult;
+import com.suonk.oc_project7.model.data.places.Place;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,13 +44,7 @@ public class PlacesRepositoryImpl implements PlacesRepository {
 
                     if (response.body() != null) {
                         for (NearbyPlaceResult nearbyPlaceResult : response.body().getResults()) {
-                            places.add(new Place(
-                                    nearbyPlaceResult.getPlaceId(),
-                                    nearbyPlaceResult.getName(),
-                                    "",
-                                    nearbyPlaceResult.getGeometry().getLocation().getLat(),
-                                    nearbyPlaceResult.getGeometry().getLocation().getLng(),
-                                    true));
+                            places.add(new Place(nearbyPlaceResult.getPlaceId(), nearbyPlaceResult.getName(), "", nearbyPlaceResult.getGeometry().getLocation().getLat(), nearbyPlaceResult.getGeometry().getLocation().getLng(), true));
                         }
                     }
 
@@ -69,24 +63,22 @@ public class PlacesRepositoryImpl implements PlacesRepository {
 
     @NonNull
     @Override
-    public LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@NonNull String language,
-                                                                   @NonNull String input) {
+    public LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@NonNull String location, @NonNull String language, @NonNull String input) {
         MutableLiveData<List<PlaceAutocomplete>> placesLiveData = new MutableLiveData<>();
 
-        if (apiService.getPlacesAutocomplete(language, input) != null) {
-            apiService.getPlacesAutocomplete(language, input).enqueue(new Callback<AutocompleteResponse>() {
+        if (apiService.getPlacesAutocomplete(location, language, input) != null) {
+            apiService.getPlacesAutocomplete(location, language, input).enqueue(new Callback<AutocompleteResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
+
                     if (response.isSuccessful()) {
                         List<PlaceAutocomplete> places = new ArrayList<>();
 
                         if (response.body() != null) {
-                            for (Prediction prediction : response.body().getPredictions()) {
-
-                                places.add(new PlaceAutocomplete(
-                                        prediction.getPlaceId(),
-                                        prediction.getStructuredFormatting().getMainText(),
-                                        prediction.getStructuredFormatting().getMainText()));
+                            if (response.body().getPredictions() != null) {
+                                for (Prediction prediction : response.body().getPredictions()) {
+                                    places.add(new PlaceAutocomplete(prediction.getPlaceId(), prediction.getStructuredFormatting().getMainText(), prediction.getStructuredFormatting().getSecondaryText()));
+                                }
                             }
                         }
 

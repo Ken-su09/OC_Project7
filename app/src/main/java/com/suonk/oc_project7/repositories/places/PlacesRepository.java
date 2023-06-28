@@ -14,6 +14,7 @@ public interface PlacesRepository {
     LiveData<List<Place>> getNearbyPlaceResponse(@NonNull String location);
 
     @NonNull
-    LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@NonNull String language,
+    LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@NonNull String location,
+                                                            @NonNull String language,
                                                             @NonNull String input);
 }

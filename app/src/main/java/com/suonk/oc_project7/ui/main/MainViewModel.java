@@ -1,6 +1,8 @@
 package com.suonk.oc_project7.ui.main;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -12,9 +14,12 @@ import androidx.lifecycle.ViewModel;
 import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
 import com.suonk.oc_project7.model.data.place_auto_complete.CustomSpannable;
 import com.suonk.oc_project7.model.data.place_auto_complete.PlaceAutocomplete;
+import com.suonk.oc_project7.model.data.places.CurrentLocation;
+import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
+import com.suonk.oc_project7.repositories.restaurants.RestaurantsRepository;
 import com.suonk.oc_project7.repositories.user.UserRepository;
 
 import java.util.ArrayList;
@@ -47,53 +52,72 @@ public class MainViewModel extends ViewModel {
 
     private final PermissionChecker permissionChecker;
 
+    private String latLng;
+
     @Inject
-    public MainViewModel(@NonNull CurrentLocationRepository locationRepository,
-                         @NonNull UserRepository userRepository,
-                         @NonNull PlacesRepository placesRepository,
-                         @NonNull CurrentUserSearchRepository currentUserSearchRepository,
-                         @NonNull PermissionChecker permissionChecker) {
+    public MainViewModel(@NonNull CurrentLocationRepository locationRepository, @NonNull RestaurantsRepository restaurantsRepository, @NonNull UserRepository userRepository, @NonNull PlacesRepository placesRepository, @NonNull CurrentUserSearchRepository currentUserSearchRepository, @NonNull PermissionChecker permissionChecker) {
         this.locationRepository = locationRepository;
         this.userRepository = userRepository;
         this.currentUserSearchRepository = currentUserSearchRepository;
         this.permissionChecker = permissionChecker;
 
+        LiveData<CurrentLocation> currentLocationLiveData = locationRepository.getLocationMutableLiveData();
+
+        LiveData<List<Restaurant>> restaurantsLiveData = Transformations.switchMap(currentLocationLiveData, location -> {
+            latLng = location.getLat() + "," + location.getLng();
+            return restaurantsRepository.getNearRestaurants(latLng);
+        });
+
         LiveData<List<PlaceAutocomplete>> placesAutocompleteLiveData = Transformations.switchMap(searchInputLiveData, input -> {
+            Log.i("GetPlacesAutocomplete", "latLng : " + latLng);
             if (input != null) {
-                return placesRepository.getPlacesAutocomplete(Locale.getDefault().getLanguage(), input.toString());
+                return placesRepository.getPlacesAutocomplete(latLng, Locale.getDefault().getLanguage(), input.toString());
             } else {
-                return placesRepository.getPlacesAutocomplete(Locale.getDefault().getLanguage(), "");
+                return placesRepository.getPlacesAutocomplete(latLng, Locale.getDefault().getLanguage(), "");
             }
         });
 
-        itemViewStates.addSource(placesAutocompleteLiveData, placesAutocomplete ->
-                combine(placesAutocomplete, searchInputLiveData.getValue()));
+        itemViewStates.addSource(restaurantsLiveData, restaurants -> combine(restaurants, placesAutocompleteLiveData.getValue(), searchInputLiveData.getValue()));
 
-        itemViewStates.addSource(searchInputLiveData, input ->
-                combine(placesAutocompleteLiveData.getValue(), input));
+        itemViewStates.addSource(placesAutocompleteLiveData, placesAutocomplete -> combine(restaurantsLiveData.getValue(), placesAutocomplete, searchInputLiveData.getValue()));
+
+        itemViewStates.addSource(searchInputLiveData, input -> combine(restaurantsLiveData.getValue(), placesAutocompleteLiveData.getValue(), input));
     }
 
-    private void combine(@Nullable List<PlaceAutocomplete> placesAutocomplete, @Nullable CharSequence input) {
+    private void combine(List<Restaurant> restaurants, @Nullable List<PlaceAutocomplete> placesAutocomplete, @Nullable CharSequence input) {
         List<MainItemViewState> mainItemViewStates = new ArrayList<>();
+//        List<String> listOfIds = new ArrayList<>();
 
-        if (placesAutocomplete != null) {
+        if (placesAutocomplete != null && restaurants != null && input != null) {
             for (PlaceAutocomplete placeAutocomplete : placesAutocomplete) {
-                if (input != null) {
-                    if (placeAutocomplete.getRestaurantName().contains(input)) {
-                        CustomSpannable textToHighlight = setHighLightedText(
-                                placeAutocomplete.getRestaurantName(),
-                                input.toString());
+                Log.i("GetPlacesAutocomplete", "placeAutocomplete.getRestaurantName().toUpperCase(Locale.ROOT) : " + placeAutocomplete.getRestaurantName().toUpperCase(Locale.ROOT));
+                Log.i("GetPlacesAutocomplete", "input.toString().toUpperCase(Locale.ROOT) : " + input.toString().toUpperCase(Locale.ROOT));
 
-                        mainItemViewStates.add(new MainItemViewState(
-                                placeAutocomplete.getPlaceId(),
-                                placeAutocomplete.getRestaurantName(),
-                                placeAutocomplete.getAddress(),
-                                textToHighlight.getStart(),
-                                textToHighlight.getEnd()
-                        ));
-                    }
+                if (placeAutocomplete.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT))) {
+
+                    CustomSpannable textToHighlight = setHighLightedText(placeAutocomplete.getRestaurantName(), input.toString());
+                    mainItemViewStates.add(new MainItemViewState(placeAutocomplete.getPlaceId(), placeAutocomplete.getRestaurantName(), placeAutocomplete.getAddress(), textToHighlight.getStart(), textToHighlight.getEnd(), ""));
                 }
             }
+
+//            Log.i("GetPlacesAutocomplete", "listOfIds : " + listOfIds);
+
+//            for (Restaurant restaurant : restaurants) {
+//                CustomSpannable textToHighlight = setHighLightedText(restaurant.getRestaurantName(), input.toString());
+//                if (listOfIds.contains(restaurant.getRestaurantId())) {
+//
+//                    String picture;
+//
+//                    if (restaurant.getPictureUrl().split("photo_reference")[1].equals("=")) {
+//                        picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
+//                    } else {
+//                        picture = restaurant.getPictureUrl();
+//                    }
+//
+//                    mainItemViewStates.add(new MainItemViewState(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getAddress(), textToHighlight.getStart(), textToHighlight.getEnd(), picture));
+//                } else {
+//                }
+//            }
         }
 
         itemViewStates.setValue(mainItemViewStates);
@@ -154,11 +178,7 @@ public class MainViewModel extends ViewModel {
 
     public LiveData<MainViewState> getMainViewStateLiveData() {
         if (userRepository.getCustomFirebaseUser() != null) {
-            mainViewStateLiveData.setValue(new MainViewState(
-                    userRepository.getCustomFirebaseUser().getDisplayName(),
-                    userRepository.getCustomFirebaseUser().getEmail(),
-                    userRepository.getCustomFirebaseUser().getPhotoUrl()
-            ));
+            mainViewStateLiveData.setValue(new MainViewState(userRepository.getCustomFirebaseUser().getDisplayName(), userRepository.getCustomFirebaseUser().getEmail(), userRepository.getCustomFirebaseUser().getPhotoUrl()));
         } else {
             mainViewStateLiveData.setValue(new MainViewState("", "", ""));
         }

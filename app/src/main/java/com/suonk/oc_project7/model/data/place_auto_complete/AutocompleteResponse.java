@@ -9,19 +9,19 @@ import java.util.Objects;
 public class AutocompleteResponse {
 
     @NonNull
-    private final List<Prediction> mPredictions;
+    private final List<Prediction> predictions;
 
     @NonNull
-    private final String mStatus;
+    private final String status;
 
-    public AutocompleteResponse(@NonNull List<Prediction> mPredictions, @NonNull String mStatus) {
-        this.mPredictions = mPredictions;
-        this.mStatus = mStatus;
+    public AutocompleteResponse(@NonNull List<Prediction> predictions, @NonNull String status) {
+        this.predictions = predictions;
+        this.status = status;
     }
 
     @NonNull
     public List<Prediction> getPredictions() {
-        return mPredictions;
+        return predictions;
     }
 
     @Override
@@ -29,20 +29,20 @@ public class AutocompleteResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AutocompleteResponse that = (AutocompleteResponse) o;
-        return mPredictions.equals(that.mPredictions) && mStatus.equals(that.mStatus);
+        return predictions.equals(that.predictions) && status.equals(that.status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mPredictions, mStatus);
+        return Objects.hash(predictions, status);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "AutocompleteResponse{" +
-                "mPredictions=" + mPredictions +
-                ", mStatus='" + mStatus + '\'' +
+                "predictions=" + predictions +
+                ", status='" + status + '\'' +
                 '}';
     }
 }

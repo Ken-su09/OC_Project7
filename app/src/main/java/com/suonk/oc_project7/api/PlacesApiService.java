@@ -26,6 +26,7 @@ public interface PlacesApiService {
             "&types=restaurant" +
             "&key=" + BuildConfig.PLACES_API_KEY)
     Call<AutocompleteResponse> getPlacesAutocomplete(
+            @Query("location") String location,
             @Query("language") String language,
             @Query("input") String input);
 }

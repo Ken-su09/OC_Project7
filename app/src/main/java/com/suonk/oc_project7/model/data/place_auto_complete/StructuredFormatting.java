@@ -9,23 +9,28 @@ import java.util.Objects;
 public class StructuredFormatting {
 
     @NonNull
-    private final String mMainText;
+    private final String main_text;
     @NonNull
-    private final List<MainTextMatchedSubstring> mMainTextMatchedSubstrings;
+    private final List<MainTextMatchedSubstring> main_text_matched_substrings;
     @NonNull
-    private final String mSecondaryText;
+    private final String secondary_text;
 
-    public StructuredFormatting(@NonNull String mMainText,
-                                @NonNull List<MainTextMatchedSubstring> mMainTextMatchedSubstrings,
-                                @NonNull String mSecondaryText) {
-        this.mMainText = mMainText;
-        this.mMainTextMatchedSubstrings = mMainTextMatchedSubstrings;
-        this.mSecondaryText = mSecondaryText;
+    public StructuredFormatting(@NonNull String main_text,
+                                @NonNull List<MainTextMatchedSubstring> main_text_matched_substrings,
+                                @NonNull String secondary_text) {
+        this.main_text = main_text;
+        this.main_text_matched_substrings = main_text_matched_substrings;
+        this.secondary_text = secondary_text;
     }
 
     @NonNull
     public String getMainText() {
-        return mMainText;
+        return main_text;
+    }
+
+    @NonNull
+    public String getSecondaryText() {
+        return secondary_text;
     }
 
     @Override
@@ -33,21 +38,21 @@ public class StructuredFormatting {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         StructuredFormatting that = (StructuredFormatting) o;
-        return mMainText.equals(that.mMainText) && mMainTextMatchedSubstrings.equals(that.mMainTextMatchedSubstrings) && mSecondaryText.equals(that.mSecondaryText);
+        return main_text.equals(that.main_text) && main_text_matched_substrings.equals(that.main_text_matched_substrings) && secondary_text.equals(that.secondary_text);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mMainText, mMainTextMatchedSubstrings, mSecondaryText);
+        return Objects.hash(main_text, main_text_matched_substrings, secondary_text);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "StructuredFormatting{" +
-                "mMainText='" + mMainText + '\'' +
-                ", mMainTextMatchedSubstrings=" + mMainTextMatchedSubstrings +
-                ", mSecondaryText='" + mSecondaryText + '\'' +
+                "main_text='" + main_text + '\'' +
+                ", main_text_matched_substrings=" + main_text_matched_substrings +
+                ", secondary_text='" + secondary_text + '\'' +
                 '}';
     }
 }
