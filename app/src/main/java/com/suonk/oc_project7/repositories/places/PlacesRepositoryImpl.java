@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.repositories.places;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -63,34 +64,63 @@ public class PlacesRepositoryImpl implements PlacesRepository {
 
     @NonNull
     @Override
-    public LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@NonNull String location, @NonNull String language, @NonNull String input) {
+    public LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@Nullable String location, @NonNull String language, @NonNull String input) {
         MutableLiveData<List<PlaceAutocomplete>> placesLiveData = new MutableLiveData<>();
 
-        if (apiService.getPlacesAutocomplete(location, language, input) != null) {
-            apiService.getPlacesAutocomplete(location, language, input).enqueue(new Callback<AutocompleteResponse>() {
-                @Override
-                public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
+        if (location == null) {
+            if (apiService.getPlacesAutocomplete(language, input) != null) {
+                apiService.getPlacesAutocomplete(language, input).enqueue(new Callback<AutocompleteResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
 
-                    if (response.isSuccessful()) {
-                        List<PlaceAutocomplete> places = new ArrayList<>();
+                        if (response.isSuccessful()) {
+                            List<PlaceAutocomplete> places = new ArrayList<>();
 
-                        if (response.body() != null) {
-                            if (response.body().getPredictions() != null) {
-                                for (Prediction prediction : response.body().getPredictions()) {
-                                    places.add(new PlaceAutocomplete(prediction.getPlaceId(), prediction.getStructuredFormatting().getMainText(), prediction.getStructuredFormatting().getSecondaryText()));
+                            if (response.body() != null) {
+                                if (response.body().getPredictions() != null) {
+                                    for (Prediction prediction : response.body().getPredictions()) {
+                                        places.add(new PlaceAutocomplete(prediction.getPlaceId(), prediction.getStructuredFormatting().getMainText(), prediction.getStructuredFormatting().getSecondaryText()));
+                                    }
                                 }
                             }
+
+                            placesLiveData.setValue(places);
                         }
-
-                        placesLiveData.setValue(places);
                     }
-                }
 
-                @Override
-                public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
-                    t.printStackTrace();
-                }
-            });
+                    @Override
+                    public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+            }
+        } else {
+            if (apiService.getPlacesAutocomplete(location, language, input) != null) {
+                apiService.getPlacesAutocomplete(location, language, input).enqueue(new Callback<AutocompleteResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
+
+                        if (response.isSuccessful()) {
+                            List<PlaceAutocomplete> places = new ArrayList<>();
+
+                            if (response.body() != null) {
+                                if (response.body().getPredictions() != null) {
+                                    for (Prediction prediction : response.body().getPredictions()) {
+                                        places.add(new PlaceAutocomplete(prediction.getPlaceId(), prediction.getStructuredFormatting().getMainText(), prediction.getStructuredFormatting().getSecondaryText()));
+                                    }
+                                }
+                            }
+
+                            placesLiveData.setValue(places);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
+                        t.printStackTrace();
+                    }
+                });
+            }
         }
 
         return placesLiveData;

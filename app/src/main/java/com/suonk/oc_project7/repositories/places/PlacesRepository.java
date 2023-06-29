@@ -1,6 +1,7 @@
 package com.suonk.oc_project7.repositories.places;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
 import com.suonk.oc_project7.model.data.place_auto_complete.PlaceAutocomplete;
@@ -14,7 +15,7 @@ public interface PlacesRepository {
     LiveData<List<Place>> getNearbyPlaceResponse(@NonNull String location);
 
     @NonNull
-    LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@NonNull String location,
+    LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@Nullable String location,
                                                             @NonNull String language,
                                                             @NonNull String input);
 }
