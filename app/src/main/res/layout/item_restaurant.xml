@@ -79,7 +79,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/ic_teamwork" />
+        app:srcCompat="@drawable/ic_restaurant_in_black" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/open_text"
