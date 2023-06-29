@@ -51,6 +51,10 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
 
     private MainViewModel mainViewModel;
 
+    public static Intent navigate(Context context) {
+        return new Intent(context, MainActivity.class);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -181,8 +185,7 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     //region =========================================== SETUP UI ===========================================
 
     private void setupDrawerLayout() {
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
-                R.string.drawer_opened, R.string.drawer_closed);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.drawer_opened, R.string.drawer_closed);
         binding.drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.suonk.oc_project7.databinding.ItemRestaurantBinding;
 import com.suonk.oc_project7.events.OnClickEventListener;
 
@@ -52,6 +53,11 @@ public class MainListAdapter extends ListAdapter<MainItemViewState, MainListAdap
 
             binding.name.setText(wordToSpan, TextView.BufferType.SPANNABLE);
             binding.address.setText(restaurant.getAddress());
+
+            Glide.with(binding.image)
+                    .load(restaurant.getPictureUrl())
+                    .centerCrop()
+                    .into(binding.image);
 
             binding.getRoot().setOnClickListener(view -> {
                 binding.getRoot().setEnabled(false);

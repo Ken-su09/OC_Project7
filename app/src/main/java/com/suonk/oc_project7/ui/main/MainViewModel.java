@@ -1,7 +1,6 @@
 package com.suonk.oc_project7.ui.main;
 
 import android.annotation.SuppressLint;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -69,7 +68,6 @@ public class MainViewModel extends ViewModel {
         });
 
         LiveData<List<PlaceAutocomplete>> placesAutocompleteLiveData = Transformations.switchMap(searchInputLiveData, input -> {
-            Log.i("GetPlacesAutocomplete", "latLng : " + latLng);
             if (input != null) {
                 return placesRepository.getPlacesAutocomplete(latLng, Locale.getDefault().getLanguage(), input.toString());
             } else {
@@ -85,55 +83,41 @@ public class MainViewModel extends ViewModel {
     }
 
     private void combine(List<Restaurant> restaurants, @Nullable List<PlaceAutocomplete> placesAutocomplete, @Nullable CharSequence input) {
+        System.out.println("restaurants : " + restaurants);
+        System.out.println("placesAutocomplete : " + placesAutocomplete);
+        System.out.println("input : " + input);
+
         List<MainItemViewState> mainItemViewStates = new ArrayList<>();
-//        List<String> listOfIds = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
 
-        if (placesAutocomplete != null && restaurants != null && input != null) {
+        if (placesAutocomplete != null && input != null) {
             for (PlaceAutocomplete placeAutocomplete : placesAutocomplete) {
-                Log.i("GetPlacesAutocomplete", "placeAutocomplete.getRestaurantName().toUpperCase(Locale.ROOT) : " + placeAutocomplete.getRestaurantName().toUpperCase(Locale.ROOT));
-                Log.i("GetPlacesAutocomplete", "input.toString().toUpperCase(Locale.ROOT) : " + input.toString().toUpperCase(Locale.ROOT));
-
                 if (placeAutocomplete.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT))) {
-
                     CustomSpannable textToHighlight = setHighLightedText(placeAutocomplete.getRestaurantName(), input.toString());
                     mainItemViewStates.add(new MainItemViewState(placeAutocomplete.getPlaceId(), placeAutocomplete.getRestaurantName(), placeAutocomplete.getAddress(), textToHighlight.getStart(), textToHighlight.getEnd(), ""));
+                    ids.add(placeAutocomplete.getPlaceId());
                 }
             }
 
-//            Log.i("GetPlacesAutocomplete", "listOfIds : " + listOfIds);
+            if (restaurants != null) {
+                for (Restaurant restaurant : restaurants) {
+                    CustomSpannable textToHighlight = setHighLightedText(restaurant.getRestaurantName(), input.toString());
 
-//            for (Restaurant restaurant : restaurants) {
-//                CustomSpannable textToHighlight = setHighLightedText(restaurant.getRestaurantName(), input.toString());
-//                if (listOfIds.contains(restaurant.getRestaurantId())) {
-//
-//                    String picture;
-//
-//                    if (restaurant.getPictureUrl().split("photo_reference")[1].equals("=")) {
-//                        picture = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
-//                    } else {
-//                        picture = restaurant.getPictureUrl();
-//                    }
-//
-//                    mainItemViewStates.add(new MainItemViewState(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getAddress(), textToHighlight.getStart(), textToHighlight.getEnd(), picture));
-//                } else {
-//                }
-//            }
+                    if (restaurant.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT)) && !ids.contains(restaurant.getRestaurantId())) {
+                        mainItemViewStates.add(new MainItemViewState(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getAddress(), textToHighlight.getStart(), textToHighlight.getEnd(), restaurant.getPictureUrl()));
+                    }
+                }
+            }
         }
 
         itemViewStates.setValue(mainItemViewStates);
     }
 
     public CustomSpannable setHighLightedText(String restaurantName, String textToHighlight) {
-        // restaurantName : PIZZA N PASTA
-        // textToHighlight : PIZ
-
         int start = 0;
         int end = 0;
 
-        // 0
         int indexOf = restaurantName.toLowerCase(Locale.ROOT).indexOf(textToHighlight.toLowerCase(Locale.ROOT));
-
-        // 2
 
         for (int cpt = 0; cpt < restaurantName.length() && indexOf != -1; cpt = indexOf + 1) {
             indexOf = restaurantName.indexOf(textToHighlight, cpt);
