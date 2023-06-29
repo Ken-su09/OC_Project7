@@ -50,15 +50,11 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
             binding.distance.setText(restaurant.getDistance());
             binding.numberOfPeopleText.setText(restaurant.getNumberOfWorkmates());
 
-            setStarVisibility(restaurant.getRating(),
-                    binding.oneStar,
-                    binding.twoStars,
-                    binding.threeStars);
+            setStarVisibility(restaurant.getRating(), binding.oneStar, binding.twoStars, binding.threeStars);
 
-            Glide.with(binding.image)
-                    .load(restaurant.getPictureUrl())
-                    .centerCrop()
-                    .into(binding.image);
+            if (!restaurant.getPictureUrl().equals("")) {
+                Glide.with(binding.image).load(restaurant.getPictureUrl()).centerCrop().into(binding.image);
+            }
 
             binding.getRoot().setOnClickListener(view -> {
                 binding.getRoot().setEnabled(false);
@@ -82,12 +78,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
 
         @Override
         public boolean areContentsTheSame(@NonNull RestaurantItemViewState oldItem, @NonNull RestaurantItemViewState newItem) {
-            return oldItem.getPlaceId().equals(newItem.getPlaceId()) &&
-                    oldItem.getAddress().equals(newItem.getAddress()) &&
-                    oldItem.getDistance().equals(newItem.getDistance()) &&
-                    oldItem.getRating() == newItem.getRating() &&
-                    oldItem.getRestaurantName().equals(newItem.getRestaurantName()) &&
-                    oldItem.getOpenDescription().equals(newItem.getOpenDescription());
+            return oldItem.getPlaceId().equals(newItem.getPlaceId()) && oldItem.getAddress().equals(newItem.getAddress()) && oldItem.getDistance().equals(newItem.getDistance()) && oldItem.getRating() == newItem.getRating() && oldItem.getRestaurantName().equals(newItem.getRestaurantName()) && oldItem.getOpenDescription().equals(newItem.getOpenDescription());
         }
     }
 }

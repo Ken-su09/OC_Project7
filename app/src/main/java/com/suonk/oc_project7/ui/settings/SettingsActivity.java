@@ -54,12 +54,11 @@ public class SettingsActivity extends AppCompatActivity implements NavigationVie
         setupNotificationsSwitch();
     }
 
-    //region ============================================ TOOLBAR ===========================================
+    //region ================================================================ TOOLBAR ===============================================================
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -73,7 +72,7 @@ public class SettingsActivity extends AppCompatActivity implements NavigationVie
 
     //endregion
 
-    //region ======================================== DRAWER LAYOUT =========================================
+    //region ============================================================= DRAWER LAYOUT ============================================================
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -91,8 +90,7 @@ public class SettingsActivity extends AppCompatActivity implements NavigationVie
     }
 
     private void setupDrawerLayout() {
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar,
-                R.string.drawer_opened, R.string.drawer_closed);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, binding.drawerLayout, binding.toolbar, R.string.drawer_opened, R.string.drawer_closed);
         binding.drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
@@ -126,11 +124,10 @@ public class SettingsActivity extends AppCompatActivity implements NavigationVie
 
     //endregion
 
-    //region =========================================== SETUP UI ===========================================
+    //region =============================================================== SETUP UI ===============================================================
 
     private void setupNotificationsSwitch() {
-        viewModel.getNotificationEnabled().observe(this, isChecked ->
-                binding.notificationSwitch.setChecked(isChecked));
+        viewModel.getNotificationEnabled().observe(this, isChecked -> binding.notificationSwitch.setChecked(isChecked));
 
         binding.notificationSwitch.setOnCheckedChangeListener((compoundButton, isChecked) ->
                 viewModel.setNotificationEnabled(isChecked));

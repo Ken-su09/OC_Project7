@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -53,7 +54,7 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements OnCl
 
             setStarVisibility(restaurantItemViewState.getRating(), binding.restaurantRating1, binding.restaurantRating2, binding.restaurantRating3);
 
-            binding.callIcon.setOnClickListener(view -> {
+            binding.callLayout.setOnClickListener(view -> {
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", restaurantItemViewState.getPhoneNumber(), null));
 
                 if (intent.resolveActivity(this.getPackageManager()) != null) {
@@ -61,13 +62,13 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements OnCl
                 }
             });
 
-            binding.websiteIcon.setOnClickListener(view -> {
+            binding.websiteLayout.setOnClickListener(view -> {
                 Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(restaurantItemViewState.getWebsiteLink()));
                 startActivity(browserIntent);
             });
         });
 
-        binding.likeRoot.setOnClickListener(view -> viewModel.toggleIsRestaurantLiked());
+        binding.likeLayout.setOnClickListener(view -> viewModel.toggleIsRestaurantLiked());
 
         binding.chosenButton.setOnClickListener(view -> {
             viewModel.addWorkmate();
