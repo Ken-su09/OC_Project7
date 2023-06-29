@@ -8,12 +8,15 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.suonk.oc_project7.model.data.permission_checker.PermissionChecker;
 import com.suonk.oc_project7.model.data.place_auto_complete.PlaceAutocomplete;
+import com.suonk.oc_project7.model.data.places.CurrentLocation;
+import com.suonk.oc_project7.model.data.restaurant.Restaurant;
 import com.suonk.oc_project7.model.data.user.CustomFirebaseUser;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
@@ -44,8 +47,8 @@ public class MainViewModelTest {
 
     private final CurrentLocationRepository currentLocationRepositoryMock = Mockito.mock(CurrentLocationRepository.class);
     private final RestaurantsRepository restaurantsRepositoryMock = Mockito.mock(RestaurantsRepository.class);
-    private final PlacesRepository placesRepositoryMock = Mockito.mock(PlacesRepository.class);
     private final UserRepository userRepositoryMock = Mockito.mock(UserRepository.class);
+    private final PlacesRepository placesRepositoryMock = Mockito.mock(PlacesRepository.class);
     private final CurrentUserSearchRepository currentUserSearchRepositoryMock = Mockito.mock(CurrentUserSearchRepository.class);
     private final PermissionChecker permissionChecker = Mockito.mock(PermissionChecker.class);
 
@@ -72,6 +75,10 @@ public class MainViewModelTest {
 
     private static final String DEFAULT_LANGUAGE = "fr";
 
+    private static final double DEFAULT_LATITUDE = 48.9575329;
+    private static final double DEFAULT_LONGITUDE = 2.5594583;
+    private static final String DEFAULT_LAT_LNG = DEFAULT_LATITUDE + "," + DEFAULT_LONGITUDE;
+
     //endregion
 
     //region =========================================== LIVEDATA ===========================================
@@ -83,6 +90,9 @@ public class MainViewModelTest {
     private final MutableLiveData<List<PlaceAutocomplete>> placesAutocompleteLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> searchInputLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<CurrentLocation> currentLocationMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<Restaurant>> restaurantsMutableLiveData = new MutableLiveData<>();
+
     //endregion
 
     @Before
@@ -93,25 +103,24 @@ public class MainViewModelTest {
         doReturn(true).when(permissionChecker).hasCoarseLocationPermission();
         doReturn(true).when(permissionChecker).hasFineLocationPermission();
 
-        doReturn(placesAutocompleteLiveData).when(placesRepositoryMock).getPlacesAutocomplete(DEFAULT_LANGUAGE, TEXT_TO_HIGHLIGHT);
+        doReturn(currentLocationMutableLiveData).when(currentLocationRepositoryMock).getLocationMutableLiveData();
+        doReturn(restaurantsMutableLiveData).when(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
+
+        doReturn(placesAutocompleteLiveData).when(placesRepositoryMock).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, TEXT_TO_HIGHLIGHT);
 
         doReturn(getCustomFirebaseUser()).when(userRepositoryMock).getCustomFirebaseUser();
 
         isPermissionEnabledLiveData.setValue(true);
 
+        currentLocationMutableLiveData.setValue(new CurrentLocation(DEFAULT_LATITUDE, DEFAULT_LONGITUDE));
         placesAutocompleteLiveData.setValue(getPlacesAutocomplete());
+        restaurantsMutableLiveData.setValue(getRestaurants());
         searchInputLiveData.setValue(TEXT_TO_HIGHLIGHT);
 
         mainViewStateLiveData.setValue(getDefaultMainViewState());
-
         mainItemViewStatesLiveData.setValue(getDefaultMainItemViewStates());
 
-        viewModel = new MainViewModel(
-                currentLocationRepositoryMock,
-                userRepositoryMock,
-                placesRepositoryMock,
-                currentUserSearchRepositoryMock,
-                permissionChecker);
+        viewModel = new MainViewModel(currentLocationRepositoryMock, restaurantsRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -127,9 +136,9 @@ public class MainViewModelTest {
 
         verify(permissionChecker).hasFineLocationPermission();
         verify(currentLocationRepositoryMock).startLocationUpdates();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -148,9 +157,9 @@ public class MainViewModelTest {
         verify(currentLocationRepositoryMock).startLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
         verify(permissionChecker).hasCoarseLocationPermission();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -169,9 +178,9 @@ public class MainViewModelTest {
         verify(currentLocationRepositoryMock).stopLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
         verify(permissionChecker).hasCoarseLocationPermission();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -186,9 +195,9 @@ public class MainViewModelTest {
         assertFalse(isPermissionsEnabled);
 
         verify(currentLocationRepositoryMock).stopLocationUpdates();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -204,10 +213,9 @@ public class MainViewModelTest {
 
         verify(currentLocationRepositoryMock).startLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
-//        verify(permissionChecker).hasCoarseLocationPermission();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -226,9 +234,9 @@ public class MainViewModelTest {
         verify(currentLocationRepositoryMock).startLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
         verify(permissionChecker).hasCoarseLocationPermission();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -247,9 +255,9 @@ public class MainViewModelTest {
         verify(currentLocationRepositoryMock).stopLocationUpdates();
         verify(permissionChecker).hasFineLocationPermission();
         verify(permissionChecker).hasCoarseLocationPermission();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -264,9 +272,9 @@ public class MainViewModelTest {
         assertEquals(getDefaultMainViewState(), mainViewState);
 
         verify(userRepositoryMock, atLeastOnce()).getCustomFirebaseUser();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -282,9 +290,9 @@ public class MainViewModelTest {
         assertEquals(getDefaultMainViewStateEmpty(), mainViewState);
 
         verify(userRepositoryMock, atLeastOnce()).getCustomFirebaseUser();
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -299,10 +307,11 @@ public class MainViewModelTest {
         assertEquals(2, mainItemViewStates.size());
         assertEquals(getDefaultMainItemViewStates(), mainItemViewStates);
 
-        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LANGUAGE, TEXT_TO_HIGHLIGHT);
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, TEXT_TO_HIGHLIGHT);
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
+        verify(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -316,10 +325,11 @@ public class MainViewModelTest {
         assertNotNull(mainItemViewStates);
         assertEquals(0, mainItemViewStates.size());
 
-        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LANGUAGE, "");
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, "");
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
+        verify(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -333,10 +343,11 @@ public class MainViewModelTest {
         assertNotNull(mainItemViewStates);
         assertEquals(0, mainItemViewStates.size());
 
-        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LANGUAGE, "");
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, "");
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
+        verify(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -351,10 +362,11 @@ public class MainViewModelTest {
         assertNotNull(mainItemViewStates);
         assertEquals(0, mainItemViewStates.size());
 
-        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LANGUAGE, "");
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, "");
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
+        verify(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -369,10 +381,11 @@ public class MainViewModelTest {
         assertNotNull(mainItemViewStates);
         assertEquals(0, mainItemViewStates.size());
 
-        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LANGUAGE, "");
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, "");
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
+        verify(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     @Test
@@ -380,51 +393,29 @@ public class MainViewModelTest {
         // WHEN
         viewModel.onSearchDone(TEXT_TO_HIGHLIGHT);
         verify(currentUserSearchRepositoryMock, atLeastOnce()).setCurrentUserSearch(TEXT_TO_HIGHLIGHT);
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
 
-        Mockito.verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock,
-                currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
     private MainViewState getDefaultMainViewState() {
-        return new MainViewState(
-                DEFAULT_NAME,
-                DEFAULT_MAIL,
-                PICTURE_URL
-        );
+        return new MainViewState(DEFAULT_NAME, DEFAULT_MAIL, PICTURE_URL);
     }
 
     private MainViewState getDefaultMainViewStateWithOnlyName() {
-        return new MainViewState(
-                DEFAULT_NAME,
-                "",
-                ""
-        );
+        return new MainViewState(DEFAULT_NAME, "", "");
     }
 
     private MainViewState getDefaultMainViewStateEmpty() {
-        return new MainViewState(
-                "",
-                "",
-                ""
-        );
+        return new MainViewState("", "", "");
     }
 
     private CustomFirebaseUser getCustomFirebaseUser() {
-        return new CustomFirebaseUser(
-                DEFAULT_ID,
-                DEFAULT_NAME,
-                DEFAULT_MAIL,
-                PICTURE_URL
-        );
+        return new CustomFirebaseUser(DEFAULT_ID, DEFAULT_NAME, DEFAULT_MAIL, PICTURE_URL);
     }
 
     private CustomFirebaseUser getCustomFirebaseUserWithOnlyName() {
-        return new CustomFirebaseUser(
-                DEFAULT_ID,
-                DEFAULT_NAME,
-                "",
-                ""
-        );
+        return new CustomFirebaseUser(DEFAULT_ID, DEFAULT_NAME, "", "");
     }
 
     private List<PlaceAutocomplete> getPlacesAutocomplete() {
@@ -437,22 +428,22 @@ public class MainViewModelTest {
         return placesAutocomplete;
     }
 
+    private List<Restaurant> getRestaurants() {
+        List<Restaurant> restaurants = new ArrayList<>();
+
+        restaurants.add(new Restaurant("1", RESTAURANT_NAME, ADDRESS, false, 0.0, 1.0, 1.0, ""));
+        restaurants.add(new Restaurant("2", RESTAURANT_NAME_1, ADDRESS, false, 0.0, 1.0, 1.0, ""));
+        restaurants.add(new Restaurant("3", RESTAURANT_NAME_2, ADDRESS, false, 0.0, 1.0, 1.0, ""));
+
+        return restaurants;
+    }
+
     private List<MainItemViewState> getDefaultMainItemViewStates() {
         List<MainItemViewState> mainItemViewStates = new ArrayList<>();
 
-        mainItemViewStates.add(new MainItemViewState(
-                "1",
-                RESTAURANT_NAME,
-                ADDRESS,
-                start,
-                end));
+        mainItemViewStates.add(new MainItemViewState("1", RESTAURANT_NAME, ADDRESS, start, end, ""));
 
-        mainItemViewStates.add(new MainItemViewState(
-                "2",
-                RESTAURANT_NAME_1,
-                ADDRESS,
-                start,
-                end));
+        mainItemViewStates.add(new MainItemViewState("2", RESTAURANT_NAME_1, ADDRESS, start, end, ""));
 
         return mainItemViewStates;
     }
