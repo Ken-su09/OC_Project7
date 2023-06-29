@@ -10,8 +10,6 @@ import androidx.work.WorkManager;
 
 import com.suonk.oc_project7.background.NotificationWorker;
 
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.concurrent.TimeUnit;
 
@@ -30,23 +28,19 @@ public class App extends Application implements Configuration.Provider {
         super.onCreate();
 
         Calendar calendar = Calendar.getInstance();
-        calendar.getTimeInMillis();
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
 
-        final PeriodicWorkRequest periodicWorkRequest = new PeriodicWorkRequest.Builder(
-                NotificationWorker.class, 1, TimeUnit.DAYS)
-                .setInitialDelay(
-                        Duration.between(LocalTime.now(), LocalTime.NOON).toMillis(),
-                        TimeUnit.MILLISECONDS)
-                .build();
+        long initialDelay = calendar.getTimeInMillis() - System.currentTimeMillis();
+        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(NotificationWorker.class, 1, TimeUnit.DAYS).setInitialDelay(initialDelay, TimeUnit.MILLISECONDS).build();
 
-        WorkManager.getInstance(this).enqueue(periodicWorkRequest);
+        WorkManager.getInstance(this).enqueue(workRequest);
     }
 
     @NonNull
     @Override
     public Configuration getWorkManagerConfiguration() {
-        return new Configuration.Builder()
-                .setWorkerFactory(workerFactory)
-                .build();
+        return new Configuration.Builder().setWorkerFactory(workerFactory).build();
     }
 }

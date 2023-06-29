@@ -13,14 +13,14 @@ public class NotificationEntity {
     private final String restaurantName;
 
     @NonNull
-    private final String listOfWorkmates;
+    private final String notificationContent;
 
     public NotificationEntity(@NonNull String restaurantId, @NonNull String restaurantName,
-                              @NonNull String listOfWorkmates
+                              @NonNull String notificationContent
     ) {
         this.restaurantId = restaurantId;
         this.restaurantName = restaurantName;
-        this.listOfWorkmates = listOfWorkmates;
+        this.notificationContent = notificationContent;
     }
 
     @NonNull
@@ -34,8 +34,8 @@ public class NotificationEntity {
     }
 
     @NonNull
-    public String getListOfWorkmates() {
-        return listOfWorkmates;
+    public String getNotificationContent() {
+        return notificationContent;
     }
 
     @Override
@@ -43,12 +43,12 @@ public class NotificationEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NotificationEntity that = (NotificationEntity) o;
-        return restaurantId.equals(that.restaurantId) && restaurantName.equals(that.restaurantName) && listOfWorkmates.equals(that.listOfWorkmates);
+        return restaurantId.equals(that.restaurantId) && restaurantName.equals(that.restaurantName) && notificationContent.equals(that.notificationContent);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(restaurantId, restaurantName, listOfWorkmates);
+        return Objects.hash(restaurantId, restaurantName, notificationContent);
     }
 
     @NonNull
@@ -57,7 +57,7 @@ public class NotificationEntity {
         return "Notification{" +
                 "restaurantId='" + restaurantId + '\'' +
                 ", restaurantName='" + restaurantName + '\'' +
-                ", listOfWorkmates='" + listOfWorkmates + '\'' +
+                ", notificationContent='" + notificationContent + '\'' +
                 '}';
     }
 }

@@ -57,4 +57,7 @@
 
     <string name="my_position">Ma Position</string>
     <string name="fab_jump_to_position">Saut à la position</string>
+    <string name="nobody_has_chosen_same_restaurant">Personne n\'a choisi le même restaurant</string>
+    <string name="is_joining_you">%1$s se joint à vous</string>
+    <string name="are_joining_you">%1$s se joignent à vous</string>
 </resources>
