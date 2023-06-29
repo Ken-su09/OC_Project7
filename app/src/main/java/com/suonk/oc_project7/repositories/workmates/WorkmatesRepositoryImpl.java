@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -13,6 +14,7 @@ import com.suonk.oc_project7.model.data.workmate.Workmate;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -32,9 +34,7 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
     @NonNull
     @Override
-    public Workmate getUserByIdFromFirestore(@NonNull String userId) {
-        Workmate currentUser = null;
-
+    public Task<Workmate> getCurrentUserWhoHasChosenTodayFromFirestore(@NonNull String userId) {
         LocalDate dateToday = LocalDate.now();
         int year = dateToday.getYear();
         int month = dateToday.getMonthValue();
@@ -42,15 +42,17 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
         String today = year + "-" + month + "-" + day;
 
-        final DocumentSnapshot documentSnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).document(userId).get().getResult();
+        final Task<DocumentSnapshot> taskDocumentSnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).document(userId).get();
 
-        if (documentSnapshot != null) {
-            if (documentSnapshot.toObject(Workmate.class) != null) {
-                currentUser = documentSnapshot.toObject(Workmate.class);
+        return taskDocumentSnapshot.continueWith(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot documentSnapshot = task.getResult();
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    return documentSnapshot.toObject(Workmate.class);
+                }
             }
-        }
-
-        return currentUser != null ? currentUser : new Workmate("", "", "", "", "", "", new ArrayList<>());
+            return new Workmate("", "", "", "", "", "", new ArrayList<>());
+        });
     }
 
     @NonNull
@@ -72,23 +74,27 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
     @NonNull
     @Override
-    public List<Workmate> getAllWorkmatesThatHaveChosenToday() {
+    public Task<List<Workmate>> getAllWorkmatesThatHaveChosenToday() {
         final List<Workmate> workmates = new ArrayList<>();
 
-        LocalDate dateToday = LocalDate.now();
-        int year = dateToday.getYear();
-        int month = dateToday.getMonthValue();
-        int day = dateToday.getDayOfMonth();
+        Calendar calendar = Calendar.getInstance();
+
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         String today = year + "-" + month + "-" + day;
 
-        final QuerySnapshot querySnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).get().getResult();
+        final Task<QuerySnapshot> taskQuerySnapshot = firebaseFirestore.collection(HAVE_CHOSEN_TODAY + "_" + today).get();
 
-        if (querySnapshot != null) {
-            workmates.addAll(querySnapshot.toObjects(Workmate.class));
-        }
+        return taskQuerySnapshot.continueWith(task -> {
+            if (task.isSuccessful()) {
+                QuerySnapshot querySnapshot = task.getResult();
+                workmates.addAll(querySnapshot.toObjects(Workmate.class));
+            }
 
-        return workmates;
+            return workmates;
+        });
     }
 
     @NonNull
@@ -115,11 +121,11 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
     public LiveData<List<Workmate>> getWorkmatesHaveChosenTodayLiveData() {
         final MutableLiveData<List<Workmate>> workmatesMutableLiveData = new MutableLiveData<>();
 
-        LocalDate dateToday = LocalDate.now();
+        Calendar calendar = Calendar.getInstance();
 
-        int year = dateToday.getYear();
-        int month = dateToday.getMonthValue();
-        int day = dateToday.getDayOfMonth();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH) + 1;
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         String today = year + "-" + month + "-" + day;
 

@@ -3,6 +3,7 @@ package com.suonk.oc_project7.repositories.workmates;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
+import com.google.android.gms.tasks.Task;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 
 import java.util.List;
@@ -16,13 +17,13 @@ public interface WorkmatesRepository {
     LiveData<List<Workmate>> getWorkmatesHaveChosenTodayLiveData();
 
     @NonNull
-    Workmate getUserByIdFromFirestore(@NonNull String userId);
+    Task<Workmate> getCurrentUserWhoHasChosenTodayFromFirestore(@NonNull String userId);
 
     @NonNull
     LiveData<Workmate> getWorkmateByIdLiveData(@NonNull String id);
 
     @NonNull
-    List<Workmate> getAllWorkmatesThatHaveChosenToday();
+    Task<List<Workmate>> getAllWorkmatesThatHaveChosenToday();
 
     void addWorkmateToHaveChosenTodayList(@NonNull String id, @NonNull Workmate workmateToAdd);
 
