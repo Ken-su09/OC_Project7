@@ -7,6 +7,8 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import android.app.Application;
+
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
@@ -45,6 +47,7 @@ public class MapsViewModelTest {
     private final PlacesRepository placesRepository = Mockito.mock(PlacesRepository.class);
     private final CurrentLocation currentLocation = mock(CurrentLocation.class);
     private final CurrentUserSearchRepository currentUserSearchRepository = Mockito.mock(CurrentUserSearchRepository.class);
+    private final Application application = Mockito.mock(Application.class);
 
     //endregion
 
@@ -103,11 +106,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(getDefaultWorkmatesHaveChosen());
         currentUserSearchLiveData.setValue(TEXT_TO_HIGHLIGHT);
 
-        viewModel = new MapViewModel(
-                locationRepository,
-                placesRepository,
-                getWorkmatesHaveChosenTodayUseCaseMock,
-                currentUserSearchRepository);
+        viewModel = new MapViewModel(locationRepository, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository, application);
 
         verify(locationRepository).getLocationMutableLiveData();
         verify(currentUserSearchRepository).getCurrentUserSearchLiveData();
@@ -120,7 +119,7 @@ public class MapsViewModelTest {
         currentUserSearchLiveData.setValue("");
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(3, mapMarkers.size());
@@ -129,14 +128,13 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository,
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
     public void get_map_markers_with_search() {
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(2, mapMarkers.size());
@@ -146,15 +144,14 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
     public void get_map_markers_with_search_null() {
         // WHEN
         currentUserSearchLiveData.setValue(null);
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(3, mapMarkers.size());
@@ -163,9 +160,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -175,7 +171,7 @@ public class MapsViewModelTest {
         placesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(0, mapMarkers.size());
@@ -183,9 +179,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -194,7 +189,7 @@ public class MapsViewModelTest {
         placesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(0, mapMarkers.size());
@@ -202,9 +197,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -214,7 +208,7 @@ public class MapsViewModelTest {
         placesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(0, mapMarkers.size());
@@ -222,9 +216,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -234,7 +227,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(3, mapMarkers.size());
@@ -242,9 +235,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -253,7 +245,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(2, mapMarkers.size());
@@ -261,9 +253,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -273,7 +264,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(3, mapMarkers.size());
@@ -281,9 +272,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -294,7 +284,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(0, mapMarkers.size());
@@ -302,9 +292,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -314,7 +303,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(0, mapMarkers.size());
@@ -322,9 +311,8 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -335,7 +323,7 @@ public class MapsViewModelTest {
         workmatesLiveData.setValue(null);
 
         // WHEN
-        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapMakersLiveData());
+        List<MapMarker> mapMarkers = TestUtils.getValueForTesting(viewModel.getMapViewStateLiveData());
 
         assertNotNull(mapMarkers);
         assertEquals(0, mapMarkers.size());
@@ -343,17 +331,16 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLat();
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
-        
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, 
-                getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+
+        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     private List<Place> getDefaultPlaces() {
         List<Place> places = new ArrayList<>();
 
-        places.add(new Place(DEFAULT_ID, RESTAURANT_NAME, LATITUDE, LONGITUDE, RESTAURANT_IS_OPEN_TRUE));
-        places.add(new Place(DEFAULT_ID_2, RESTAURANT_NAME_1, LATITUDE, LONGITUDE, RESTAURANT_IS_OPEN_FALSE));
-        places.add(new Place(DEFAULT_ID_3, RESTAURANT_NAME_2, LATITUDE, LONGITUDE, RESTAURANT_IS_OPEN_FALSE));
+        places.add(new Place(DEFAULT_ID, RESTAURANT_NAME, "", LATITUDE, LONGITUDE, RESTAURANT_IS_OPEN_TRUE));
+        places.add(new Place(DEFAULT_ID_2, RESTAURANT_NAME_1, "", LATITUDE, LONGITUDE, RESTAURANT_IS_OPEN_FALSE));
+        places.add(new Place(DEFAULT_ID_3, RESTAURANT_NAME_2, "", LATITUDE, LONGITUDE, RESTAURANT_IS_OPEN_FALSE));
 
         return places;
     }
@@ -371,9 +358,9 @@ public class MapsViewModelTest {
     private List<MapMarker> getDefaultMapMarkers() {
         List<MapMarker> mapMarkers = new ArrayList<>();
 
-        mapMarkers.add(new MapMarker(DEFAULT_ID, LATITUDE, LONGITUDE, RESTAURANT_NAME, DEFAULT_ICON_BLUE));
-        mapMarkers.add(new MapMarker(DEFAULT_ID_2, LATITUDE, LONGITUDE, RESTAURANT_NAME_1, DEFAULT_ICON_BLUE));
-        mapMarkers.add(new MapMarker(DEFAULT_ID_3, LATITUDE, LONGITUDE, RESTAURANT_NAME_2, DEFAULT_ICON_RED));
+        mapMarkers.add(new MapMarker(DEFAULT_ID, LATITUDE, LONGITUDE, RESTAURANT_NAME, "", DEFAULT_ICON_BLUE));
+        mapMarkers.add(new MapMarker(DEFAULT_ID_2, LATITUDE, LONGITUDE, RESTAURANT_NAME_1, "", DEFAULT_ICON_BLUE));
+        mapMarkers.add(new MapMarker(DEFAULT_ID_3, LATITUDE, LONGITUDE, RESTAURANT_NAME_2, "", DEFAULT_ICON_RED));
 
         return mapMarkers;
     }
@@ -381,8 +368,8 @@ public class MapsViewModelTest {
     private List<MapMarker> getDefaultMapMarkersWithSearch() {
         List<MapMarker> mapMarkers = new ArrayList<>();
 
-        mapMarkers.add(new MapMarker(DEFAULT_ID, LATITUDE, LONGITUDE, RESTAURANT_NAME, DEFAULT_ICON_BLUE));
-        mapMarkers.add(new MapMarker(DEFAULT_ID_2, LATITUDE, LONGITUDE, RESTAURANT_NAME_1, DEFAULT_ICON_BLUE));
+        mapMarkers.add(new MapMarker(DEFAULT_ID, LATITUDE, LONGITUDE, RESTAURANT_NAME, "", DEFAULT_ICON_BLUE));
+        mapMarkers.add(new MapMarker(DEFAULT_ID_2, LATITUDE, LONGITUDE, RESTAURANT_NAME_1, "", DEFAULT_ICON_BLUE));
 
         return mapMarkers;
     }
