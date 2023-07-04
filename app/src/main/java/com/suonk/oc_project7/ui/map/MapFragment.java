@@ -81,24 +81,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mainViewModel.getPermissionsLiveData().observe(getViewLifecycleOwner(), isPermissionsEnabled -> googleMap.setMyLocationEnabled(isPermissionsEnabled));
 
         mapsViewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapMarkers -> {
-            for (MapMarker mapMaker : mapMarkers) {
-                LatLng currentLatLng = new LatLng(mapMaker.getLatitude(), mapMaker.getLongitude());
-                googleMap.addMarker(new MarkerOptions().position(currentLatLng).title(mapMaker.getRestaurantName()).snippet(mapMaker.getRestaurantAddress()).icon(BitmapDescriptorFactory.fromBitmap(getBitmap(getContext(), mapMaker.getMarkerIcon()))));
+            for (MapMarker mapMarker : mapMarkers) {
+                LatLng currentLatLng = new LatLng(mapMarker.getLatitude(), mapMarker.getLongitude());
+                MarkerOptions markerOptions = new MarkerOptions().position(currentLatLng).title(mapMarker.getRestaurantName()).snippet(mapMarker.getRestaurantAddress()).icon(BitmapDescriptorFactory.fromBitmap(getBitmap(getContext(), mapMarker.getMarkerIcon())));
 
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                if (googleMap != null) {
+                    googleMap.addMarker(markerOptions);
 
+                    CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
-                if(mapMaker.getMarkerIcon() == R.drawable.custom_google_marker_user){
-                    jumpToLocation(currentLatLng);
+                    if (mapMarker.getMarkerIcon() == R.drawable.custom_google_marker_user) {
+                        jumpToLocation(currentLatLng);
+                    }
                 }
-            }
-        });
-
-        mapsViewModel.getCameraPositionSingleEvent().observe(getViewLifecycleOwner(), currentLatLng -> {
-            if (currentLatLng != null) {
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(currentLatLng).zoom(15).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
             }
         });
     }

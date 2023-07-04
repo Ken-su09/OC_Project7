@@ -59,11 +59,15 @@ public class MainViewModelTest {
     private static final String RESTAURANT_NAME = "PIZZA HUT";
     private static final String RESTAURANT_NAME_1 = "PIZZA N PASTA";
     private static final String RESTAURANT_NAME_2 = "PASTA";
+    private static final String RESTAURANT_NAME_3 = "TOUR DE PIZ";
 
     private static final String TEXT_TO_HIGHLIGHT = "PIZ";
 
     private static final int start = 0;
     private static final int end = 3;
+
+    private static final int start_restaurant_3 = 8;
+    private static final int end_restaurant_3 = 11;
 
     private static final String ADDRESS = "ADDRESS";
     private static final String PHOTO_REFERENCE = "PHOTO_REFERENCE";
@@ -105,9 +109,7 @@ public class MainViewModelTest {
 
         doReturn(currentLocationMutableLiveData).when(currentLocationRepositoryMock).getLocationMutableLiveData();
         doReturn(restaurantsMutableLiveData).when(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
-
         doReturn(placesAutocompleteLiveData).when(placesRepositoryMock).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, TEXT_TO_HIGHLIGHT);
-
         doReturn(getCustomFirebaseUser()).when(userRepositoryMock).getCustomFirebaseUser();
 
         isPermissionEnabledLiveData.setValue(true);
@@ -122,6 +124,8 @@ public class MainViewModelTest {
 
         viewModel = new MainViewModel(currentLocationRepositoryMock, restaurantsRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, permissionChecker);
     }
+
+    //region ============================================================== PERMISSIONS =============================================================
 
     @Test
     public void on_start_permissions_enabled_should_true() {
@@ -260,6 +264,12 @@ public class MainViewModelTest {
         verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
+    //endregion
+
+    //region =========================================================== MAIN_VIEW_STATES ===========================================================
+
+    // GET MAIN VIEW STATE
+
     @Test
     public void get_main_view_state_live_data() {
         // GIVEN
@@ -295,6 +305,8 @@ public class MainViewModelTest {
         verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
+    // GET MAIN ITEM LIST
+
     @Test
     public void get_main_item_list_view_state_list_with_on_search_changed() {
         // GIVEN
@@ -304,7 +316,7 @@ public class MainViewModelTest {
         List<MainItemViewState> mainItemViewStates = TestUtils.getValueForTesting(viewModel.getMainItemListViewState());
 
         assertNotNull(mainItemViewStates);
-        assertEquals(2, mainItemViewStates.size());
+        assertEquals(3, mainItemViewStates.size());
         assertEquals(getDefaultMainItemViewStates(), mainItemViewStates);
 
         verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, TEXT_TO_HIGHLIGHT);
@@ -370,6 +382,26 @@ public class MainViewModelTest {
     }
 
     @Test
+    public void get_main_item_list_view_state_list_with_search_and_autocomplete_null() {
+        // GIVEN
+        searchInputLiveData.setValue(null);
+        viewModel.onSearchChanged(null);
+        placesAutocompleteLiveData.setValue(null);
+
+        // WHEN
+        List<MainItemViewState> mainItemViewStates = TestUtils.getValueForTesting(viewModel.getMainItemListViewState());
+
+        assertNotNull(mainItemViewStates);
+        assertEquals(0, mainItemViewStates.size());
+
+        verify(placesRepositoryMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LAT_LNG, DEFAULT_LANGUAGE, "");
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
+        verify(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
+
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
+    }
+
+    @Test
     public void get_main_item_list_view_state_list_with_on_search_changed_empty_with_search_null() {
         // GIVEN
         viewModel.onSearchChanged("");
@@ -398,12 +430,28 @@ public class MainViewModelTest {
         verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
-    private MainViewState getDefaultMainViewState() {
-        return new MainViewState(DEFAULT_NAME, DEFAULT_MAIL, PICTURE_URL);
+    @Test
+    public void get_main_item_list_view_state_list_with_restaurants_null_and_search_empty() {
+        // GIVEN
+        restaurantsMutableLiveData.setValue(null);
+        searchInputLiveData.setValue("");
+
+        // WHEN
+        List<MainItemViewState> mainItemViewStates = TestUtils.getValueForTesting(viewModel.getMainItemListViewState());
+
+        assertNotNull(mainItemViewStates);
+        assertEquals(0, mainItemViewStates.size());
+
+        verify(currentLocationRepositoryMock).getLocationMutableLiveData();
+        verify(restaurantsRepositoryMock).getNearRestaurants(DEFAULT_LAT_LNG);
+
+        verifyNoMoreInteractions(currentLocationRepositoryMock, userRepositoryMock, placesRepositoryMock, currentUserSearchRepositoryMock, restaurantsRepositoryMock, permissionChecker);
     }
 
-    private MainViewState getDefaultMainViewStateWithOnlyName() {
-        return new MainViewState(DEFAULT_NAME, "", "");
+    //endregion
+
+    private MainViewState getDefaultMainViewState() {
+        return new MainViewState(DEFAULT_NAME, DEFAULT_MAIL, PICTURE_URL);
     }
 
     private MainViewState getDefaultMainViewStateEmpty() {
@@ -412,10 +460,6 @@ public class MainViewModelTest {
 
     private CustomFirebaseUser getCustomFirebaseUser() {
         return new CustomFirebaseUser(DEFAULT_ID, DEFAULT_NAME, DEFAULT_MAIL, PICTURE_URL);
-    }
-
-    private CustomFirebaseUser getCustomFirebaseUserWithOnlyName() {
-        return new CustomFirebaseUser(DEFAULT_ID, DEFAULT_NAME, "", "");
     }
 
     private List<PlaceAutocomplete> getPlacesAutocomplete() {
@@ -434,6 +478,7 @@ public class MainViewModelTest {
         restaurants.add(new Restaurant("1", RESTAURANT_NAME, ADDRESS, false, 0.0, 1.0, 1.0, ""));
         restaurants.add(new Restaurant("2", RESTAURANT_NAME_1, ADDRESS, false, 0.0, 1.0, 1.0, ""));
         restaurants.add(new Restaurant("3", RESTAURANT_NAME_2, ADDRESS, false, 0.0, 1.0, 1.0, ""));
+        restaurants.add(new Restaurant("4", RESTAURANT_NAME_3, ADDRESS, false, 0.0, 1.0, 1.0, ""));
 
         return restaurants;
     }
@@ -442,8 +487,8 @@ public class MainViewModelTest {
         List<MainItemViewState> mainItemViewStates = new ArrayList<>();
 
         mainItemViewStates.add(new MainItemViewState("1", RESTAURANT_NAME, ADDRESS, start, end, ""));
-
         mainItemViewStates.add(new MainItemViewState("2", RESTAURANT_NAME_1, ADDRESS, start, end, ""));
+        mainItemViewStates.add(new MainItemViewState("4", RESTAURANT_NAME_3, ADDRESS, start_restaurant_3, end_restaurant_3, ""));
 
         return mainItemViewStates;
     }

@@ -19,7 +19,7 @@ public class RemoveWorkmateToHaveChosenTodayUseCase {
         this.workmatesRepository = workmatesRepository;
     }
 
-    public void removeWorkmateToHaveChosenTodayList(@NonNull Workmate currentUser, @NonNull String restaurantId, @NonNull String restaurantName) {
+    public void invoke(@NonNull Workmate currentUser, @NonNull String restaurantId, @NonNull String restaurantName) {
         final String id = currentUser.getId();
 
         final Workmate removeWorkmate = new Workmate(id, currentUser.getName(), currentUser.getEmail(), currentUser.getPictureUrl(), restaurantId, restaurantName, currentUser.getLikedRestaurants());

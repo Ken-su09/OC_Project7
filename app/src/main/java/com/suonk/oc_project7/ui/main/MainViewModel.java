@@ -82,11 +82,7 @@ public class MainViewModel extends ViewModel {
         itemViewStates.addSource(searchInputLiveData, input -> combine(restaurantsLiveData.getValue(), placesAutocompleteLiveData.getValue(), input));
     }
 
-    private void combine(List<Restaurant> restaurants, @Nullable List<PlaceAutocomplete> placesAutocomplete, @Nullable CharSequence input) {
-        System.out.println("restaurants : " + restaurants);
-        System.out.println("placesAutocomplete : " + placesAutocomplete);
-        System.out.println("input : " + input);
-
+    private void combine(@Nullable  List<Restaurant> restaurants, @Nullable List<PlaceAutocomplete> placesAutocomplete, @Nullable CharSequence input) {
         List<MainItemViewState> mainItemViewStates = new ArrayList<>();
         List<String> ids = new ArrayList<>();
 
@@ -102,6 +98,9 @@ public class MainViewModel extends ViewModel {
             if (restaurants != null) {
                 for (Restaurant restaurant : restaurants) {
                     CustomSpannable textToHighlight = setHighLightedText(restaurant.getRestaurantName(), input.toString());
+
+                    System.out.println("!ids.contains(restaurant.getRestaurantId()) : " + !ids.contains(restaurant.getRestaurantId()));
+                    System.out.println("restaurant.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT)) : " + restaurant.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT)));
 
                     if (restaurant.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT)) && !ids.contains(restaurant.getRestaurantId())) {
                         mainItemViewStates.add(new MainItemViewState(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getAddress(), textToHighlight.getStart(), textToHighlight.getEnd(), restaurant.getPictureUrl()));

@@ -35,7 +35,7 @@ public class MapViewModel extends ViewModel {
 
     private final SingleLiveEvent<LatLng> cameraPositionSingleEvent = new SingleLiveEvent<>();
 
-    private LatLng latLng;
+    private LatLng currentLatLng;
 
     private final Application application;
 
@@ -46,8 +46,14 @@ public class MapViewModel extends ViewModel {
         LiveData<CurrentLocation> currentLocationLiveData = locationRepository.getLocationMutableLiveData();
 
         LiveData<List<Place>> listPlacesLiveData = Transformations.switchMap(currentLocationLiveData, location -> {
-            latLng = new LatLng(location.getLat(), location.getLng());
-            String latLng = location.getLat() + "," + location.getLng();
+            String latLng = "";
+
+            if (location != null) {
+                currentLatLng = new LatLng(location.getLat(), location.getLng());
+                latLng = location.getLat() + "," + location.getLng();
+            } else {
+                latLng = 0.0 + "," + 0.0;
+            }
             return placesRepository.getNearbyPlaceResponse(latLng);
         });
 
@@ -84,10 +90,10 @@ public class MapViewModel extends ViewModel {
                     listMapMaker.add(new MapMarker(place.getPlaceId(), place.getLatitude(), place.getLongitude(), place.getRestaurantName(), place.getRestaurantAddress(), defaultIcon));
                 }
             }
+        }
 
-            if (currentLocation != null) {
-                listMapMaker.add(new MapMarker("", currentLocation.getLat(), currentLocation.getLng(), application.getString(R.string.my_position), "", R.drawable.custom_google_marker_user));
-            }
+        if (currentLocation != null) {
+            listMapMaker.add(new MapMarker("", currentLocation.getLat(), currentLocation.getLng(), application.getString(R.string.my_position), "", R.drawable.custom_google_marker_user));
         }
 
         viewStatesLiveData.setValue(listMapMaker);
@@ -96,13 +102,5 @@ public class MapViewModel extends ViewModel {
     @NonNull
     public LiveData<List<MapMarker>> getMapViewStateLiveData() {
         return viewStatesLiveData;
-    }
-
-    @NonNull
-    public SingleLiveEvent<LatLng> getCameraPositionSingleEvent() {
-        if (cameraPositionSingleEvent.getValue() == null) {
-            cameraPositionSingleEvent.setValue(latLng);
-        }
-        return cameraPositionSingleEvent;
     }
 }

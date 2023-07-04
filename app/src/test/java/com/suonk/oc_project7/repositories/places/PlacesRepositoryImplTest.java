@@ -60,10 +60,6 @@ public class PlacesRepositoryImplTest {
 
     private final String DEFAULT_INPUT = "DEFAULT_INPUT";
 
-    private static final Double DEFAULT_LAT = 0.0;
-    private static final Double DEFAULT_LONG = 0.0;
-    private static final String DEFAULT_LAT_LNG = DEFAULT_LAT + "," + DEFAULT_LONG;
-
     @Before
     public void setup() throws IOException {
         doReturn(DEFAULT_LATITUDE).when(locationMock).getLatitude();
@@ -101,12 +97,12 @@ public class PlacesRepositoryImplTest {
     public void get_places_autocomplete() {
         // GIVEN
         doReturn(mockedCallAutocomplete).when(placesApiServiceMock)
-                .getPlacesAutocomplete("", Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+                .getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
 
         ArgumentCaptor<Callback<PlaceAutocomplete>> placesAutoCompleteCallBackCaptor = ArgumentCaptor.forClass(Callback.class);
 
         // WHEN
-        placesRepository.getPlacesAutocomplete(DEFAULT_LAT_LNG, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+        placesRepository.getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
 
         // THEN
         verify(mockedCallAutocomplete).enqueue(placesAutoCompleteCallBackCaptor.capture());
@@ -117,17 +113,17 @@ public class PlacesRepositoryImplTest {
 
         // THEN
         verify(placesApiServiceMock, atLeastOnce())
-                .getPlacesAutocomplete(DEFAULT_LAT_LNG, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+                .getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
         verifyNoMoreInteractions(placesApiServiceMock);
     }
 
     @Test
     public void get_places_autocomplete_with_get_places_null() {
         // WHEN
-        placesRepository.getPlacesAutocomplete(DEFAULT_LAT_LNG, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+        placesRepository.getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
 
         // THEN
-        verify(placesApiServiceMock).getPlacesAutocomplete(DEFAULT_LAT_LNG, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+        verify(placesApiServiceMock).getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
         verifyNoMoreInteractions(placesApiServiceMock);
     }
 }

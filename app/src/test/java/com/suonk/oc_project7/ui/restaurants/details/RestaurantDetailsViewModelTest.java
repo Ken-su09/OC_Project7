@@ -3,10 +3,10 @@ package com.suonk.oc_project7.ui.restaurants.details;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.app.Application;
 import android.graphics.Color;
@@ -67,6 +67,7 @@ public class RestaurantDetailsViewModelTest {
     //region ======================================== DEFAULTS VALUES =======================================
 
     private static final String PLACE_ID_VALUE = "PLACE_ID_VALUE";
+    private static final String EMPTY_PLACE_ID_VALUE = "EMPTY_PLACE_ID_VALUE";
     private static final String PLACE_ID_WRONG_VALUE = "PLACE_ID_WRONG_VALUE";
     private static final String PLACE_ID = "PLACE_ID";
     private static final String RESTAURANT_NAME = "RESTAURANT_NAME";
@@ -119,7 +120,7 @@ public class RestaurantDetailsViewModelTest {
         doReturn(restaurantDetailsMutableLiveData).when(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
         doReturn(workmatesHaveChosenMutableLiveData).when(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
 
-        doNothing().when(addWorkmateToHaveChosenTodayUseCaseMock).addWorkmateToHaveChosenTodayList(getDefaultCurrentUser(), PLACE_ID_VALUE, RESTAURANT_NAME);
+//        doNothing().when(addWorkmateToHaveChosenTodayUseCaseMock).addWorkmateToHaveChosenTodayList(getDefaultCurrentUser(), PLACE_ID_VALUE, RESTAURANT_NAME);
 
         doReturn(FORMATTED_WORKMATES_HAS_JOINED).when(application).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         doReturn(firebaseUser).when(auth).getCurrentUser();
@@ -139,7 +140,7 @@ public class RestaurantDetailsViewModelTest {
         verify(auth, atLeastOnce()).getCurrentUser();
 
         // THEN
-        Mockito.verifyNoMoreInteractions(restaurantsRepositoryMock, getWorkmatesHaveChosenTodayUseCaseMock, getWorkmateByIdUseCaseMock, addWorkmateToHaveChosenTodayUseCaseMock, savedStateHandle, auth, application);
+        verifyNoMoreInteractions(restaurantsRepositoryMock, getWorkmatesHaveChosenTodayUseCaseMock, getWorkmateByIdUseCaseMock, addWorkmateToHaveChosenTodayUseCaseMock, savedStateHandle, auth, application);
     }
 
     //region ==================================== GET RESTAURANT DETAILS ====================================
@@ -166,10 +167,12 @@ public class RestaurantDetailsViewModelTest {
 
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -186,12 +189,13 @@ public class RestaurantDetailsViewModelTest {
 
         // THEN
         assertNotNull(restaurantDetailsViewState);
-        verify(savedStateHandle).get(PLACE_ID);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -211,12 +215,14 @@ public class RestaurantDetailsViewModelTest {
         assertEquals(getDefaultRestaurantDetailsViewStateNotLikedNotSelected(), restaurantDetailsViewState);
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, FORMATTED_WORKMATES_HAS_JOINED);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -237,10 +243,12 @@ public class RestaurantDetailsViewModelTest {
 
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -261,10 +269,12 @@ public class RestaurantDetailsViewModelTest {
 
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -289,10 +299,12 @@ public class RestaurantDetailsViewModelTest {
 
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -316,10 +328,12 @@ public class RestaurantDetailsViewModelTest {
         assertNotNull(workmates);
         assertEquals(getDefaultRestaurantDetailsViewStateIfPlaceIdNotCorrectlyMatch(), restaurantDetailsViewState);
 
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -345,10 +359,12 @@ public class RestaurantDetailsViewModelTest {
         assertEquals(getDefaultRestaurantDetailsViewStateWithWrongIdValue(), restaurantDetailsViewState);
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_WRONG_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -375,8 +391,11 @@ public class RestaurantDetailsViewModelTest {
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, FORMATTED_WORKMATES_HAS_JOINED);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth).getCurrentUser();
+        verify(savedStateHandle).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     //endregion
@@ -396,16 +415,45 @@ public class RestaurantDetailsViewModelTest {
         assertNotNull(workmatesItemViewState);
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     //region ========================================= ADD WORKMATE =========================================
 
     @Test
     public void add_workmate_to_firestore_have_chosen_list() {
+        // GIVEN
+        restaurantDetailsMutableLiveData.setValue(getDefaultRestaurantDetails());
+        workmatesHaveChosenMutableLiveData.setValue(getDefaultWorkmatesHaveChosenWithCurrentUserHaveNotChosenYet());
+        currentUserLiveData.setValue(getDefaultCurrentUserHaveNotChosenYet());
+
+        restaurantDetailsViewModel = new RestaurantDetailsViewModel(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, getWorkmateByIdUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        // WHEN
+        TestUtils.getValueForTesting(restaurantDetailsViewModel.getRestaurantDetailsViewStateLiveData());
+        restaurantDetailsViewModel.addWorkmate();
+
+        // THEN
+        verify(addWorkmateToHaveChosenTodayUseCaseMock).addWorkmateToHaveChosenTodayList(getDefaultCurrentUserHaveNotChosenYet(), PLACE_ID_VALUE, RESTAURANT_NAME);
+        verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
+        verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
+        verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
+        verify(application).getString(R.string.restaurant_is_chosen);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+    }
+
+    @Test
+    public void remove_workmate_to_firestore_have_chosen_list() {
         // GIVEN
         restaurantDetailsMutableLiveData.setValue(getDefaultRestaurantDetails());
         workmatesHaveChosenMutableLiveData.setValue(getDefaultWorkmatesHaveChosen());
@@ -418,13 +466,16 @@ public class RestaurantDetailsViewModelTest {
         restaurantDetailsViewModel.addWorkmate();
 
         // THEN
-        verify(addWorkmateToHaveChosenTodayUseCaseMock).addWorkmateToHaveChosenTodayList(getDefaultCurrentUser(), PLACE_ID_VALUE, RESTAURANT_NAME);
+        verify(removeWorkmateToHaveChosenTodayUseCase).invoke(getDefaultCurrentUser(), PLACE_ID_VALUE, RESTAURANT_NAME);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
+        verify(application).getString(R.string.restaurant_is_unchosen);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -440,10 +491,13 @@ public class RestaurantDetailsViewModelTest {
         restaurantDetailsViewModel.addWorkmate();
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -464,10 +518,13 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, FORMATTED_WORKMATES_HAS_JOINED);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -484,10 +541,13 @@ public class RestaurantDetailsViewModelTest {
 
         // THEN
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     //endregion
@@ -509,10 +569,13 @@ public class RestaurantDetailsViewModelTest {
         verify(restaurantsRepositoryMock).toggleIsRestaurantLiked(getDefaultCurrentUser(), PLACE_ID_VALUE, RESTAURANT_NAME);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -529,10 +592,13 @@ public class RestaurantDetailsViewModelTest {
 
         // THEN
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -552,10 +618,13 @@ public class RestaurantDetailsViewModelTest {
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, FORMATTED_WORKMATES_HAS_JOINED);
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     @Test
@@ -572,10 +641,12 @@ public class RestaurantDetailsViewModelTest {
 
         // THEN
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
-
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
+        verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
+        verify(auth, atLeastOnce()).getCurrentUser();
+        verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
 
-        Mockito.verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
+        verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
 
     //region ====================================== RESTAURANT DETAILS ======================================
@@ -623,6 +694,9 @@ public class RestaurantDetailsViewModelTest {
     private Workmate getDefaultCurrentUser() {
         return new Workmate(CURRENT_FIREBASE_USER_ID, FORMATTED_WORKMATES_HAS_JOINED, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, DEFAULT_LIKED_RESTAURANTS);
     }
+    private Workmate getDefaultCurrentUserHaveNotChosenYet() {
+        return new Workmate(CURRENT_FIREBASE_USER_ID, FORMATTED_WORKMATES_HAS_JOINED, "mail", PICTURE_URL, EMPTY_PLACE_ID_VALUE, RESTAURANT_NAME, DEFAULT_LIKED_RESTAURANTS);
+    }
 
     private Workmate getDefaultCurrentUserWithLikedRestaurantsThatDoNotContainPlaceId() {
         return new Workmate(CURRENT_FIREBASE_USER_ID, FORMATTED_WORKMATES_HAS_JOINED, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, DEFAULT_LIKED_RESTAURANTS_2);
@@ -634,6 +708,18 @@ public class RestaurantDetailsViewModelTest {
         List<Workmate> workmates = new ArrayList<>();
 
         workmates.add(getDefaultCurrentUser());
+        workmates.add(new Workmate("2", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("3", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("4", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("5", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate("6", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
+
+        return workmates;
+    }
+
+    private List<Workmate> getDefaultWorkmatesHaveChosenWithCurrentUserHaveNotChosenYet() {
+        List<Workmate> workmates = new ArrayList<>();
+
         workmates.add(new Workmate("2", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("3", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
         workmates.add(new Workmate("4", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
