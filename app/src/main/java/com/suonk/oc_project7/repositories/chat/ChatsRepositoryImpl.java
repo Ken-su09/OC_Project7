@@ -29,11 +29,9 @@ public class ChatsRepositoryImpl implements ChatsRepository {
     private static final String ALL_CHATS = "all_chats";
 
     @Inject
-    public ChatsRepositoryImpl(@NonNull FirebaseFirestore firebaseFirestore,
-                               @NonNull Clock clock) {
+    public ChatsRepositoryImpl(@NonNull FirebaseFirestore firebaseFirestore, @NonNull Clock clock) {
         this.firebaseFirestore = firebaseFirestore;
         this.clock = clock;
-
     }
 
     @NonNull
@@ -41,40 +39,40 @@ public class ChatsRepositoryImpl implements ChatsRepository {
     public LiveData<String> getRoomIdByWorkmateIds(@NonNull List<String> ids) {
         final MutableLiveData<String> roomIdLiveData = new MutableLiveData<>();
 
-        firebaseFirestore.collection(ALL_ROOMS)
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.getException() == null) {
-                        try {
-                            List<Room> rooms = task.getResult().toObjects(Room.class);
-                            boolean isNotExisted = true;
+        firebaseFirestore.collection(ALL_ROOMS).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                try {
+                    List<Room> rooms = task.getResult().toObjects(Room.class);
+                    boolean isNotExisted = true;
 
-                            for (Room room : rooms) {
-                                if (room.getWorkmateIds().equals(ids)) {
-                                    roomIdLiveData.setValue(room.getId());
-                                    isNotExisted = false;
-                                    break;
-                                } else {
-                                    Collections.reverse(ids);
-                                    if (room.getWorkmateIds().equals(ids)) {
-                                        roomIdLiveData.setValue(room.getId());
-                                        isNotExisted = false;
-                                        break;
-                                    }
-                                }
+                    for (Room room : rooms) {
+                        if (room.getWorkmateIds().equals(ids)) {
+                            roomIdLiveData.setValue(room.getId());
+                            isNotExisted = false;
+                            break;
+                        } else {
+                            Collections.reverse(ids);
+                            if (room.getWorkmateIds().equals(ids)) {
+                                roomIdLiveData.setValue(room.getId());
+                                isNotExisted = false;
+                                break;
                             }
-
-                            if (rooms.isEmpty() || isNotExisted) {
-                                roomIdLiveData.setValue(firebaseFirestore.collection(ALL_ROOMS)
-                                        .document().getId());
-                            }
-                        } catch (Exception e) {
-                            Log.e("getRoomId", "" + e);
                         }
-                    } else {
-                        task.getException().printStackTrace();
                     }
-                });
+
+                    if (rooms.isEmpty() || isNotExisted) {
+                        roomIdLiveData.setValue(firebaseFirestore.collection(ALL_ROOMS).document().getId());
+                    }
+                } catch (Exception e) {
+                    Log.e("getRoomId", "" + e);
+                }
+            } else {
+                Exception exception = task.getException();
+                if (exception != null) {
+                    Log.e("getRoomId", "Exception : "+ exception);
+                }
+            }
+        });
 
         return roomIdLiveData;
     }
@@ -84,48 +82,29 @@ public class ChatsRepositoryImpl implements ChatsRepository {
     public LiveData<List<Chat>> getChatListByRoomId(@NonNull String id) {
         final MutableLiveData<List<Chat>> chatListLiveData = new MutableLiveData<>();
 
-        firebaseFirestore.collection(ALL_ROOMS)
-                .document(id)
-                .collection(ALL_CHATS)
-                .addSnapshotListener((querySnapshot, error) -> {
-                    if (querySnapshot != null) {
-                        try {
-                            chatListLiveData.setValue(querySnapshot.toObjects(Chat.class));
-                        } catch (Exception e) {
-                            Log.e("getChatListByRoomId", "" + e);
-                        }
-                    }
-                });
+        firebaseFirestore.collection(ALL_ROOMS).document(id).collection(ALL_CHATS).addSnapshotListener((querySnapshot, error) -> {
+            if (querySnapshot != null) {
+                try {
+                    chatListLiveData.setValue(querySnapshot.toObjects(Chat.class));
+                } catch (Exception e) {
+                    Log.e("getChatListByRoomId", "" + e);
+                }
+            }
+        });
 
         return chatListLiveData;
     }
 
     @Override
     public void addNewRoomToFirestore(@NonNull Room room) {
-        firebaseFirestore.collection(ALL_ROOMS)
-                .document(room.getId())
-                .set(room);
+        firebaseFirestore.collection(ALL_ROOMS).document(room.getId()).set(room);
     }
 
     @Override
-    public void addNewChatToRoom(@NonNull String roomId,
-                                 @NonNull String senderId,
-                                 @NonNull String message) {
-        Chat chat = new Chat(
-                firebaseFirestore.
-                        collection(ALL_ROOMS).
-                        document().
-                        collection(ALL_CHATS).
-                        getId(),
-                senderId,
-                message,
-                ZonedDateTime.now(clock).toInstant().toEpochMilli()
-        );
+    public void addNewChatToRoom(@NonNull String roomId, @NonNull String senderId, @NonNull String message) {
+        Chat chat = new Chat(firebaseFirestore.collection(ALL_ROOMS).document().collection(ALL_CHATS).getId(), senderId, message, ZonedDateTime.now(clock).toInstant().toEpochMilli());
 
 
-        firebaseFirestore.collection(ALL_ROOMS)
-                .document(roomId)
-                .collection(ALL_CHATS)
-                .add(chat);
+        firebaseFirestore.collection(ALL_ROOMS).document(roomId).collection(ALL_CHATS).add(chat);
     }
 }

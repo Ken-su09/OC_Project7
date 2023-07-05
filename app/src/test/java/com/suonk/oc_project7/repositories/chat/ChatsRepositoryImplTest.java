@@ -2,7 +2,7 @@ package com.suonk.oc_project7.repositories.chat;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -22,6 +22,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.suonk.oc_project7.model.data.chat.Chat;
 import com.suonk.oc_project7.model.data.chat.Room;
 
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +58,8 @@ public class ChatsRepositoryImplTest {
     private final DocumentReference documentReferenceRoomsMock_2 = mock(DocumentReference.class);
     private final CollectionReference collectionReferenceChatsMock_2 = mock(CollectionReference.class);
 
+    private final Exception exceptionMock = mock(Exception.class);
+
     private final Task<Void> taskVoidMock = mock(Task.class);
     private final Task<DocumentReference> taskDocumentReferenceMock = mock(Task.class);
     private final Task<QuerySnapshot> getTaskQuerySnapshotReferenceMock = mock(Task.class);
@@ -75,6 +79,7 @@ public class ChatsRepositoryImplTest {
 
     private static final String DEFAULT_MESSAGE = "DEFAULT_MESSAGE";
 
+    private static final String ROOM_ID_CREATE = "ROOM_ID_CREATE";
     private static final String ROOM_ID_1_2 = "ROOM_ID_1_2";
     private static final String ROOM_ID_3_4 = "ROOM_ID_3_4";
 
@@ -85,24 +90,16 @@ public class ChatsRepositoryImplTest {
 
     private static final String LAST_MESSAGE = "LAST_MESSAGE";
 
-    private static final List<String> DEFAULT_WORKMATE_IDS_1_2 = Arrays.asList(
-            WORKMATE_ID_1,
-            WORKMATE_ID_2);
+    private static final List<String> DEFAULT_WORKMATE_IDS_1_2 = Arrays.asList(WORKMATE_ID_1, WORKMATE_ID_2);
+    private static final List<String> DEFAULT_WORKMATE_IDS_2_1 = Arrays.asList(WORKMATE_ID_2, WORKMATE_ID_1);
+    private static final List<String> NON_SENSE_WORKMATE_IDS = Arrays.asList("NON_SENSE_WORKMATE_ID_1", "NON_SENSE_WORKMATE_ID_2");
 
-    private static final List<String> DEFAULT_WORKMATE_IDS_2_1 = Arrays.asList(
-            WORKMATE_ID_2,
-            WORKMATE_ID_1);
-
-    private static final List<String> DEFAULT_WORKMATE_IDS_3_4 = Arrays.asList(
-            WORKMATE_ID_3,
-            WORKMATE_ID_4);
+    private static final List<String> DEFAULT_WORKMATE_IDS_3_4 = Arrays.asList(WORKMATE_ID_3, WORKMATE_ID_4);
 
     private static final String WORKMATE_ID_FAKE_1 = "WORKMATE_ID_FAKE_1";
     private static final String WORKMATE_ID_FAKE_2 = "WORKMATE_ID_FAKE_2";
 
-    private static final List<String> DEFAULT_WORKMATE_IDS_FAKE = Arrays.asList(
-            WORKMATE_ID_FAKE_1,
-            WORKMATE_ID_FAKE_2);
+    private static final List<String> DEFAULT_WORKMATE_IDS_FAKE = Arrays.asList(WORKMATE_ID_FAKE_1, WORKMATE_ID_FAKE_2);
 
     private static final String CHAT_ID_1 = "CHAT_ID_1";
     private static final String CHAT_ID_2 = "CHAT_ID_2";
@@ -121,123 +118,192 @@ public class ChatsRepositoryImplTest {
         chatsRepository = new ChatsRepositoryImpl(firebaseFirestoreMock, fixedClock);
     }
 
-    //region =========================================== GET ROOM ===========================================
+    @Before
+    public void setup() {
+        initConstructor();
+    }
+
+    //region =============================================================== GET ROOM ===============================================================
 
     @Test
-    public void get_room_id_by_workmates_ids_live_data() {
+    public void get_room_id_by_workmates_ids_live_data_with_task_is_successful_false_and_get_exception_null() {
         // GIVEN
         doReturn(collectionReferenceRoomsMock).when(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
         doReturn(getTaskQuerySnapshotReferenceMock).when(collectionReferenceRoomsMock).get();
 
         ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
-
         doReturn(addOnCompleteTaskQuerySnapshotReferenceMock).when(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
 
-        doReturn(querySnapshotMock).when(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
-        doReturn(getDefaultAllRooms()).when(querySnapshotMock).toObjects(Room.class);
-
-        initConstructor();
+        doReturn(false).when(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+        doReturn(null).when(addOnCompleteTaskQuerySnapshotReferenceMock).getException();
 
         // WHEN
-        LiveData<String> livedata = chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_1_2);
-        livedata.observeForever(t -> {
-            assertNotNull(t);
-            assertEquals(ROOM_ID_1_2, t);
-        });
+        chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_1_2).observeForever(Assert::assertNull);
 
         verify(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
+        querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).getException();
+
         verify(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
         verify(collectionReferenceRoomsMock).get();
-        querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
     }
 
     @Test
-    public void get_room_by_id_from_firestore_live_data_with_reverse_workmate_ids() {
+    public void get_room_id_by_workmates_ids_live_data_with_task_is_successful_false_and_get_exception_mock() {
         // GIVEN
         doReturn(collectionReferenceRoomsMock).when(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
         doReturn(getTaskQuerySnapshotReferenceMock).when(collectionReferenceRoomsMock).get();
 
         ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
-
         doReturn(addOnCompleteTaskQuerySnapshotReferenceMock).when(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
 
-        doReturn(querySnapshotMock).when(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
-        doReturn(getDefaultAllRooms()).when(querySnapshotMock).toObjects(Room.class);
-
-        initConstructor();
+        doReturn(false).when(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+        doReturn(exceptionMock).when(addOnCompleteTaskQuerySnapshotReferenceMock).getException();
 
         // WHEN
-        LiveData<String> livedata = chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_2_1);
-        livedata.observeForever(t -> {
-            assertNotNull(t);
-            assertEquals(ROOM_ID_1_2, t);
-        });
+        chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_1_2).observeForever(Assert::assertNull);
 
         verify(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
+        querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).getException();
+
         verify(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
         verify(collectionReferenceRoomsMock).get();
-        querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
     }
 
     @Test
-    public void get_room_by_id_from_firestore_live_data_with_workmates_ids_3_4() {
+    public void get_room_id_by_workmates_ids_live_data_with_task_is_successful_true_and_rooms_empty() {
         // GIVEN
         doReturn(collectionReferenceRoomsMock).when(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
         doReturn(getTaskQuerySnapshotReferenceMock).when(collectionReferenceRoomsMock).get();
+        doReturn(documentReferenceRoomsMock).when(collectionReferenceRoomsMock).document();
+        doReturn(ROOM_ID_CREATE).when(documentReferenceRoomsMock).getId();
 
         ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
-
         doReturn(addOnCompleteTaskQuerySnapshotReferenceMock).when(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
 
+        doReturn(true).when(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
         doReturn(querySnapshotMock).when(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
-        doReturn(getDefaultAllRooms()).when(querySnapshotMock).toObjects(Room.class);
-
-        initConstructor();
+        doReturn(getDefaultEmptyRooms()).when(querySnapshotMock).toObjects(Room.class);
 
         // WHEN
-        LiveData<String> livedata = chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_3_4);
-        livedata.observeForever(room -> {
-            assertNotNull(room);
-            assertEquals(ROOM_ID_3_4, room);
+        chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_1_2).observeForever(roomId -> {
+            assertNotNull(roomId);
+            assertEquals(roomId, ROOM_ID_CREATE);
         });
 
         verify(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
-        verify(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
-        verify(collectionReferenceRoomsMock).get();
         querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
+        verify(querySnapshotMock).toObjects(Room.class);
+
+        verify(firebaseFirestoreMock, atLeast(2)).collection(ALL_ROOMS_PATH);
+        verify(collectionReferenceRoomsMock).get();
+        verify(collectionReferenceRoomsMock).document();
+        verify(documentReferenceRoomsMock).getId();
     }
 
     @Test
-    public void get_room_by_id_from_firestore_live_data_with_fake_workmates_ids() {
+    public void get_room_id_by_workmates_ids_live_data_with_task_is_successful_true() {
         // GIVEN
         doReturn(collectionReferenceRoomsMock).when(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
         doReturn(getTaskQuerySnapshotReferenceMock).when(collectionReferenceRoomsMock).get();
 
         ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
-
         doReturn(addOnCompleteTaskQuerySnapshotReferenceMock).when(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
 
+        doReturn(true).when(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
         doReturn(querySnapshotMock).when(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
         doReturn(getDefaultAllRooms()).when(querySnapshotMock).toObjects(Room.class);
 
-        initConstructor();
-
         // WHEN
-        LiveData<String> livedata = chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_FAKE);
-        livedata.observeForever(t -> {
+        chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_1_2).observeForever(roomId -> {
+            assertNotNull(roomId);
+            assertEquals(roomId, ROOM_ID_1_2);
         });
-        String roomId = livedata.getValue();
-        assertNull(roomId);
 
         verify(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
+        querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
+        verify(querySnapshotMock).toObjects(Room.class);
+
         verify(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
         verify(collectionReferenceRoomsMock).get();
+    }
+
+    @Test
+    public void get_room_id_by_workmates_ids_live_data_with_non_sense_workmate_ids() {
+        // GIVEN
+        doReturn(collectionReferenceRoomsMock).when(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
+        doReturn(getTaskQuerySnapshotReferenceMock).when(collectionReferenceRoomsMock).get();
+        doReturn(documentReferenceRoomsMock).when(collectionReferenceRoomsMock).document();
+        doReturn(ROOM_ID_CREATE).when(documentReferenceRoomsMock).getId();
+
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+        doReturn(addOnCompleteTaskQuerySnapshotReferenceMock).when(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
+
+        doReturn(true).when(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+        doReturn(querySnapshotMock).when(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
+        doReturn(getDefaultAllRooms()).when(querySnapshotMock).toObjects(Room.class);
+
+        // WHEN
+        chatsRepository.getRoomIdByWorkmateIds(NON_SENSE_WORKMATE_IDS).observeForever(roomId -> {
+            assertNotNull(roomId);
+            assertEquals(roomId, ROOM_ID_CREATE);
+        });
+
+        verify(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
         querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
+        verify(querySnapshotMock).toObjects(Room.class);
+
+        verify(firebaseFirestoreMock, atLeast(2)).collection(ALL_ROOMS_PATH);
+        verify(collectionReferenceRoomsMock).get();
+        verify(collectionReferenceRoomsMock).document();
+        verify(documentReferenceRoomsMock).getId();
+    }
+
+    @Test
+    public void get_room_id_by_workmates_ids_live_data_with_reverse_workmate_ids() {
+        // GIVEN
+        doReturn(collectionReferenceRoomsMock).when(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
+        doReturn(getTaskQuerySnapshotReferenceMock).when(collectionReferenceRoomsMock).get();
+
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+        doReturn(addOnCompleteTaskQuerySnapshotReferenceMock).when(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
+
+        doReturn(true).when(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+        doReturn(querySnapshotMock).when(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
+        doReturn(getDefaultAllRooms()).when(querySnapshotMock).toObjects(Room.class);
+
+        // WHEN
+        chatsRepository.getRoomIdByWorkmateIds(DEFAULT_WORKMATE_IDS_2_1).observeForever(roomId -> {
+            assertNotNull(roomId);
+            assertEquals(roomId, ROOM_ID_1_2);
+        });
+
+        verify(getTaskQuerySnapshotReferenceMock).addOnCompleteListener(querySnapshotListenerCaptor.capture());
+        querySnapshotListenerCaptor.getValue().onComplete(addOnCompleteTaskQuerySnapshotReferenceMock);
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).isSuccessful();
+
+        verify(addOnCompleteTaskQuerySnapshotReferenceMock).getResult();
+        verify(querySnapshotMock).toObjects(Room.class);
+
+        verify(firebaseFirestoreMock).collection(ALL_ROOMS_PATH);
+        verify(collectionReferenceRoomsMock).get();
     }
 
     //endregion
 
-    //region ========================================== GET CHATS ===========================================
+    //region ============================================================== GET CHATS ===============================================================
 
     @Test
     public void get_chat_list_by_room_id_live_data() {
@@ -293,7 +359,7 @@ public class ChatsRepositoryImplTest {
 
     //endregion
 
-    //region =========================================== ADD NEW ============================================
+    //region =============================================================== ADD NEW ================================================================
 
     @Test
     public void add_new_room_to_firestore() {
@@ -342,7 +408,7 @@ public class ChatsRepositoryImplTest {
 
     //endregion
 
-    //region ======================================== DEFAULT ROOMS =========================================
+    //region ============================================================ DEFAULT ROOMS =============================================================
 
     private Room getDefaultRoom_1_2() {
         return new Room(ROOM_ID_1_2, DEFAULT_WORKMATE_IDS_1_2);
@@ -359,6 +425,10 @@ public class ChatsRepositoryImplTest {
         rooms.add(getDefaultRoom_3_4());
 
         return rooms;
+    }
+
+    private List<Room> getDefaultEmptyRooms() {
+        return new ArrayList<>();
     }
 
     //endregion
