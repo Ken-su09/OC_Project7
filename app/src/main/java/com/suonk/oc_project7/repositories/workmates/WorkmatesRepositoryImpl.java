@@ -90,7 +90,9 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
         return taskQuerySnapshot.continueWith(task -> {
             if (task.isSuccessful()) {
                 QuerySnapshot querySnapshot = task.getResult();
-                workmates.addAll(querySnapshot.toObjects(Workmate.class));
+                if (querySnapshot != null && !querySnapshot.isEmpty()) {
+                    workmates.addAll(querySnapshot.toObjects(Workmate.class));
+                }
             }
 
             return workmates;

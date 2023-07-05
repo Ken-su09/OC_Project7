@@ -6,10 +6,12 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -22,6 +24,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.utils.TestUtils;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,11 +52,12 @@ public class WorkmatesRepositoryImplTest {
     private final CollectionReference collectionReferenceMock = mock(CollectionReference.class);
     private final DocumentReference documentReferenceMock = mock(DocumentReference.class);
     private final Task<Void> taskVoidMock = mock(Task.class);
-    private final Task<QuerySnapshot> taskQuerySnapshotMock = mock(Task.class);
-    private final Task<DocumentSnapshot> taskDocumentSnapshotMock = mock(Task.class);
 
-    private final QuerySnapshot querySnapshotMock = mock(QuerySnapshot.class);
+    private final Task<DocumentSnapshot> taskDocumentSnapshotMock = mock(Task.class);
     private final DocumentSnapshot documentSnapshotMock = mock(DocumentSnapshot.class);
+
+    private final Task<QuerySnapshot> taskQuerySnapshotMock = mock(Task.class);
+    private final QuerySnapshot querySnapshotMock = mock(QuerySnapshot.class);
     private final ListenerRegistration listenerRegistrationMock = mock(ListenerRegistration.class);
     private final FirebaseFirestoreException firebaseFirestoreExceptionMock = mock(FirebaseFirestoreException.class);
 
@@ -74,9 +78,7 @@ public class WorkmatesRepositoryImplTest {
     private static final String CURRENT_FIREBASE_MAIL = "CURRENT_FIREBASE_MAIL";
     private static final String CURRENT_FIREBASE_PHOTO_URL = "CURRENT_FIREBASE_PHOTO_URL";
 
-    private static final List<String> DEFAULT_LIKED_RESTAURANTS = Arrays.asList(
-            PLACE_ID_VALUE,
-            PLACE_ID_VALUE_NO_PICTURE);
+    private static final List<String> DEFAULT_LIKED_RESTAURANTS = Arrays.asList(PLACE_ID_VALUE, PLACE_ID_VALUE_NO_PICTURE);
 
     private static final String ALL_WORKMATES = "all_workmates";
     private static final String HAVE_CHOSEN_TODAY = "have_chosen_today";
@@ -88,9 +90,29 @@ public class WorkmatesRepositoryImplTest {
     private final String today = year + "-" + month + "-" + day;
     private final String HAVE_CHOSEN_TODAY_COLLECTION_PATH = HAVE_CHOSEN_TODAY + "_" + today;
 
+    private static final String WORKMATE_ID_2 = "WORKMATE_ID_2";
+    private static final String WORKMATE_NAME_2 = "WORKMATE_NAME_2";
+
+    private static final String WORKMATE_ID_3 = "WORKMATE_ID_3";
+    private static final String WORKMATE_NAME_3 = "WORKMATE_NAME_3";
+
+    private static final String WORKMATE_ID_4 = "WORKMATE_ID_4";
+    private static final String WORKMATE_NAME_4 = "WORKMATE_NAME_4";
+
+    private static final String WORKMATE_ID_5 = "WORKMATE_ID_5";
+    private static final String WORKMATE_NAME_5 = "WORKMATE_NAME_5";
+
+    private static final String WORKMATE_ID_6 = "WORKMATE_ID_6";
+    private static final String WORKMATE_NAME_6 = "WORKMATE_NAME_6";
+
     //endregion
 
-    //region ========================================= GET WORKMATES ========================================
+    @Before
+    public void setup() {
+        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
+    }
+
+    //region ============================================================= GET WORKMATES ============================================================
 
     @Test
     public void get_all_workmates_from_firestore_live_data() {
@@ -137,34 +159,91 @@ public class WorkmatesRepositoryImplTest {
         querySnapshotListenerCaptor.getValue().onEvent(querySnapshotMock, null);
     }
 
+    @Test
+    public void get_workmates_list_task_that_have_chosen_with_is_successful_returns_false() throws Exception {
+        // GIVEN
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(taskQuerySnapshotMock).when(collectionReferenceMock).get();
+        doReturn(false).when(taskQuerySnapshotMock).isSuccessful();
+
+        // WHEN
+        workmatesRepository.getAllWorkmatesThatHaveChosenToday();
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).get();
+
+        ArgumentCaptor<Continuation<QuerySnapshot, List<Workmate>>> continuationArgumentCaptor = ArgumentCaptor.forClass(Continuation.class);
+        verify(taskQuerySnapshotMock).continueWith(continuationArgumentCaptor.capture());
+
+        Continuation<QuerySnapshot, List<Workmate>> continuation = continuationArgumentCaptor.getValue();
+        List<Workmate> workmates = continuation.then(taskQuerySnapshotMock);
+
+        assertEquals(getDefaultEmptyWorkmates(), workmates);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
 
     @Test
-    public void get_workmates_that_have_chosen_this_restaurant() {
+    public void get_workmates_list_task_that_have_chosen_with_is_successful_returns_true_but_query_snapshot_empty_returns_true() throws Exception {
         // GIVEN
-//        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        doReturn(taskQuerySnapshotMock).when(collectionReferenceMock).get();
-//        doReturn(querySnapshotMock).when(taskQuerySnapshotMock).getResult();
-//
-//        doReturn(getDefaultAllWorkmates()).when(querySnapshotMock).toObjects(Workmate.class);
-//
-//        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
-//
-//        // WHEN
-//        List<Workmate> workmates = workmatesRepository.getAllWorkmatesThatHaveChosenToday();
-//
-//        // THEN
-//        assertNotNull(workmates);
-//        assertEquals(getDefaultAllWorkmates(), workmates);
-//
-//        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        verify(collectionReferenceMock).get();
-//        verify(taskQuerySnapshotMock).getResult();
-//        verify(querySnapshotMock).toObjects(Workmate.class);
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(taskQuerySnapshotMock).when(collectionReferenceMock).get();
+        doReturn(true).when(taskQuerySnapshotMock).isSuccessful();
+
+        doReturn(querySnapshotMock).when(taskQuerySnapshotMock).getResult();
+        doReturn(true).when(querySnapshotMock).isEmpty();
+
+        // WHEN
+        workmatesRepository.getAllWorkmatesThatHaveChosenToday();
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).get();
+
+        ArgumentCaptor<Continuation<QuerySnapshot, List<Workmate>>> continuationArgumentCaptor = ArgumentCaptor.forClass(Continuation.class);
+        verify(taskQuerySnapshotMock).continueWith(continuationArgumentCaptor.capture());
+
+        Continuation<QuerySnapshot, List<Workmate>> continuation = continuationArgumentCaptor.getValue();
+        List<Workmate> workmates = continuation.then(taskQuerySnapshotMock);
+
+        assertEquals(getDefaultEmptyWorkmates(), workmates);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
+    @Test
+    public void get_workmates_list_task_that_have_chosen() throws Exception {
+        // GIVEN
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(taskQuerySnapshotMock).when(collectionReferenceMock).get();
+        doReturn(true).when(taskQuerySnapshotMock).isSuccessful();
+
+        doReturn(querySnapshotMock).when(taskQuerySnapshotMock).getResult();
+        doReturn(false).when(querySnapshotMock).isEmpty();
+        doReturn(getDefaultAllWorkmates()).when(querySnapshotMock).toObjects(Workmate.class);
+
+        // WHEN
+        workmatesRepository.getAllWorkmatesThatHaveChosenToday();
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).get();
+
+        ArgumentCaptor<Continuation<QuerySnapshot, List<Workmate>>> continuationArgumentCaptor = ArgumentCaptor.forClass(Continuation.class);
+        verify(taskQuerySnapshotMock).continueWith(continuationArgumentCaptor.capture());
+
+        Continuation<QuerySnapshot, List<Workmate>> continuation = continuationArgumentCaptor.getValue();
+        List<Workmate> workmates = continuation.then(taskQuerySnapshotMock);
+
+        assertEquals(getDefaultAllWorkmates(), workmates);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
     }
 
     //endregion
 
-    //region =========================================== GET USER ===========================================
+    //region =============================================================== GET USER ===============================================================
 
     @Test
     public void get_current_user_by_id_live_data() {
@@ -191,6 +270,8 @@ public class WorkmatesRepositoryImplTest {
 
         verify(firebaseFirestoreMock).collection(ALL_WORKMATES);
         verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
     }
 
     @Test
@@ -219,76 +300,131 @@ public class WorkmatesRepositoryImplTest {
 
         verify(firebaseFirestoreMock).collection(ALL_WORKMATES);
         verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
     }
 
     @Test
-    public void get_user_by_id_from_firestore() {
+    public void get_current_user_by_id_task_from_firestore_with_task_is_successful_returns_false() throws Exception {
         // GIVEN
-//        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-//        doReturn(taskDocumentSnapshotMock).when(documentReferenceMock).get();
-//        doReturn(documentSnapshotMock).when(taskDocumentSnapshotMock).getResult();
-//        doReturn(getDefaultCurrentUser()).when(documentSnapshotMock).toObject(Workmate.class);
-//
-//        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
-//
-//        // WHEN
-//        Workmate currentUser = workmatesRepository.getUserByIdFromFirestore(CURRENT_FIREBASE_USER_ID);
-//        assertNotNull(currentUser);
-//        assertEquals(getDefaultCurrentUser(), currentUser);
-//
-//        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-//        verify(documentReferenceMock).get();
-//        verify(taskDocumentSnapshotMock).getResult();
-//        verify(documentSnapshotMock, atLeastOnce()).toObject(Workmate.class);
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        doReturn(taskDocumentSnapshotMock).when(documentReferenceMock).get();
+        doReturn(false).when(taskDocumentSnapshotMock).isSuccessful();
+
+        // WHEN
+        workmatesRepository.getCurrentUserWhoHasChosenTodayFromFirestore(CURRENT_FIREBASE_USER_ID);
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        verify(documentReferenceMock).get();
+
+        ArgumentCaptor<Continuation<DocumentSnapshot, Workmate>> continuationArgumentCaptor = ArgumentCaptor.forClass(Continuation.class);
+        verify(taskDocumentSnapshotMock).continueWith(continuationArgumentCaptor.capture());
+
+        Continuation<DocumentSnapshot, Workmate> continuation = continuationArgumentCaptor.getValue();
+        Workmate workmate = continuation.then(taskDocumentSnapshotMock);
+
+        assertEquals(getDefaultCurrentUserEmpty(), workmate);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
     }
 
     @Test
-    public void get_user_by_id_from_firestore_with_document_snapshot_null() {
+    public void get_current_user_by_id_task_from_firestore_with_get_result_returns_null() throws Exception {
         // GIVEN
-//        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-//        doReturn(taskDocumentSnapshotMock).when(documentReferenceMock).get();
-//
-//        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
-//
-//        // WHEN
-//        Workmate currentUser = workmatesRepository.getUserByIdFromFirestore(CURRENT_FIREBASE_USER_ID);
-//        assertNotNull(currentUser);
-//        assertEquals(getDefaultCurrentUserEmpty(), currentUser);
-//
-//        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-//        verify(documentReferenceMock).get();
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        doReturn(taskDocumentSnapshotMock).when(documentReferenceMock).get();
+        doReturn(true).when(taskDocumentSnapshotMock).isSuccessful();
+        doReturn(null).when(taskDocumentSnapshotMock).getResult();
+
+        // WHEN
+        workmatesRepository.getCurrentUserWhoHasChosenTodayFromFirestore(CURRENT_FIREBASE_USER_ID);
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        verify(documentReferenceMock).get();
+
+        ArgumentCaptor<Continuation<DocumentSnapshot, Workmate>> continuationArgumentCaptor = ArgumentCaptor.forClass(Continuation.class);
+        verify(taskDocumentSnapshotMock).continueWith(continuationArgumentCaptor.capture());
+
+        Continuation<DocumentSnapshot, Workmate> continuation = continuationArgumentCaptor.getValue();
+        Workmate workmate = continuation.then(taskDocumentSnapshotMock);
+
+        assertEquals(getDefaultCurrentUserEmpty(), workmate);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
     }
 
     @Test
-    public void get_user_by_id_from_firestore_with_document_snapshot_to_object_null() {
+    public void get_current_user_by_id_task_from_firestore_with_get_result_returns_not_null_and_document_snapshot_exists_returns_false() throws Exception {
         // GIVEN
-//        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-//        doReturn(taskDocumentSnapshotMock).when(documentReferenceMock).get();
-//        doReturn(documentSnapshotMock).when(taskDocumentSnapshotMock).getResult();
-//        doReturn(null).when(documentSnapshotMock).toObject(Workmate.class);
-//
-//        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
-//
-//        // WHEN
-//        Workmate currentUser = workmatesRepository.getUserByIdFromFirestore(CURRENT_FIREBASE_USER_ID);
-//        assertNotNull(currentUser);
-//        assertEquals(getDefaultCurrentUserEmpty(), currentUser);
-//
-//        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
-//        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-//        verify(documentReferenceMock).get();
-//        verify(taskDocumentSnapshotMock).getResult();
-//        verify(documentSnapshotMock, atLeastOnce()).toObject(Workmate.class);
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        doReturn(taskDocumentSnapshotMock).when(documentReferenceMock).get();
+        doReturn(true).when(taskDocumentSnapshotMock).isSuccessful();
+        doReturn(documentSnapshotMock).when(taskDocumentSnapshotMock).getResult();
+        doReturn(false).when(documentSnapshotMock).exists();
+
+        // WHEN
+        workmatesRepository.getCurrentUserWhoHasChosenTodayFromFirestore(CURRENT_FIREBASE_USER_ID);
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        verify(documentReferenceMock).get();
+
+        ArgumentCaptor<Continuation<DocumentSnapshot, Workmate>> continuationArgumentCaptor = ArgumentCaptor.forClass(Continuation.class);
+        verify(taskDocumentSnapshotMock).continueWith(continuationArgumentCaptor.capture());
+
+        Continuation<DocumentSnapshot, Workmate> continuation = continuationArgumentCaptor.getValue();
+        Workmate workmate = continuation.then(taskDocumentSnapshotMock);
+
+        assertEquals(getDefaultCurrentUserEmpty(), workmate);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
+    @Test
+    public void get_current_user_by_id_task_from_firestore() throws Exception {
+        // GIVEN
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        doReturn(taskDocumentSnapshotMock).when(documentReferenceMock).get();
+        doReturn(true).when(taskDocumentSnapshotMock).isSuccessful();
+
+        DocumentSnapshot documentSnapshotMock = mock(DocumentSnapshot.class);
+        doReturn(documentSnapshotMock).when(taskDocumentSnapshotMock).getResult();
+
+        doReturn(true).when(documentSnapshotMock).exists();
+        doReturn(getDefaultCurrentUser()).when(documentSnapshotMock).toObject(Workmate.class);
+
+        // WHEN
+        workmatesRepository.getCurrentUserWhoHasChosenTodayFromFirestore(CURRENT_FIREBASE_USER_ID);
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        verify(documentReferenceMock).get();
+
+        ArgumentCaptor<Continuation<DocumentSnapshot, Workmate>> continuationArgumentCaptor = ArgumentCaptor.forClass(Continuation.class);
+        verify(taskDocumentSnapshotMock).continueWith(continuationArgumentCaptor.capture());
+
+        Continuation<DocumentSnapshot, Workmate> continuation = continuationArgumentCaptor.getValue();
+        Workmate workmate = continuation.then(taskDocumentSnapshotMock);
+
+        Workmate expectedResult = getDefaultCurrentUser();
+        assertEquals(getDefaultCurrentUser(), workmate);
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
     }
 
     //endregion
 
-    //region ========================================= ADD WORKMATE =========================================
+    //region ============================================================= ADD WORKMATE =============================================================
 
     @Test
     public void add_workmate_to_have_chosen_today() {
@@ -323,30 +459,33 @@ public class WorkmatesRepositoryImplTest {
 
     //endregion
 
+    //region =========================================================== REMOVE WORKMATE  ===========================================================
+
+    @Test
+    public void remove_workmate_to_have_chosen_today_normal_case() {
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        doReturn(taskVoidMock).when(documentReferenceMock).delete();
+
+        workmatesRepository.removeWorkmateToHaveChosenTodayList(CURRENT_FIREBASE_USER_ID, getDefaultCurrentUser());
+
+        verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
+        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
+        verify(documentReferenceMock).delete();
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
+    //endregion
+
     //region ======================================= GET DEFAULT USER =======================================
 
     private Workmate getDefaultCurrentUser() {
-        return new Workmate(
-                CURRENT_FIREBASE_USER_ID,
-                CURRENT_FIREBASE_USER_NAME,
-                CURRENT_FIREBASE_MAIL,
-                CURRENT_FIREBASE_PHOTO_URL,
-                PLACE_ID_VALUE,
-                RESTAURANT_NAME,
-                DEFAULT_LIKED_RESTAURANTS
-        );
+        return new Workmate(CURRENT_FIREBASE_USER_ID, CURRENT_FIREBASE_USER_NAME, CURRENT_FIREBASE_MAIL, CURRENT_FIREBASE_PHOTO_URL, PLACE_ID_VALUE, RESTAURANT_NAME, DEFAULT_LIKED_RESTAURANTS);
     }
 
     private Workmate getDefaultCurrentUserEmpty() {
-        return new Workmate(
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                new ArrayList<>()
-        );
+        return new Workmate("", "", "", "", "", "", new ArrayList<>());
     }
 
     //endregion
@@ -355,12 +494,16 @@ public class WorkmatesRepositoryImplTest {
         List<Workmate> workmates = new ArrayList<>();
 
         workmates.add(getDefaultCurrentUser());
-        workmates.add(new Workmate("2", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
-        workmates.add(new Workmate("3", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
-        workmates.add(new Workmate("4", DISPLAY_NAME, "mail", PICTURE_URL, PLACE_ID_VALUE_NO_PICTURE, RESTAURANT_NAME, new ArrayList<>()));
-        workmates.add(new Workmate("5", DISPLAY_NAME, "mail", PICTURE_URL, "", RESTAURANT_NAME, new ArrayList<>()));
-        workmates.add(new Workmate("6", DISPLAY_NAME, "mail", PICTURE_URL, "", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate(WORKMATE_ID_2, WORKMATE_NAME_2, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate(WORKMATE_ID_3, WORKMATE_NAME_3, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate(WORKMATE_ID_4, WORKMATE_NAME_4, "mail", PICTURE_URL, PLACE_ID_VALUE_NO_PICTURE, RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate(WORKMATE_ID_5, WORKMATE_NAME_5, "mail", PICTURE_URL, "", RESTAURANT_NAME, new ArrayList<>()));
+        workmates.add(new Workmate(WORKMATE_ID_6, WORKMATE_NAME_6, "mail", PICTURE_URL, "", RESTAURANT_NAME, new ArrayList<>()));
 
         return workmates;
+    }
+
+    private List<Workmate> getDefaultEmptyWorkmates() {
+        return new ArrayList<>();
     }
 }
