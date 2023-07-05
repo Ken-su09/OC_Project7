@@ -1,7 +1,6 @@
 package com.suonk.oc_project7.domain.notification;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -61,15 +60,17 @@ public class GetNotificationUseCase {
 
                                                     if (!workmate.getRestaurantId().equals(currentUser.getRestaurantId()) && !workmate.getRestaurantName().equals(currentUser.getRestaurantName())) {
                                                         iterator.remove();
+                                                    } else if (workmate.getId().equals(currentUser.getId())) {
+                                                        iterator.remove();
                                                     }
                                                 }
                                             }
 
                                             String notificationContent = "";
 
-                                            if (workmates.size() == 1 || workmates.size() == 0) {
+                                            if (workmates.size() == 0) {
                                                 notificationContent = application.getString(R.string.no_one_is_joining_you);
-                                            } else if (workmates.size() == 2) {
+                                            } else if (workmates.size() == 1) {
                                                 notificationContent = application.getString(R.string.is_joining_you, convertListToString(currentUser, workmates));
                                             } else {
                                                 notificationContent = application.getString(R.string.are_joining_you, convertListToString(currentUser, workmates));
@@ -79,12 +80,16 @@ public class GetNotificationUseCase {
                                         }
                                     }
                                 }
+                            } else {
+                                Exception exception = secondTask.getException();
+                                if (exception != null) {
+                                    callback.onFailure(new Exception("Second Task failed"));
+                                }
                             }
                         });
                     } else {
                         Exception exception = task.getException();
                         if (exception != null) {
-                            Log.e("Exception", "" + exception);
                             callback.onFailure(new Exception("Task failed"));
                         }
                     }
