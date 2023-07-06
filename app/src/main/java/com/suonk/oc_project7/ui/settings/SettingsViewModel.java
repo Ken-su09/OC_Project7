@@ -1,7 +1,5 @@
 package com.suonk.oc_project7.ui.settings;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -39,17 +37,21 @@ public class SettingsViewModel extends ViewModel {
 
     public LiveData<MainViewState> getMainViewStateLiveData() {
         if (userRepository.getCustomFirebaseUser() != null) {
-            mainViewStateLiveData.setValue(new MainViewState(
+            mainViewStateLiveData.setValue(
+                new MainViewState(
                     userRepository.getCustomFirebaseUser().getDisplayName(),
                     userRepository.getCustomFirebaseUser().getEmail(),
                     userRepository.getCustomFirebaseUser().getPhotoUrl()
-            ));
+                )
+            );
         } else {
-            mainViewStateLiveData.setValue(new MainViewState(
+            mainViewStateLiveData.setValue(
+                new MainViewState(
                     "",
                     "",
                     ""
-            ));
+                )
+            );
         }
 
         return mainViewStateLiveData;

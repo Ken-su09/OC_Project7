@@ -21,7 +21,6 @@ public class RestaurantItemViewState {
     @NonNull
     private final String distance;
 
-    @NonNull
     private final float distanceValue;
 
     @NonNull
@@ -69,7 +68,6 @@ public class RestaurantItemViewState {
         return distance;
     }
 
-    @NonNull
     public float getDistanceValue() {
         return distanceValue;
     }

@@ -75,9 +75,6 @@ public class ChatDetailsViewModel extends ViewModel {
             workmateIds.add(workmateId);
             workmateIds.add(userRepository.getCustomFirebaseUser().getId());
 
-            System.out.println("userRepository.getCustomFirebaseUser().getId()" + userRepository.getCustomFirebaseUser().getId());
-            System.out.println("workmateIds" + workmateIds);
-
             LiveData<List<Chat>> chatsLiveData = Transformations.switchMap(getRoomIdByWorkmateIdsUseCase.getRoomIdByWorkmateIds(workmateIds), roomId -> {
                 this.roomId = roomId;
                 return getChatListByRoomIdUseCase.getChatListByRoomId(roomId);

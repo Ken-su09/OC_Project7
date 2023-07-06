@@ -1,8 +1,5 @@
 package com.suonk.oc_project7.ui.main;
 
-import static com.suonk.oc_project7.utils.Constants.PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION;
-import static com.suonk.oc_project7.utils.Constants.PERMISSIONS_REQUEST_ENABLE_GPS;
-
 import android.content.Context;
 import android.content.Intent;
 import android.location.LocationManager;
@@ -17,8 +14,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatImageView;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -32,6 +27,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.databinding.ActivityMainBinding;
+import com.suonk.oc_project7.databinding.NavHeaderMainBinding;
 import com.suonk.oc_project7.events.OnClickEventListener;
 import com.suonk.oc_project7.ui.auth.AuthActivity;
 import com.suonk.oc_project7.ui.chat.details.ChatDetailsActivity;
@@ -45,6 +41,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements OnClickEventListener, NavigationView.OnNavigationItemSelectedListener {
+
+    private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 1;
+    private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2;
 
     private ActivityMainBinding binding;
     private ActionBarDrawerToggle actionBarDrawerToggle;
@@ -194,19 +193,17 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     private void setupNavigationView() {
         binding.navView.setNavigationItemSelectedListener(this);
         View header = binding.navView.getHeaderView(0);
-        AppCompatTextView name = header.findViewById(R.id.user_name);
-        AppCompatTextView email = header.findViewById(R.id.user_mail);
-        AppCompatImageView image = header.findViewById(R.id.user_image);
+
+        NavHeaderMainBinding headerBinding = NavHeaderMainBinding.bind(header);
 
         mainViewModel.getMainViewStateLiveData().observe(this, mainViewState -> {
-            name.setText(mainViewState.getDisplayName());
-            email.setText(mainViewState.getEmail());
+            headerBinding.userName.setText(mainViewState.getDisplayName());
+            headerBinding.userMail.setText(mainViewState.getEmail());
             Glide.with(this)
                     .load(mainViewState.getPhotoUrl())
                     .centerCrop()
-                    .into(image);
+                    .into(headerBinding.userImage);
         });
-
     }
 
     private void setupActionBar() {
@@ -290,11 +287,6 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     }
 
     //endregion
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-    }
 
     @Override
     public void onRestaurantClick(View view, String id) {

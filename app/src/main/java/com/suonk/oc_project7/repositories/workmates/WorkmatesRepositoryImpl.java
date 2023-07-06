@@ -156,7 +156,7 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
     }
 
     @Override
-    public void removeWorkmateToHaveChosenTodayList(@NonNull String id, @NonNull Workmate workmateToRemove) {
+    public void removeWorkmateToHaveChosenTodayList(@NonNull String id) {
         LocalDate dateToday = LocalDate.now();
         int year = dateToday.getYear();
         int month = dateToday.getMonthValue();

@@ -64,11 +64,11 @@ public class RestaurantsViewModel extends ViewModel {
 
     private void combine(@Nullable List<Restaurant> restaurants, @Nullable List<Workmate> workmates, @Nullable CharSequence query) {
         List<RestaurantItemViewState> restaurantsItemViews = new ArrayList<>();
-        List<String> ids = new ArrayList<>();
+        List<String> workmateRestaurantIds = new ArrayList<>();
 
         if (workmates != null) {
             for (Workmate workmate : workmates) {
-                ids.add(workmate.getRestaurantId());
+                workmateRestaurantIds.add(workmate.getRestaurantId());
             }
         }
 
@@ -94,21 +94,19 @@ public class RestaurantsViewModel extends ViewModel {
 
                 int numberOfWorkmates = 0;
 
-                if (ids.size() != 0) {
-                    numberOfWorkmates = Collections.frequency(ids, restaurant.getRestaurantId());
+                if (workmateRestaurantIds.size() != 0) {
+                    numberOfWorkmates = Collections.frequency(workmateRestaurantIds, restaurant.getRestaurantId());
                 }
 
                 double rating = restaurant.getRating() / 1.66666666667;
 
-                if (query == null) {
-                    restaurantsItemViews.add(new RestaurantItemViewState(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getAddress(), isOpen, application.getString(R.string.distance_restaurant, (int) distance), distance, application.getString(R.string.number_of_workmates, numberOfWorkmates), (int) rating, picture));
-                } else if (restaurant.getRestaurantName().contains(query)) {
+                if (query == null || restaurant.getRestaurantName().contains(query)) {
                     restaurantsItemViews.add(new RestaurantItemViewState(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getAddress(), isOpen, application.getString(R.string.distance_restaurant, (int) distance), distance, application.getString(R.string.number_of_workmates, numberOfWorkmates), (int) rating, picture));
                 }
             }
         }
 
-        Collections.sort(restaurantsItemViews, Comparator.comparingDouble(object -> (double) object.getDistanceValue()));
+        Collections.sort(restaurantsItemViews, Comparator.comparingDouble(restaurantItemViewState -> (double) restaurantItemViewState.getDistanceValue()));
         viewStatesLiveData.setValue(restaurantsItemViews);
     }
 

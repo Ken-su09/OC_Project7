@@ -102,7 +102,12 @@ public class ChatsRepositoryImpl implements ChatsRepository {
 
     @Override
     public void addNewChatToRoom(@NonNull String roomId, @NonNull String senderId, @NonNull String message) {
-        Chat chat = new Chat(firebaseFirestore.collection(ALL_ROOMS).document().collection(ALL_CHATS).getId(), senderId, message, ZonedDateTime.now(clock).toInstant().toEpochMilli());
+        Chat chat = new Chat(
+            firebaseFirestore.collection(ALL_ROOMS).document().collection(ALL_CHATS).getId(),
+            senderId,
+            message,
+            ZonedDateTime.now(clock).toInstant().toEpochMilli()
+        );
 
 
         firebaseFirestore.collection(ALL_ROOMS).document(roomId).collection(ALL_CHATS).add(chat);

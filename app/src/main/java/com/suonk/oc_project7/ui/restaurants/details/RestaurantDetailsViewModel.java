@@ -157,7 +157,6 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     public void addWorkmate() {
         if (restaurantName != null && user != null) {
-            System.out.println("isChosen " + isChosen);
             if (!isChosen) {
                 toastMessage.setValue(application.getString(R.string.restaurant_is_chosen));
                 isChosen = true;
@@ -165,7 +164,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
             } else {
                 toastMessage.setValue(application.getString(R.string.restaurant_is_unchosen));
                 isChosen = false;
-                removeWorkmateToHaveChosenTodayUseCase.invoke(user, placeId, restaurantName);
+                removeWorkmateToHaveChosenTodayUseCase.invoke(user);
             }
         }
     }

@@ -18,7 +18,8 @@ public class AddNewChatToRoomUseCase {
 
     @Inject
     public AddNewChatToRoomUseCase(
-            @NonNull ChatsRepository chatsRepository) {
+            @NonNull ChatsRepository chatsRepository
+    ) {
         this.chatsRepository = chatsRepository;
     }
 
@@ -26,7 +27,8 @@ public class AddNewChatToRoomUseCase {
             @NonNull String roomId,
             @NonNull List<String> workmateIds,
             @NonNull String senderId,
-            @NonNull String message) {
+            @NonNull String message
+    ) {
         chatsRepository.addNewRoomToFirestore(new Room(roomId, workmateIds));
 
         chatsRepository.addNewChatToRoom(

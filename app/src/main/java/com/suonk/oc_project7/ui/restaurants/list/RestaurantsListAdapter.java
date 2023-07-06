@@ -52,9 +52,7 @@ public class RestaurantsListAdapter extends ListAdapter<RestaurantItemViewState,
 
             setStarVisibility(restaurant.getRating(), binding.oneStar, binding.twoStars, binding.threeStars);
 
-            if (!restaurant.getPictureUrl().equals("")) {
-                Glide.with(binding.image).load(restaurant.getPictureUrl()).centerCrop().into(binding.image);
-            }
+            Glide.with(binding.image).load(restaurant.getPictureUrl()).centerCrop().into(binding.image);
 
             binding.getRoot().setOnClickListener(view -> {
                 binding.getRoot().setEnabled(false);

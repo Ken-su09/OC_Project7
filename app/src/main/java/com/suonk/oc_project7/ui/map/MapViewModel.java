@@ -6,10 +6,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.suonk.oc_project7.R;
 import com.suonk.oc_project7.domain.workmates.get.GetWorkmatesHaveChosenTodayUseCase;
 import com.suonk.oc_project7.model.data.places.CurrentLocation;
@@ -18,7 +18,6 @@ import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.repositories.current_location.CurrentLocationRepository;
 import com.suonk.oc_project7.repositories.current_user_search.CurrentUserSearchRepository;
 import com.suonk.oc_project7.repositories.places.PlacesRepository;
-import com.suonk.oc_project7.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +32,6 @@ public class MapViewModel extends ViewModel {
     @NonNull
     private final MediatorLiveData<List<MapMarker>> viewStatesLiveData = new MediatorLiveData<>();
 
-    private final SingleLiveEvent<LatLng> cameraPositionSingleEvent = new SingleLiveEvent<>();
-
-    private LatLng currentLatLng;
-
     private final Application application;
 
     @Inject
@@ -46,15 +41,13 @@ public class MapViewModel extends ViewModel {
         LiveData<CurrentLocation> currentLocationLiveData = locationRepository.getLocationMutableLiveData();
 
         LiveData<List<Place>> listPlacesLiveData = Transformations.switchMap(currentLocationLiveData, location -> {
-            String latLng = "";
-
+            LiveData<List<Place>> livedata;
             if (location != null) {
-                currentLatLng = new LatLng(location.getLat(), location.getLng());
-                latLng = location.getLat() + "," + location.getLng();
+                livedata = placesRepository.getNearbyPlaceResponse(location.getLat() + "," + location.getLng());
             } else {
-                latLng = 0.0 + "," + 0.0;
+                livedata = new MutableLiveData<>();
             }
-            return placesRepository.getNearbyPlaceResponse(latLng);
+            return livedata;
         });
 
         LiveData<List<Workmate>> workmatesHaveChosen = getWorkmatesHaveChosenTodayUseCase.getWorkmatesHaveChosenTodayLiveData();
