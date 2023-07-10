@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -70,13 +69,9 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements OnCl
 
         binding.likeLayout.setOnClickListener(view -> viewModel.toggleIsRestaurantLiked());
 
-        binding.chosenButton.setOnClickListener(view -> {
-            viewModel.addWorkmate();
-        });
+        binding.chosenButton.setOnClickListener(view -> viewModel.addWorkmate());
 
-        viewModel.getToastMessage().observe(this, message -> {
-            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
-        });
+        viewModel.getToastMessage().observe(this, message -> Toast.makeText(this, message, Toast.LENGTH_LONG).show());
     }
 
     public void setStarVisibility(int rating, @NonNull AppCompatImageView... ratingStars) {

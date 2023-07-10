@@ -59,7 +59,6 @@ public class WorkmatesListAdapter extends ListAdapter<WorkmateItemViewState, Wor
     }
 
     static class ItemCallBack extends DiffUtil.ItemCallback<WorkmateItemViewState> {
-
         @Override
         public boolean areItemsTheSame(@NonNull WorkmateItemViewState oldItem, @NonNull WorkmateItemViewState newItem) {
             return oldItem.getId().equals(newItem.getId());

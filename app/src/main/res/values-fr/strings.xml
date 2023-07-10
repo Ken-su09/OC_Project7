@@ -30,15 +30,11 @@
     <string name="gps_disabled_msg">Votre GPS est désactivé, voulez-vous le réactiver ?</string>
     <string name="positive_button">Oui</string>
 
-    <string name="facebook_app_id">679499986497059</string>
-    <string name="fb_login_protocol_scheme">fb1234</string>
-    <string name="facebook_client_token">56789</string>
-
     <string name="workmate_has_joined">%1$s a rejoint !</string>
     <string name="distance_restaurant">%1$d m</string>
     <string name="number_of_workmates">(%1$d)</string>
     <string name="restaurant_is_chosen">Vous avez choisi ce restaurant !</string>
-    <string name="restaurant_is_unchosen">Vous avez retiré votre choix !</string>
+    <string name="restaurant_is_un_chosen">Vous avez retiré votre choix !</string>
 
     <string name="like">LIKE</string>
     <string name="dislike">UNLIKE</string>
@@ -61,4 +57,6 @@
     <string name="no_one_is_joining_you">Personne ne se joint à vous</string>
     <string name="is_joining_you">%1$s se joint à vous</string>
     <string name="are_joining_you">%1$s se joignent à vous</string>
+    <string name="welcome_user_after_login">Bienvenue %1$s</string>
+    <string name="sign_in_failed_toast">La connexion a échoué</string>
 </resources>

@@ -2,6 +2,8 @@ package com.suonk.oc_project7.model.data.places;
 
 import androidx.annotation.NonNull;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public class Place {
@@ -75,6 +77,7 @@ public class Place {
         return Objects.hash(placeId, restaurantName, restaurantAddress, latitude, longitude, isOpen);
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "Place{" +

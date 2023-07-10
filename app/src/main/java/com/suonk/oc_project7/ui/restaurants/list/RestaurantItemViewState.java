@@ -2,6 +2,8 @@ package com.suonk.oc_project7.ui.restaurants.list;
 
 import androidx.annotation.NonNull;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public class RestaurantItemViewState {
@@ -99,6 +101,7 @@ public class RestaurantItemViewState {
         return Objects.hash(placeId, restaurantName, address, openDescription, distance, distanceValue, numberOfWorkmates, rating, pictureUrl);
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "RestaurantItemViewState{" + "placeId='" + placeId + '\'' + ", restaurantName='" + restaurantName + '\'' + ", address='" + address + '\'' + ", openDescription='" + openDescription + '\'' + ", distance='" + distance + '\'' + ", distanceValue=" + distanceValue + ", numberOfWorkmates='" + numberOfWorkmates + '\'' + ", rating=" + rating + ", pictureUrl='" + pictureUrl + '\'' + '}';

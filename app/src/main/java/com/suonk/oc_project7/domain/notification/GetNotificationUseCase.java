@@ -66,7 +66,7 @@ public class GetNotificationUseCase {
                                                 }
                                             }
 
-                                            String notificationContent = "";
+                                            final String notificationContent;
 
                                             if (workmates.size() == 0) {
                                                 notificationContent = application.getString(R.string.no_one_is_joining_you);

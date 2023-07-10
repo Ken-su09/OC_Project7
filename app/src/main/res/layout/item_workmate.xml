@@ -39,7 +39,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/card_view"
         app:layout_constraintTop_toTopOf="@+id/card_view"
-        tools:text="Nana is eating Japenese" />
+        tools:text="Nana is eating Japanese" />
 
     <View
         android:layout_width="match_parent"

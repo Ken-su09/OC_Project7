@@ -5,6 +5,7 @@ import static com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActi
 import android.app.Application;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -81,6 +82,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
         }
 
         LiveData<Workmate> currentUserLiveData;
+
         if (firebaseAuth.getCurrentUser() != null) {
             FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
             currentUserLiveData = getWorkmateByIdUseCase.getWorkmateByIdLiveData(firebaseUser.getUid());
@@ -162,7 +164,7 @@ public class RestaurantDetailsViewModel extends ViewModel {
                 isChosen = true;
                 addWorkmateToHaveChosenTodayUseCase.addWorkmateToHaveChosenTodayList(user, placeId, restaurantName);
             } else {
-                toastMessage.setValue(application.getString(R.string.restaurant_is_unchosen));
+                toastMessage.setValue(application.getString(R.string.restaurant_is_un_chosen));
                 isChosen = false;
                 removeWorkmateToHaveChosenTodayUseCase.invoke(user);
             }

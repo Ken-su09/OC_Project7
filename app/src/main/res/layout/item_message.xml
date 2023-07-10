@@ -49,7 +49,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="Contrary to popular belief, Lorem Upsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old." />
+            tools:text="It has roots in a piece of classical. Latin literature from 45 BC, making it over 2000 years old." />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/message_timestamp"

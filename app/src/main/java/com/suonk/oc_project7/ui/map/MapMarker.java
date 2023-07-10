@@ -2,6 +2,8 @@ package com.suonk.oc_project7.ui.map;
 
 import androidx.annotation.NonNull;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Objects;
 
 public class MapMarker {
@@ -70,15 +72,9 @@ public class MapMarker {
         return Objects.hash(placeId, latitude, longitude, restaurantName, restaurantAddress, markerIcon);
     }
 
+    @NotNull
     @Override
     public String toString() {
-        return "MapMarker{" +
-                "placeId='" + placeId + '\'' +
-                ", latitude=" + latitude +
-                ", longitude=" + longitude +
-                ", restaurantName='" + restaurantName + '\'' +
-                ", restaurantAddress='" + restaurantAddress + '\'' +
-                ", markerIcon=" + markerIcon +
-                '}';
+        return "MapMarker{" + "placeId='" + placeId + '\'' + ", latitude=" + latitude + ", longitude=" + longitude + ", restaurantName='" + restaurantName + '\'' + ", restaurantAddress='" + restaurantAddress + '\'' + ", markerIcon=" + markerIcon + '}';
     }
 }

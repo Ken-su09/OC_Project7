@@ -72,8 +72,6 @@ public class NotificationWorker extends Worker {
                 contentTitle = notificationEntity.getNotificationContent();
             }
 
-            Log.i("GetNotification", "notificationEntity.getRestaurantId() : " + notificationEntity.getRestaurantId());
-
             final Intent intent = MainActivity.navigate(getApplicationContext());
 
             final PendingIntent pendingIntent;
