@@ -22,10 +22,7 @@ public class AddWorkmateToFirestoreUseCase {
     private final UserRepository userRepository;
 
     @Inject
-    public AddWorkmateToFirestoreUseCase(
-            @NonNull WorkmatesRepository workmatesRepository,
-            @NonNull UserRepository userRepository
-    ) {
+    public AddWorkmateToFirestoreUseCase(@NonNull WorkmatesRepository workmatesRepository, @NonNull UserRepository userRepository) {
         this.workmatesRepository = workmatesRepository;
         this.userRepository = userRepository;
     }
@@ -34,6 +31,7 @@ public class AddWorkmateToFirestoreUseCase {
         if (userRepository.getCustomFirebaseUser() != null) {
             CustomFirebaseUser user = userRepository.getCustomFirebaseUser();
             final String id = user.getId();
+
             final Workmate workmateToAdd = new Workmate(
                     id,
                     user.getDisplayName(),
@@ -41,8 +39,7 @@ public class AddWorkmateToFirestoreUseCase {
                     user.getPhotoUrl(),
                     "",
                     "",
-                    new ArrayList<>()
-            );
+                    new ArrayList<>());
 
             workmatesRepository.addWorkmateToFirestore(id, workmateToAdd);
         }

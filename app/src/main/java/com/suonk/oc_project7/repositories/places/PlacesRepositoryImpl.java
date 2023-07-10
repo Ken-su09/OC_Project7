@@ -67,61 +67,28 @@ public class PlacesRepositoryImpl implements PlacesRepository {
     public LiveData<List<PlaceAutocomplete>> getPlacesAutocomplete(@Nullable String location, @NonNull String language, @NonNull String input) {
         MutableLiveData<List<PlaceAutocomplete>> placesLiveData = new MutableLiveData<>();
 
-        if (location == null) {
-            if (apiService.getPlacesAutocomplete(language, input) != null) {
-                apiService.getPlacesAutocomplete(language, input).enqueue(new Callback<AutocompleteResponse>() {
-                    @Override
-                    public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
+        apiService.getPlacesAutocomplete(location, language, input).enqueue(new Callback<AutocompleteResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
 
-                        if (response.isSuccessful()) {
-                            List<PlaceAutocomplete> places = new ArrayList<>();
+                if (response.isSuccessful()) {
+                    List<PlaceAutocomplete> places = new ArrayList<>();
 
-                            if (response.body() != null) {
-                                if (response.body().getPredictions() != null) {
-                                    for (Prediction prediction : response.body().getPredictions()) {
-                                        places.add(new PlaceAutocomplete(prediction.getPlaceId(), prediction.getStructuredFormatting().getMainText(), prediction.getStructuredFormatting().getSecondaryText()));
-                                    }
-                                }
-                            }
-
-                            placesLiveData.setValue(places);
+                    if (response.body() != null) {
+                        for (Prediction prediction : response.body().getPredictions()) {
+                            places.add(new PlaceAutocomplete(prediction.getPlaceId(), prediction.getStructuredFormatting().getMainText(), prediction.getStructuredFormatting().getSecondaryText()));
                         }
                     }
 
-                    @Override
-                    public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
+                    placesLiveData.setValue(places);
+                }
             }
-        } else {
-            if (apiService.getPlacesAutocomplete(location, language, input) != null) {
-                apiService.getPlacesAutocomplete(location, language, input).enqueue(new Callback<AutocompleteResponse>() {
-                    @Override
-                    public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
 
-                        if (response.isSuccessful()) {
-                            List<PlaceAutocomplete> places = new ArrayList<>();
-
-                            if (response.body() != null) {
-                                if (response.body().getPredictions() != null) {
-                                    for (Prediction prediction : response.body().getPredictions()) {
-                                        places.add(new PlaceAutocomplete(prediction.getPlaceId(), prediction.getStructuredFormatting().getMainText(), prediction.getStructuredFormatting().getSecondaryText()));
-                                    }
-                                }
-                            }
-
-                            placesLiveData.setValue(places);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
-                        t.printStackTrace();
-                    }
-                });
+            @Override
+            public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
+                t.printStackTrace();
             }
-        }
+        });
 
         return placesLiveData;
     }

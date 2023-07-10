@@ -29,12 +29,4 @@ public interface PlacesApiService {
             @Query("location") String location,
             @Query("language") String language,
             @Query("input") String input);
-
-    @GET("maps/api/place/autocomplete/json?" +
-            "radius=2000" +
-            "&types=restaurant" +
-            "&key=" + BuildConfig.PLACES_API_KEY)
-    Call<AutocompleteResponse> getPlacesAutocomplete(
-            @Query("language") String language,
-            @Query("input") String input);
 }
