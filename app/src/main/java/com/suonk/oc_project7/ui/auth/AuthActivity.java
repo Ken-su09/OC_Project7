@@ -1,10 +1,13 @@
 package com.suonk.oc_project7.ui.auth;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
@@ -33,8 +36,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class AuthActivity extends AppCompatActivity {
 
-    private final static int RC_SIGN_IN_GOOGLE = 1;
-
+    private ActivityResultLauncher<Intent> activityResultLauncher;
     private AuthViewModel viewModel;
 
     @Override
@@ -69,61 +71,56 @@ public class AuthActivity extends AppCompatActivity {
             }
         });
         binding.googleButton.setOnClickListener(view -> signIn());
+
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+            if (result.getResultCode() == Activity.RESULT_OK) {
+                Intent data = result.getData();
+                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                if (task.getException() == null) {
+                    try {
+                        GoogleSignInAccount account = task.getResult(ApiException.class);
+                        if (account.getIdToken() != null) {
+                            firebaseAuthWithGoogle(account.getIdToken());
+                        }
+                    } catch (ApiException e) {
+                        Log.w("Nino", "Google sign in failed", e);
+                    }
+                } else {
+                    task.getException().printStackTrace();
+                }
+            }
+        });
     }
 
     private void signIn() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build();
 
         GoogleSignInClient googleSignInClient = GoogleSignIn.getClient(this, gso);
 
         Intent signInIntent = googleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN_GOOGLE);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == RC_SIGN_IN_GOOGLE) {
-            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            if (task.getException() == null) {
-                try {
-                    GoogleSignInAccount account = task.getResult(ApiException.class);
-                    if (account.getIdToken() != null) {
-                        firebaseAuthWithGoogle(account.getIdToken());
-                    }
-                } catch (ApiException e) {
-                    Log.w("Nino", "Google sign in failed", e);
-                }
-            } else {
-                task.getException().printStackTrace();
-            }
-        }
+        activityResultLauncher.launch(signInIntent);
     }
 
     private void firebaseAuthWithGoogle(@NonNull String idToken) {
         AuthCredential credential = GoogleAuthProvider.getCredential(idToken, null);
-        FirebaseAuth.getInstance().signInWithCredential(credential)
-                .addOnCompleteListener(this, task -> {
-                    if (task.isSuccessful()) {
-                        if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                            viewModel.addWorkmateToFirestore();
-                            updateFirestore();
-                            startActivity(new Intent(this, MainActivity.class));
-                            finish();
-                        }
-                    } else {
-                        Toast.makeText(this, "Sign in failed", Toast.LENGTH_SHORT).show();
-                    }
-                });
+        FirebaseAuth.getInstance().signInWithCredential(credential).addOnCompleteListener(this, task -> {
+            if (task.isSuccessful()) {
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    viewModel.addWorkmateToFirestore();
+                    loginSuccessfulToastMessage();
+                    startActivity(new Intent(this, MainActivity.class));
+                    finish();
+                }
+            } else {
+                Toast.makeText(this, getString(R.string.sign_in_failed_toast), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
 
-    private void updateFirestore() {
+    private void loginSuccessfulToastMessage() {
         if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-            Toast.makeText(this, "Hello, " + FirebaseAuth.getInstance().getCurrentUser().getDisplayName(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.welcome_user_after_login, FirebaseAuth.getInstance().getCurrentUser().getDisplayName()), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -133,7 +130,7 @@ public class AuthActivity extends AppCompatActivity {
             if (task.isSuccessful()) {
                 if (FirebaseAuth.getInstance().getCurrentUser() != null) {
                     viewModel.addWorkmateToFirestore();
-                    updateFirestore();
+                    loginSuccessfulToastMessage();
                     startActivity(new Intent(this, MainActivity.class));
                     finish();
                 }

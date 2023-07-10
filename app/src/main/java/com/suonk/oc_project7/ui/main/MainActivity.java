@@ -9,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
     private MainViewModel mainViewModel;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
 
     public static Intent navigate(Context context) {
         return new Intent(context, MainActivity.class);
@@ -77,6 +80,9 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
         setupNavigationView();
         setupBottomNavigationView();
         setupRecyclerView();
+
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+        });
     }
 
     @Override
@@ -199,10 +205,7 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
         mainViewModel.getMainViewStateLiveData().observe(this, mainViewState -> {
             headerBinding.userName.setText(mainViewState.getDisplayName());
             headerBinding.userMail.setText(mainViewState.getEmail());
-            Glide.with(this)
-                    .load(mainViewState.getPhotoUrl())
-                    .centerCrop()
-                    .into(headerBinding.userImage);
+            Glide.with(this).load(mainViewState.getPhotoUrl()).centerCrop().into(headerBinding.userImage);
         });
     }
 
@@ -231,10 +234,7 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
                 fragmentToCommit = MapFragment.newInstance();
             }
 
-            getSupportFragmentManager().beginTransaction()
-                    .addToBackStack(null)
-                    .replace(R.id.fragment_container, fragmentToCommit)
-                    .commit();
+            getSupportFragmentManager().beginTransaction().addToBackStack(null).replace(R.id.fragment_container, fragmentToCommit).commit();
 
             return true;
         });
@@ -255,14 +255,10 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
 
     private void alertDialogGpsIsDisabled() {
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(getString(R.string.gps_disabled_msg))
-                .setCancelable(false)
-                .setPositiveButton(getString(R.string.positive_button), (dialog, id) -> {
-                    Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                    startActivityForResult(intent, PERMISSIONS_REQUEST_ENABLE_GPS);
-                })
-                .create()
-                .show();
+        builder.setMessage(getString(R.string.gps_disabled_msg)).setCancelable(false).setPositiveButton(getString(R.string.positive_button), (dialog, id) -> {
+            Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            activityResultLauncher.launch(intent);
+        }).create().show();
     }
 
     public void isMapsEnabled() {
@@ -275,13 +271,9 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     private void getLocationPermission() {
         mainViewModel.getPermissionsLiveData().observe(this, isPermissionsEnabled -> {
             if (!isPermissionsEnabled) {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                        PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             } else {
-                getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, MapFragment.newInstance())
-                        .commit();
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, MapFragment.newInstance()).commit();
             }
         });
     }
