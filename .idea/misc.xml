@@ -64,7 +64,7 @@
   <component name="EntryPointsManager">
     <pattern value="com.suonk.oc_project7.ui.chat.details.ChatDetailsViewState" method="getBackgroundColor" />
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17_PREVIEW" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">
