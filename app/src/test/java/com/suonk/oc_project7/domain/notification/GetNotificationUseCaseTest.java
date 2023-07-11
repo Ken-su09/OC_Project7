@@ -52,11 +52,11 @@ public class GetNotificationUseCaseTest {
     private final NotificationCallback mockCallback = mock(NotificationCallback.class);
 
     @NonNull
-    Task<Workmate> workmateTask = mock(Task.class);
+    private final Task<Workmate> workmateTask = mock(Task.class);
     @NonNull
-    Task<List<Workmate>> workmatesListTask = mock(Task.class);
+    private final Task<List<Workmate>> workmatesListTask = mock(Task.class);
     @NonNull
-    Exception exceptionMock = mock(Exception.class);
+    private final Exception exceptionMock = mock(Exception.class);
 
     //endregion
 
