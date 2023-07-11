@@ -12,7 +12,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.suonk.oc_project7.model.data.user.CustomFirebaseUser;
 import com.suonk.oc_project7.repositories.notification.NotificationRepository;
 import com.suonk.oc_project7.repositories.user.UserRepository;
-import com.suonk.oc_project7.ui.main.MainViewState;
 import com.suonk.oc_project7.utils.TestUtils;
 
 import org.junit.Before;
@@ -50,7 +49,7 @@ public class SettingsViewModelTest {
 
     //endregion
 
-    private final MutableLiveData<MainViewState> mainViewStateLiveData = new MutableLiveData<>();
+    private final MutableLiveData<SettingsViewState> settingsViewStateLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> notificationEnabledLiveData = new MutableLiveData<>();
 
     @Before
@@ -58,7 +57,7 @@ public class SettingsViewModelTest {
         doReturn(getCustomFirebaseUser()).when(userRepositoryMock).getCustomFirebaseUser();
         doReturn(DEFAULT_ENABLED).when(notificationRepositoryMock).getNotificationEnabled();
 
-        mainViewStateLiveData.setValue(getDefaultMainViewState());
+        settingsViewStateLiveData.setValue(getDefaultSettingsViewState());
         notificationEnabledLiveData.setValue(DEFAULT_ENABLED);
 
         viewModel = new SettingsViewModel(userRepositoryMock, notificationRepositoryMock);
@@ -71,11 +70,11 @@ public class SettingsViewModelTest {
         // GIVEN
 
         // WHEN
-        MainViewState mainViewState = TestUtils.getValueForTesting(viewModel.getMainViewStateLiveData());
+        SettingsViewState settingsViewState = TestUtils.getValueForTesting(viewModel.getSettingsViewStateLiveData());
 
         // THEN
-        assertNotNull(mainViewState);
-        assertEquals(getDefaultMainViewState(), mainViewState);
+        assertNotNull(settingsViewState);
+        assertEquals(getDefaultSettingsViewState(), settingsViewState);
 
         verify(userRepositoryMock, atLeastOnce()).getCustomFirebaseUser();
 
@@ -88,11 +87,11 @@ public class SettingsViewModelTest {
         doReturn(null).when(userRepositoryMock).getCustomFirebaseUser();
 
         // WHEN
-        MainViewState mainViewState = TestUtils.getValueForTesting(viewModel.getMainViewStateLiveData());
+        SettingsViewState settingsViewState = TestUtils.getValueForTesting(viewModel.getSettingsViewStateLiveData());
 
         // THEN
-        assertNotNull(mainViewState);
-        assertEquals(getDefaultMainViewStateEmpty(), mainViewState);
+        assertNotNull(settingsViewState);
+        assertEquals(getDefaultSettingsViewStateEmpty(), settingsViewState);
 
         verify(userRepositoryMock, atLeastOnce()).getCustomFirebaseUser();
 
@@ -124,16 +123,16 @@ public class SettingsViewModelTest {
         Mockito.verifyNoMoreInteractions(userRepositoryMock, notificationRepositoryMock);
     }
 
-    private MainViewState getDefaultMainViewState() {
-        return new MainViewState(
+    private SettingsViewState getDefaultSettingsViewState() {
+        return new SettingsViewState(
                 DEFAULT_NAME,
                 DEFAULT_MAIL,
                 PICTURE_URL
         );
     }
 
-    private MainViewState getDefaultMainViewStateEmpty() {
-        return new MainViewState(
+    private SettingsViewState getDefaultSettingsViewStateEmpty() {
+        return new SettingsViewState(
                 "",
                 "",
                 ""

@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.suonk.oc_project7.repositories.notification.NotificationRepository;
 import com.suonk.oc_project7.repositories.user.UserRepository;
-import com.suonk.oc_project7.ui.main.MainViewState;
 
 import javax.inject.Inject;
 
@@ -22,39 +21,38 @@ public class SettingsViewModel extends ViewModel {
     @NonNull
     private final NotificationRepository notificationRepository;
 
-    private final MutableLiveData<MainViewState> mainViewStateLiveData = new MutableLiveData<>();
+    private final MutableLiveData<SettingsViewState> settingsViewStateLiveData = new MutableLiveData<>();
     private final MutableLiveData<Boolean> notificationEnabledLiveData = new MutableLiveData<>();
 
     @Inject
     public SettingsViewModel(@NonNull UserRepository userRepository,
-                             @NonNull NotificationRepository notificationRepository
-    ) {
+                             @NonNull NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
         this.notificationRepository = notificationRepository;
 
         notificationEnabledLiveData.setValue(notificationRepository.getNotificationEnabled());
     }
 
-    public LiveData<MainViewState> getMainViewStateLiveData() {
+    public LiveData<SettingsViewState> getSettingsViewStateLiveData() {
         if (userRepository.getCustomFirebaseUser() != null) {
-            mainViewStateLiveData.setValue(
-                new MainViewState(
-                    userRepository.getCustomFirebaseUser().getDisplayName(),
-                    userRepository.getCustomFirebaseUser().getEmail(),
-                    userRepository.getCustomFirebaseUser().getPhotoUrl()
-                )
+            settingsViewStateLiveData.setValue(
+                    new SettingsViewState(
+                            userRepository.getCustomFirebaseUser().getDisplayName(),
+                            userRepository.getCustomFirebaseUser().getEmail(),
+                            userRepository.getCustomFirebaseUser().getPhotoUrl()
+                    )
             );
         } else {
-            mainViewStateLiveData.setValue(
-                new MainViewState(
-                    "",
-                    "",
-                    ""
-                )
+            settingsViewStateLiveData.setValue(
+                    new SettingsViewState(
+                            "",
+                            "",
+                            ""
+                    )
             );
         }
 
-        return mainViewStateLiveData;
+        return settingsViewStateLiveData;
     }
 
     public LiveData<Boolean> getNotificationEnabled() {
