@@ -43,7 +43,7 @@ public class RemoveWorkmateToHaveChosenTodayUseCaseTest {
     @Before
     public void setup() {
         // GIVEN
-        doNothing().when(workmatesRepositoryMock).removeWorkmateToHaveChosenTodayList(DEFAULT_ID, getDefaultWorkmateToRemoveToHaveChosenToday());
+        doNothing().when(workmatesRepositoryMock).removeWorkmateToHaveChosenTodayList(DEFAULT_ID);
 
         removeWorkmateToHaveChosenTodayUseCase = new RemoveWorkmateToHaveChosenTodayUseCase(workmatesRepositoryMock);
     }
@@ -51,14 +51,10 @@ public class RemoveWorkmateToHaveChosenTodayUseCaseTest {
     @Test
     public void test_add_workmate_to_have_chosen_today() {
         // WHEN
-        removeWorkmateToHaveChosenTodayUseCase.invoke(
-                getDefaultWorkmateToRemoveToHaveChosenToday(),
-                RESTAURANT_NAME_ID,
-                RESTAURANT_NAME
-        );
+        removeWorkmateToHaveChosenTodayUseCase.invoke(getDefaultWorkmateToRemoveToHaveChosenToday());
 
         // THEN
-        verify(workmatesRepositoryMock).removeWorkmateToHaveChosenTodayList(DEFAULT_ID, getDefaultWorkmateToRemoveToHaveChosenToday());
+        verify(workmatesRepositoryMock).removeWorkmateToHaveChosenTodayList(DEFAULT_ID);
         verifyNoMoreInteractions(workmatesRepositoryMock);
     }
 

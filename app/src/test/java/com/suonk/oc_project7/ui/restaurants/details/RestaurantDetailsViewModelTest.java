@@ -77,19 +77,16 @@ public class RestaurantDetailsViewModelTest {
     private static final String ADDRESS = "ADDRESS";
 
     private static final String PLACE_ID_VALUE_NO_PICTURE = "PLACE_ID_VALUE_NO_PICTURE";
-    private static final String RESTAURANT_NAME_NO_PICTURE = "RESTAURANT_NAME_NO_PICTURE";
-    private static final String PICTURE_URL_NO_REFERENCE = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=key&photo_reference=";
     private static final String PICTURE_URL_NO_PICTURE = "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/No_image_available.svg/1024px-No_image_available.svg.png";
-    private static final String ADDRESS_2 = "ADDRESS_2";
 
     private static final double RATING = 4.0;
     private static final int DEFAULT_RATING = 2;
-    private static final double DEFAULT_LATITUDE = 1.256546;
-    private static final double DEFAULT_LONGITUDE = 3.256546;
     private static final String WEBSITE = "WEBSITE";
     private static final String DISPLAY_NAME = "DISPLAY_NAME";
     private static final String CURRENT_FIREBASE_USER_ID = "CURRENT_FIREBASE_USER_ID";
     private static final String FORMATTED_WORKMATES_HAS_JOINED = "FORMATTED_WORKMATES_HAS_JOINED";
+
+    private static final String DEFAULT_TEXT_HAS_JOINT = DISPLAY_NAME + " has joined !";
 
     private static final List<String> DEFAULT_LIKED_RESTAURANTS = Arrays.asList(PLACE_ID_VALUE, PLACE_ID_VALUE_NO_PICTURE, "sup3");
 
@@ -100,8 +97,6 @@ public class RestaurantDetailsViewModelTest {
 
     private static final int TEXT_COLOR_HAS_DECIDED = Color.BLACK;
     private static final int TEXT_STYLE_HAS_DECIDED = Typeface.NORMAL;
-    private static final int TEXT_COLOR_HAS_NOT_DECIDED = -7829368;
-    private static final int TEXT_STYLE_HAS_NOT_DECIDED = 2;
 
     //endregion
 
@@ -119,8 +114,6 @@ public class RestaurantDetailsViewModelTest {
 
         doReturn(restaurantDetailsMutableLiveData).when(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
         doReturn(workmatesHaveChosenMutableLiveData).when(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
-
-//        doNothing().when(addWorkmateToHaveChosenTodayUseCaseMock).addWorkmateToHaveChosenTodayList(getDefaultCurrentUser(), PLACE_ID_VALUE, RESTAURANT_NAME);
 
         doReturn(FORMATTED_WORKMATES_HAS_JOINED).when(application).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         doReturn(firebaseUser).when(auth).getCurrentUser();
@@ -157,12 +150,8 @@ public class RestaurantDetailsViewModelTest {
         // WHEN
         RestaurantDetailsViewState restaurantDetailsViewState = TestUtils.getValueForTesting(restaurantDetailsViewModel.getRestaurantDetailsViewStateLiveData());
 
-        List<WorkmateItemViewState> workmates = TestUtils.getValueForTesting(restaurantDetailsViewModel.getWorkmatesViewStateLiveData());
-
         // THEN
         assertNotNull(restaurantDetailsViewState);
-        assertNotNull(workmates);
-        assertEquals(getDefaultWorkmatesItemViewStateHaveChosen(), workmates);
         assertEquals(getDefaultRestaurantDetailsViewState(), restaurantDetailsViewState);
 
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
@@ -289,12 +278,8 @@ public class RestaurantDetailsViewModelTest {
         // WHEN
         RestaurantDetailsViewState restaurantDetailsViewState = TestUtils.getValueForTesting(restaurantDetailsViewModel.getRestaurantDetailsViewStateLiveData());
 
-        List<WorkmateItemViewState> workmates = TestUtils.getValueForTesting(restaurantDetailsViewModel.getWorkmatesViewStateLiveData());
-
         // THEN
         assertNotNull(restaurantDetailsViewState);
-        assertNotNull(workmates);
-        assertEquals(getDefaultWorkmatesItemViewStateHaveChosen(), workmates);
         assertEquals(getDefaultRestaurantDetailsViewStateNotLiked(), restaurantDetailsViewState);
 
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
@@ -321,11 +306,8 @@ public class RestaurantDetailsViewModelTest {
         // WHEN
         RestaurantDetailsViewState restaurantDetailsViewState = TestUtils.getValueForTesting(restaurantDetailsViewModel.getRestaurantDetailsViewStateLiveData());
 
-        List<WorkmateItemViewState> workmates = TestUtils.getValueForTesting(restaurantDetailsViewModel.getWorkmatesViewStateLiveData());
-
         // THEN
         assertNotNull(restaurantDetailsViewState);
-        assertNotNull(workmates);
         assertEquals(getDefaultRestaurantDetailsViewStateIfPlaceIdNotCorrectlyMatch(), restaurantDetailsViewState);
 
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
@@ -351,11 +333,8 @@ public class RestaurantDetailsViewModelTest {
         // WHEN
         RestaurantDetailsViewState restaurantDetailsViewState = TestUtils.getValueForTesting(restaurantDetailsViewModel.getRestaurantDetailsViewStateLiveData());
 
-        List<WorkmateItemViewState> workmates = TestUtils.getValueForTesting(restaurantDetailsViewModel.getWorkmatesViewStateLiveData());
-
         // THEN
         assertNotNull(restaurantDetailsViewState);
-        assertNotNull(workmates);
         assertEquals(getDefaultRestaurantDetailsViewStateWithWrongIdValue(), restaurantDetailsViewState);
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_WRONG_VALUE);
@@ -381,11 +360,8 @@ public class RestaurantDetailsViewModelTest {
         // WHEN
         RestaurantDetailsViewState restaurantDetailsViewState = TestUtils.getValueForTesting(restaurantDetailsViewModel.getRestaurantDetailsViewStateLiveData());
 
-        List<WorkmateItemViewState> workmates = TestUtils.getValueForTesting(restaurantDetailsViewModel.getWorkmatesViewStateLiveData());
-
         // THEN
         assertNotNull(restaurantDetailsViewState);
-        assertNotNull(workmates);
         assertEquals(getDefaultRestaurantDetailsViewStateNotLikedNotSelected(), restaurantDetailsViewState);
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
@@ -403,6 +379,7 @@ public class RestaurantDetailsViewModelTest {
     @Test
     public void get_workmates_who_have_chosen_this_restaurant() {
         // GIVEN
+        doReturn(DEFAULT_TEXT_HAS_JOINT).when(application).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         restaurantDetailsMutableLiveData.setValue(getDefaultRestaurantDetails());
         workmatesHaveChosenMutableLiveData.setValue(getDefaultWorkmatesHaveChosen());
         currentUserLiveData.setValue(getDefaultCurrentUser());
@@ -410,8 +387,7 @@ public class RestaurantDetailsViewModelTest {
         restaurantDetailsViewModel = new RestaurantDetailsViewModel(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, getWorkmateByIdUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
 
         // WHEN
-        List<WorkmateItemViewState> workmatesItemViewState = TestUtils.getValueForTesting(restaurantDetailsViewModel.getWorkmatesViewStateLiveData());
-
+        List<WorkmateItemViewState> workmatesItemViewState = TestUtils.getValueForTesting(restaurantDetailsViewModel.getRestaurantDetailsViewStateLiveData()).getWorkmatesHaveChosen();
         assertNotNull(workmatesItemViewState);
 
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
@@ -419,7 +395,7 @@ public class RestaurantDetailsViewModelTest {
         verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
         verify(auth, atLeastOnce()).getCurrentUser();
         verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
-
+        verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
 
         verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
@@ -466,14 +442,14 @@ public class RestaurantDetailsViewModelTest {
         restaurantDetailsViewModel.addWorkmate();
 
         // THEN
-        verify(removeWorkmateToHaveChosenTodayUseCase).invoke(getDefaultCurrentUser(), PLACE_ID_VALUE, RESTAURANT_NAME);
+        verify(removeWorkmateToHaveChosenTodayUseCase).invoke(getDefaultCurrentUser());
         verify(application, atLeastOnce()).getString(R.string.workmate_has_joined, DISPLAY_NAME);
         verify(restaurantsRepositoryMock).getRestaurantDetailsById(PLACE_ID_VALUE);
         verify(getWorkmateByIdUseCaseMock).getWorkmateByIdLiveData(CURRENT_FIREBASE_USER_ID);
         verify(getWorkmatesHaveChosenTodayUseCaseMock).getWorkmatesHaveChosenTodayLiveData();
         verify(auth, atLeastOnce()).getCurrentUser();
         verify(savedStateHandle, atLeastOnce()).get(PLACE_ID);
-        verify(application).getString(R.string.restaurant_is_unchosen);
+        verify(application).getString(R.string.restaurant_is_un_chosen);
 
         verifyNoMoreInteractions(addWorkmateToHaveChosenTodayUseCaseMock, removeWorkmateToHaveChosenTodayUseCase, getWorkmatesHaveChosenTodayUseCaseMock, restaurantsRepositoryMock, auth, application, savedStateHandle);
     }
@@ -664,27 +640,27 @@ public class RestaurantDetailsViewModelTest {
     }
 
     private RestaurantDetailsViewState getDefaultRestaurantDetailsViewState() {
-        return new RestaurantDetailsViewState(PLACE_ID_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_SELECTED, R.string.dislike);
+        return new RestaurantDetailsViewState(PLACE_ID_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_SELECTED, R.string.dislike, getDefaultWorkmatesItemViewStateHaveChosen());
     }
 
     private RestaurantDetailsViewState getDefaultRestaurantDetailsViewStateWithWrongIdValue() {
-        return new RestaurantDetailsViewState(PLACE_ID_WRONG_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_NOT_SELECTED, R.string.like);
+        return new RestaurantDetailsViewState(PLACE_ID_WRONG_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_NOT_SELECTED, R.string.like, new ArrayList<>());
     }
 
     private RestaurantDetailsViewState getDefaultRestaurantDetailsViewStateNotLiked() {
-        return new RestaurantDetailsViewState(PLACE_ID_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_SELECTED, R.string.like);
+        return new RestaurantDetailsViewState(PLACE_ID_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_SELECTED, R.string.like, getDefaultWorkmatesItemViewStateHaveChosen());
     }
 
     private RestaurantDetailsViewState getDefaultRestaurantDetailsViewStateNotLikedNotSelected() {
-        return new RestaurantDetailsViewState(PLACE_ID_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_NOT_SELECTED, R.string.like);
+        return new RestaurantDetailsViewState(PLACE_ID_VALUE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_NOT_SELECTED, R.string.like, new ArrayList<>());
     }
 
     private RestaurantDetailsViewState getDefaultRestaurantDetailsViewStateNoPicture() {
-        return new RestaurantDetailsViewState(PLACE_ID_VALUE_NO_PICTURE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL_NO_PICTURE, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_SELECTED, R.string.dislike);
+        return new RestaurantDetailsViewState(PLACE_ID_VALUE_NO_PICTURE, RESTAURANT_NAME, ADDRESS, DEFAULT_RATING, PICTURE_URL_NO_PICTURE, PHONE_NUMBER, WEBSITE, SELECT_BUTTON_IS_SELECTED, R.string.dislike, new ArrayList<>());
     }
 
     private RestaurantDetailsViewState getDefaultRestaurantDetailsViewStateIfPlaceIdNotCorrectlyMatch() {
-        return new RestaurantDetailsViewState("1", "", "", 0, "", "", "", SELECT_BUTTON_IS_NOT_SELECTED, R.string.like);
+        return new RestaurantDetailsViewState("1", "", "", 0, "", "", "", SELECT_BUTTON_IS_NOT_SELECTED, R.string.like, new ArrayList<>());
     }
 
     //endregion
@@ -694,6 +670,7 @@ public class RestaurantDetailsViewModelTest {
     private Workmate getDefaultCurrentUser() {
         return new Workmate(CURRENT_FIREBASE_USER_ID, FORMATTED_WORKMATES_HAS_JOINED, "mail", PICTURE_URL, PLACE_ID_VALUE, RESTAURANT_NAME, DEFAULT_LIKED_RESTAURANTS);
     }
+
     private Workmate getDefaultCurrentUserHaveNotChosenYet() {
         return new Workmate(CURRENT_FIREBASE_USER_ID, FORMATTED_WORKMATES_HAS_JOINED, "mail", PICTURE_URL, EMPTY_PLACE_ID_VALUE, RESTAURANT_NAME, DEFAULT_LIKED_RESTAURANTS);
     }

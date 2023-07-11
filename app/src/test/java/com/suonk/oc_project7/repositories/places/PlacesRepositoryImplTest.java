@@ -25,7 +25,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.io.IOException;
 import java.util.Locale;
 
 import retrofit2.Call;
@@ -65,7 +64,7 @@ public class PlacesRepositoryImplTest {
     private final String DEFAULT_INPUT = "DEFAULT_INPUT";
 
     @Before
-    public void setup() throws IOException {
+    public void setup() {
         placesRepository = new PlacesRepositoryImpl(placesApiServiceMock);
     }
 
@@ -106,22 +105,9 @@ public class PlacesRepositoryImplTest {
     }
 
     @Test
-    public void get_places_autocomplete_returns_null() {
-        // GIVEN
-        doReturn(null).when(placesApiServiceMock).getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
-
-        // WHEN
-        placesRepository.getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT).observeForever(Assert::assertNotNull);
-
-        // THEN
-        verify(placesApiServiceMock, atLeastOnce()).getPlacesAutocomplete(DEFAULT_LOCATION, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
-        verifyNoMoreInteractions(placesApiServiceMock);
-    }
-
-    @Test
     public void get_places_autocomplete_with_location_null() {
         // GIVEN
-        doReturn(autocompleteResponseCallMock).when(placesApiServiceMock).getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+        doReturn(autocompleteResponseCallMock).when(placesApiServiceMock).getPlacesAutocomplete(null, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
         autocompleteResponseCallMock.enqueue(autocompleteResponseCallbackMock);
 
         // WHEN
@@ -131,20 +117,7 @@ public class PlacesRepositoryImplTest {
         });
 
         // THEN
-        verify(placesApiServiceMock, atLeastOnce()).getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
-        verifyNoMoreInteractions(placesApiServiceMock);
-    }
-
-    @Test
-    public void get_places_autocomplete_with_location_null_returns_null() {
-        // GIVEN
-        doReturn(null).when(placesApiServiceMock).getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
-
-        // WHEN
-        placesRepository.getPlacesAutocomplete(null, Locale.getDefault().getLanguage(), DEFAULT_INPUT).observeForever(Assert::assertNotNull);
-
-        // THEN
-        verify(placesApiServiceMock, atLeastOnce()).getPlacesAutocomplete(Locale.getDefault().getLanguage(), DEFAULT_INPUT);
+        verify(placesApiServiceMock, atLeastOnce()).getPlacesAutocomplete(null, Locale.getDefault().getLanguage(), DEFAULT_INPUT);
         verifyNoMoreInteractions(placesApiServiceMock);
     }
 }

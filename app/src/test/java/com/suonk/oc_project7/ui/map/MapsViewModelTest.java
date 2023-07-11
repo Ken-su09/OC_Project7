@@ -6,6 +6,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.app.Application;
 
@@ -69,7 +70,6 @@ public class MapsViewModelTest {
     private static final double LATITUDE = -1.256546;
     private static final double LONGITUDE = 8.256546;
     private static final String LOCATION = LATITUDE + "," + LONGITUDE;
-    private static final String LOCATION_IF_CURRENT_LOC_NULL = 0.0 + "," + 0.0;
 
     private static final String EMAIL = "EMAIL";
     private static final String PHOTO_REFERENCE = "PHOTO_REFERENCE";
@@ -134,7 +134,7 @@ public class MapsViewModelTest {
         verify(currentLocation, atLeastOnce()).getLng();
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -151,7 +151,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -169,7 +169,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -190,7 +190,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -210,7 +210,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -231,7 +231,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -252,7 +252,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -272,7 +272,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -293,7 +293,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -315,7 +315,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -336,7 +336,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -358,7 +358,7 @@ public class MapsViewModelTest {
         verify(placesRepository).getNearbyPlaceResponse(LOCATION);
         verify(application, atLeastOnce()).getString(R.string.my_position);
 
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     @Test
@@ -372,9 +372,7 @@ public class MapsViewModelTest {
         assertNotNull(mapMarkers);
         assertEquals(0, mapMarkers.size());
 
-        verify(placesRepository).getNearbyPlaceResponse(LOCATION_IF_CURRENT_LOC_NULL);
-
-        Mockito.verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
+        verifyNoMoreInteractions(locationRepository, currentLocation, placesRepository, getWorkmatesHaveChosenTodayUseCaseMock, currentUserSearchRepository);
     }
 
     private List<Place> getDefaultPlaces() {
