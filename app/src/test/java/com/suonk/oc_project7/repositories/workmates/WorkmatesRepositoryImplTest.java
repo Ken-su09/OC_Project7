@@ -3,6 +3,7 @@ package com.suonk.oc_project7.repositories.workmates;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -12,6 +13,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.LiveData;
 
 import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -20,6 +22,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.suonk.oc_project7.model.data.workmate.Workmate;
 import com.suonk.oc_project7.utils.TestUtils;
@@ -50,6 +53,8 @@ public class WorkmatesRepositoryImplTest {
     private final FirebaseFirestore firebaseFirestoreMock = mock(FirebaseFirestore.class);
 
     private final CollectionReference collectionReferenceMock = mock(CollectionReference.class);
+    private final Query queryMock = mock(Query.class);
+    private final Query queryMock2 = mock(Query.class);
     private final DocumentReference documentReferenceMock = mock(DocumentReference.class);
     private final Task<Void> taskVoidMock = mock(Task.class);
 
@@ -71,12 +76,16 @@ public class WorkmatesRepositoryImplTest {
     private static final String RESTAURANT_NAME = "RESTAURANT_NAME";
     private static final String PHOTO_REFERENCE = "PHOTO_REFERENCE";
     private static final String PICTURE_URL = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=key&photo_reference=" + PHOTO_REFERENCE;
-    private static final String DISPLAY_NAME = "DISPLAY_NAME";
 
     private static final String CURRENT_FIREBASE_USER_ID = "CURRENT_FIREBASE_USER_ID";
     private static final String CURRENT_FIREBASE_USER_NAME = "CURRENT_FIREBASE_USER_NAME";
     private static final String CURRENT_FIREBASE_MAIL = "CURRENT_FIREBASE_MAIL";
     private static final String CURRENT_FIREBASE_PHOTO_URL = "CURRENT_FIREBASE_PHOTO_URL";
+
+    private static final String USER_ID_TO_ADD = "USER_ID_TO_ADD";
+    private static final String USER_NAME_TO_ADD = "USER_NAME_TO_ADD";
+    private static final String MAIL_TO_ADD = "MAIL_TO_ADD";
+    private static final String PICTURE_URL_TO_ADD = "PICTURE_URL_TO_ADD";
 
     private static final List<String> DEFAULT_LIKED_RESTAURANTS = Arrays.asList(PLACE_ID_VALUE, PLACE_ID_VALUE_NO_PICTURE);
 
@@ -104,6 +113,10 @@ public class WorkmatesRepositoryImplTest {
 
     private static final String WORKMATE_ID_6 = "WORKMATE_ID_6";
     private static final String WORKMATE_NAME_6 = "WORKMATE_NAME_6";
+
+    private static final String NAME_PATH = "name";
+    private static final String EMAIL_PATH = "email";
+    private static final String PICTURE_URL_PATH = "pictureUrl";
 
     //endregion
 
@@ -415,8 +428,6 @@ public class WorkmatesRepositoryImplTest {
 
         Continuation<DocumentSnapshot, Workmate> continuation = continuationArgumentCaptor.getValue();
         Workmate workmate = continuation.then(taskDocumentSnapshotMock);
-
-        Workmate expectedResult = getDefaultCurrentUser();
         assertEquals(getDefaultCurrentUser(), workmate);
 
         verifyNoMoreInteractions(firebaseFirestoreMock);
@@ -441,21 +452,211 @@ public class WorkmatesRepositoryImplTest {
         verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
     }
 
+
     @Test
-    public void add_workmate_to_firestore() {
+    public void add_workmate_with_mail_to_firestore_with_task_is_false() {
         // GIVEN
         doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(ALL_WORKMATES);
-        doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-        doReturn(taskVoidMock).when(documentReferenceMock).set(getDefaultCurrentUser());
+        doReturn(queryMock).when(collectionReferenceMock).whereEqualTo(EMAIL_PATH, MAIL_TO_ADD);
+        doReturn(taskQuerySnapshotMock).when(queryMock).get();
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotCompleteListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+        doReturn(false).when(taskQuerySnapshotMock).isSuccessful();
 
         workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
 
-        workmatesRepository.addWorkmateToFirestore(CURRENT_FIREBASE_USER_ID, getDefaultCurrentUser());
+        // WHEN
+        workmatesRepository.addWorkmateToFirestore(USER_ID_TO_ADD, getDefaultCurrentUserToAdd());
 
+        // THEN
         verify(firebaseFirestoreMock).collection(ALL_WORKMATES);
-        verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
-        verify(documentReferenceMock).set(getDefaultCurrentUser());
+        verify(collectionReferenceMock).whereEqualTo(EMAIL_PATH, MAIL_TO_ADD);
+        verify(queryMock).get();
+
+        verify(taskQuerySnapshotMock).addOnCompleteListener(querySnapshotCompleteListenerCaptor.capture());
+        querySnapshotCompleteListenerCaptor.getValue().onComplete(taskQuerySnapshotMock);
+        verify(taskQuerySnapshotMock).isSuccessful();
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
     }
+
+    @Test
+    public void add_workmate_with_mail_to_firestore_with_task_is_successful_with_list_is_empty() {
+        // GIVEN
+        doReturn(queryMock).when(collectionReferenceMock).whereEqualTo(EMAIL_PATH, MAIL_TO_ADD);
+        doReturn(taskQuerySnapshotMock).when(queryMock).get();
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotCompleteListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+
+        doReturn(true).when(taskQuerySnapshotMock).isSuccessful();
+
+        doReturn(querySnapshotMock).when(taskQuerySnapshotMock).getResult();
+        doReturn(true).when(querySnapshotMock).isEmpty();
+
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        doReturn(documentReferenceMock).when(collectionReferenceMock).document(USER_ID_TO_ADD);
+        doReturn(taskVoidMock).when(documentReferenceMock).set(getDefaultCurrentUserToAdd());
+
+        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
+
+        // WHEN
+        workmatesRepository.addWorkmateToFirestore(USER_ID_TO_ADD, getDefaultCurrentUserToAdd());
+
+        // THEN
+        verify(collectionReferenceMock).whereEqualTo(EMAIL_PATH, MAIL_TO_ADD);
+        verify(queryMock).get();
+
+        verify(taskQuerySnapshotMock).addOnCompleteListener(querySnapshotCompleteListenerCaptor.capture());
+        querySnapshotCompleteListenerCaptor.getValue().onComplete(taskQuerySnapshotMock);
+        verify(taskQuerySnapshotMock).isSuccessful();
+
+        verify(taskQuerySnapshotMock).getResult();
+        verify(querySnapshotMock).isEmpty();
+
+        verify(firebaseFirestoreMock, atLeast(2)).collection(ALL_WORKMATES);
+        verify(collectionReferenceMock).document(USER_ID_TO_ADD);
+        verify(documentReferenceMock).set(getDefaultCurrentUserToAdd());
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
+    @Test
+    public void add_workmate_with_mail_to_firestore_with_task_is_successful_with_list_is_not_empty() {
+        // GIVEN
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        doReturn(queryMock).when(collectionReferenceMock).whereEqualTo(EMAIL_PATH, MAIL_TO_ADD);
+        doReturn(taskQuerySnapshotMock).when(queryMock).get();
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotCompleteListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+
+        doReturn(true).when(taskQuerySnapshotMock).isSuccessful();
+
+        doReturn(querySnapshotMock).when(taskQuerySnapshotMock).getResult();
+        doReturn(false).when(querySnapshotMock).isEmpty();
+
+        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
+
+        // WHEN
+        workmatesRepository.addWorkmateToFirestore(USER_ID_TO_ADD, getDefaultCurrentUserToAdd());
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        verify(collectionReferenceMock).whereEqualTo(EMAIL_PATH, MAIL_TO_ADD);
+        verify(queryMock).get();
+
+        verify(taskQuerySnapshotMock).addOnCompleteListener(querySnapshotCompleteListenerCaptor.capture());
+        querySnapshotCompleteListenerCaptor.getValue().onComplete(taskQuerySnapshotMock);
+        verify(taskQuerySnapshotMock).isSuccessful();
+
+        verify(taskQuerySnapshotMock).getResult();
+        verify(querySnapshotMock).isEmpty();
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
+
+    @Test
+    public void add_workmate_with_name_and_picture_url_to_firestore_with_task_is_false() {
+        // GIVEN
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        doReturn(queryMock).when(collectionReferenceMock).whereEqualTo(NAME_PATH, USER_NAME_TO_ADD);
+        doReturn(queryMock2).when(queryMock).whereEqualTo(PICTURE_URL_PATH, PICTURE_URL_TO_ADD);
+        doReturn(taskQuerySnapshotMock).when(queryMock2).get();
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotCompleteListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+        doReturn(false).when(taskQuerySnapshotMock).isSuccessful();
+
+        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
+
+        // WHEN
+        workmatesRepository.addWorkmateToFirestore(USER_ID_TO_ADD, getDefaultCurrentUserWithoutMailToAdd());
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        verify(collectionReferenceMock).whereEqualTo(NAME_PATH, USER_NAME_TO_ADD);
+        verify(queryMock).whereEqualTo(PICTURE_URL_PATH, PICTURE_URL_TO_ADD);
+        verify(queryMock2).get();
+
+        verify(taskQuerySnapshotMock).addOnCompleteListener(querySnapshotCompleteListenerCaptor.capture());
+        querySnapshotCompleteListenerCaptor.getValue().onComplete(taskQuerySnapshotMock);
+        verify(taskQuerySnapshotMock).isSuccessful();
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
+    @Test
+    public void add_workmate_with_name_and_picture_url_to_firestore_with_task_is_successful_with_list_is_empty() {
+        // GIVEN
+        doReturn(queryMock).when(collectionReferenceMock).whereEqualTo(NAME_PATH, USER_NAME_TO_ADD);
+        doReturn(queryMock2).when(queryMock).whereEqualTo(PICTURE_URL_PATH, PICTURE_URL_TO_ADD);
+        doReturn(taskQuerySnapshotMock).when(queryMock2).get();
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotCompleteListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+
+        doReturn(true).when(taskQuerySnapshotMock).isSuccessful();
+
+        doReturn(querySnapshotMock).when(taskQuerySnapshotMock).getResult();
+        doReturn(true).when(querySnapshotMock).isEmpty();
+
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        doReturn(documentReferenceMock).when(collectionReferenceMock).document(USER_ID_TO_ADD);
+        doReturn(taskVoidMock).when(documentReferenceMock).set(getDefaultCurrentUserWithoutMailToAdd());
+
+        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
+
+        // WHEN
+        workmatesRepository.addWorkmateToFirestore(USER_ID_TO_ADD, getDefaultCurrentUserWithoutMailToAdd());
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        verify(collectionReferenceMock).whereEqualTo(NAME_PATH, USER_NAME_TO_ADD);
+        verify(queryMock).whereEqualTo(PICTURE_URL_PATH, PICTURE_URL_TO_ADD);
+        verify(queryMock2).get();
+
+        verify(taskQuerySnapshotMock).addOnCompleteListener(querySnapshotCompleteListenerCaptor.capture());
+        querySnapshotCompleteListenerCaptor.getValue().onComplete(taskQuerySnapshotMock);
+        verify(taskQuerySnapshotMock).isSuccessful();
+
+        verify(taskQuerySnapshotMock).getResult();
+        verify(querySnapshotMock).isEmpty();
+
+        verify(firebaseFirestoreMock, atLeast(2)).collection(ALL_WORKMATES);
+        verify(collectionReferenceMock).document(USER_ID_TO_ADD);
+        verify(documentReferenceMock).set(getDefaultCurrentUserWithoutMailToAdd());
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
+    @Test
+    public void add_workmate_with_name_and_picture_url_to_firestore_with_task_is_successful_with_list_is_not_empty() {
+        // GIVEN
+        doReturn(collectionReferenceMock).when(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        doReturn(queryMock).when(collectionReferenceMock).whereEqualTo(NAME_PATH, USER_NAME_TO_ADD);
+        doReturn(queryMock2).when(queryMock).whereEqualTo(PICTURE_URL_PATH, PICTURE_URL_TO_ADD);
+        doReturn(taskQuerySnapshotMock).when(queryMock2).get();
+        ArgumentCaptor<OnCompleteListener<QuerySnapshot>> querySnapshotCompleteListenerCaptor = ArgumentCaptor.forClass(OnCompleteListener.class);
+
+        doReturn(true).when(taskQuerySnapshotMock).isSuccessful();
+
+        doReturn(querySnapshotMock).when(taskQuerySnapshotMock).getResult();
+        doReturn(false).when(querySnapshotMock).isEmpty();
+
+        workmatesRepository = new WorkmatesRepositoryImpl(firebaseFirestoreMock);
+
+        // WHEN
+        workmatesRepository.addWorkmateToFirestore(USER_ID_TO_ADD, getDefaultCurrentUserWithoutMailToAdd());
+
+        // THEN
+        verify(firebaseFirestoreMock).collection(ALL_WORKMATES);
+        verify(collectionReferenceMock).whereEqualTo(NAME_PATH, USER_NAME_TO_ADD);
+        verify(queryMock).whereEqualTo(PICTURE_URL_PATH, PICTURE_URL_TO_ADD);
+        verify(queryMock2).get();
+
+        verify(taskQuerySnapshotMock).addOnCompleteListener(querySnapshotCompleteListenerCaptor.capture());
+        querySnapshotCompleteListenerCaptor.getValue().onComplete(taskQuerySnapshotMock);
+        verify(taskQuerySnapshotMock).isSuccessful();
+
+        verify(taskQuerySnapshotMock).getResult();
+        verify(querySnapshotMock).isEmpty();
+
+        verifyNoMoreInteractions(firebaseFirestoreMock);
+    }
+
 
     //endregion
 
@@ -467,7 +668,7 @@ public class WorkmatesRepositoryImplTest {
         doReturn(documentReferenceMock).when(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
         doReturn(taskVoidMock).when(documentReferenceMock).delete();
 
-        workmatesRepository.removeWorkmateToHaveChosenTodayList(CURRENT_FIREBASE_USER_ID, getDefaultCurrentUser());
+        workmatesRepository.removeWorkmateToHaveChosenTodayList(CURRENT_FIREBASE_USER_ID);
 
         verify(firebaseFirestoreMock).collection(HAVE_CHOSEN_TODAY_COLLECTION_PATH);
         verify(collectionReferenceMock).document(CURRENT_FIREBASE_USER_ID);
@@ -482,6 +683,14 @@ public class WorkmatesRepositoryImplTest {
 
     private Workmate getDefaultCurrentUser() {
         return new Workmate(CURRENT_FIREBASE_USER_ID, CURRENT_FIREBASE_USER_NAME, CURRENT_FIREBASE_MAIL, CURRENT_FIREBASE_PHOTO_URL, PLACE_ID_VALUE, RESTAURANT_NAME, DEFAULT_LIKED_RESTAURANTS);
+    }
+
+    private Workmate getDefaultCurrentUserToAdd() {
+        return new Workmate(USER_ID_TO_ADD, USER_NAME_TO_ADD, MAIL_TO_ADD, PICTURE_URL_TO_ADD, "", "", new ArrayList<>());
+    }
+
+    private Workmate getDefaultCurrentUserWithoutMailToAdd() {
+        return new Workmate(USER_ID_TO_ADD, USER_NAME_TO_ADD, "", PICTURE_URL_TO_ADD, "", "", new ArrayList<>());
     }
 
     private Workmate getDefaultCurrentUserEmpty() {
