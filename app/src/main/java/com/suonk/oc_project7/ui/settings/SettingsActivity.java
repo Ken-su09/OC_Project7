@@ -103,7 +103,7 @@ public class SettingsActivity extends AppCompatActivity implements NavigationVie
         AppCompatTextView email = header.findViewById(R.id.user_mail);
         AppCompatImageView image = header.findViewById(R.id.user_image);
 
-        viewModel.getMainViewStateLiveData().observe(this, mainViewState -> {
+        viewModel.getSettingsViewStateLiveData().observe(this, mainViewState -> {
             name.setText(mainViewState.getDisplayName());
             email.setText(mainViewState.getEmail());
             Glide.with(this)

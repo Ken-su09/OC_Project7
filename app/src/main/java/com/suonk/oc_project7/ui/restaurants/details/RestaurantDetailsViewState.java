@@ -2,6 +2,9 @@ package com.suonk.oc_project7.ui.restaurants.details;
 
 import androidx.annotation.NonNull;
 
+import com.suonk.oc_project7.ui.workmates.WorkmateItemViewState;
+
+import java.util.List;
 import java.util.Objects;
 
 public class RestaurantDetailsViewState {
@@ -30,6 +33,8 @@ public class RestaurantDetailsViewState {
 
     private final int likeButtonText;
 
+    private final List<WorkmateItemViewState> workmatesHaveChosen;
+
     public RestaurantDetailsViewState(@NonNull String placeId,
                                       @NonNull String restaurantName,
                                       @NonNull String address,
@@ -38,7 +43,8 @@ public class RestaurantDetailsViewState {
                                       @NonNull String phoneNumber,
                                       @NonNull String websiteLink,
                                       int selectButtonIcon,
-                                      int likeButtonText) {
+                                      int likeButtonText,
+                                      List<WorkmateItemViewState> workmatesHaveChosen) {
         this.placeId = placeId;
         this.restaurantName = restaurantName;
         this.address = address;
@@ -48,6 +54,7 @@ public class RestaurantDetailsViewState {
         this.websiteLink = websiteLink;
         this.selectButtonIcon = selectButtonIcon;
         this.likeButtonText = likeButtonText;
+        this.workmatesHaveChosen = workmatesHaveChosen;
     }
 
     @NonNull
@@ -90,6 +97,10 @@ public class RestaurantDetailsViewState {
 
     public int getLikeButtonText() {
         return likeButtonText;
+    }
+
+    public List<WorkmateItemViewState> getWorkmatesHaveChosen() {
+        return workmatesHaveChosen;
     }
 
     @Override

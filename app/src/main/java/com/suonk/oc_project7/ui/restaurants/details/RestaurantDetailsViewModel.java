@@ -5,7 +5,6 @@ import static com.suonk.oc_project7.ui.restaurants.details.RestaurantDetailsActi
 import android.app.Application;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,9 +48,6 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
     @NonNull
     private final MediatorLiveData<RestaurantDetailsViewState> restaurantDetailsViewStateLiveData = new MediatorLiveData<>();
-
-    @NonNull
-    private final MutableLiveData<List<WorkmateItemViewState>> workmatesViewStateLiveData = new MutableLiveData<>(new ArrayList<>());
 
     @NonNull
     private final Application application;
@@ -117,7 +113,6 @@ public class RestaurantDetailsViewModel extends ViewModel {
                     isChosen = true;
                 }
             }
-            workmatesViewStateLiveData.setValue(workmatesItemViews);
         }
 
         int likeButtonText = R.string.like;
@@ -143,14 +138,14 @@ public class RestaurantDetailsViewModel extends ViewModel {
 
             restaurantName = restaurantDetails.getRestaurantName();
 
-            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(restaurantDetails.getPlaceId(), restaurantDetails.getRestaurantName(), restaurantDetails.getAddress(), (int) rating, picture, restaurantDetails.getPhoneNumber(), restaurantDetails.getWebsiteLink(), selectRestaurantButtonIcon, likeButtonText));
+            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState(restaurantDetails.getPlaceId(),
+                    restaurantDetails.getRestaurantName(),
+                    restaurantDetails.getAddress(),
+                    (int) rating,
+                    picture, restaurantDetails.getPhoneNumber(), restaurantDetails.getWebsiteLink(), selectRestaurantButtonIcon, likeButtonText, workmatesItemViews));
         } else {
-            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState("1", "", "", 0, "", "", "", R.drawable.ic_to_select, likeButtonText));
+            restaurantDetailsViewStateLiveData.setValue(new RestaurantDetailsViewState("1", "", "", 0, "", "", "", R.drawable.ic_to_select, likeButtonText, workmatesItemViews));
         }
-    }
-
-    public LiveData<List<WorkmateItemViewState>> getWorkmatesViewStateLiveData() {
-        return workmatesViewStateLiveData;
     }
 
     public LiveData<RestaurantDetailsViewState> getRestaurantDetailsViewStateLiveData() {

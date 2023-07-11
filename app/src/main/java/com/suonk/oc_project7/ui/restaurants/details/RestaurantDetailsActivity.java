@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.bumptech.glide.Glide;
 import com.suonk.oc_project7.databinding.ActivityRestaurantDetailsBinding;
 import com.suonk.oc_project7.events.OnClickEventListener;
+import com.suonk.oc_project7.ui.main.MainActivity;
 import com.suonk.oc_project7.ui.workmates.WorkmatesListAdapter;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -37,11 +38,17 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements OnCl
 
         RestaurantDetailsViewModel viewModel = new ViewModelProvider(this).get(RestaurantDetailsViewModel.class);
         getRestaurantFromViewModel(binding, viewModel);
-        getWorkmatesWhoHaveChosenThisRestaurant(binding, viewModel);
     }
 
     private void getRestaurantFromViewModel(ActivityRestaurantDetailsBinding binding, RestaurantDetailsViewModel viewModel) {
         viewModel.getRestaurantDetailsViewStateLiveData().observe(this, restaurantItemViewState -> {
+
+            WorkmatesListAdapter listAdapter = new WorkmatesListAdapter(this);
+            listAdapter.submitList(restaurantItemViewState.getWorkmatesHaveChosen());
+            binding.workmatesRecyclerView.setAdapter(listAdapter);
+            binding.workmatesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+            binding.workmatesRecyclerView.setHasFixedSize(true);
+
             binding.restaurantName.setText(restaurantItemViewState.getRestaurantName());
             binding.restaurantAddress.setText(restaurantItemViewState.getAddress());
 
@@ -55,7 +62,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements OnCl
 
             binding.callLayout.setOnClickListener(view -> {
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", restaurantItemViewState.getPhoneNumber(), null));
-
                 if (intent.resolveActivity(this.getPackageManager()) != null) {
                     startActivity(intent);
                 }
@@ -78,15 +84,6 @@ public class RestaurantDetailsActivity extends AppCompatActivity implements OnCl
         for (int i = 0; i < ratingStars.length; i++) {
             ratingStars[i].setVisibility(rating > i ? View.VISIBLE : View.GONE);
         }
-    }
-
-    private void getWorkmatesWhoHaveChosenThisRestaurant(ActivityRestaurantDetailsBinding binding, RestaurantDetailsViewModel viewModel) {
-        WorkmatesListAdapter listAdapter = new WorkmatesListAdapter(this);
-
-        viewModel.getWorkmatesViewStateLiveData().observe(this, listAdapter::submitList);
-        binding.workmatesRecyclerView.setAdapter(listAdapter);
-        binding.workmatesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        binding.workmatesRecyclerView.setHasFixedSize(true);
     }
 
     @Override
