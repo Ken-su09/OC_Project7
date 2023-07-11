@@ -44,7 +44,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MainActivity extends AppCompatActivity implements OnClickEventListener, NavigationView.OnNavigationItemSelectedListener {
 
-    private static final int PERMISSIONS_REQUEST_ENABLE_GPS = 1;
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 2;
 
     private ActivityMainBinding binding;
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         isMapsEnabled();
-        getLocationPermission();
+        getLocationPermission(getIntent());
 
         setupActionBar();
         setupDrawerLayout();
@@ -268,12 +267,20 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
         }
     }
 
-    private void getLocationPermission() {
+    private void getLocationPermission(Intent intent) {
         mainViewModel.getPermissionsLiveData().observe(this, isPermissionsEnabled -> {
             if (!isPermissionsEnabled) {
                 ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
             } else {
-                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, MapFragment.newInstance()).commit();
+                if (intent.getFlags() == Intent.FLAG_ACTIVITY_CLEAR_TOP) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ListRestaurantsFragment()).commit();
+                    binding.bottomNavigation.getMenu().findItem(R.id.nav_restaurant).setChecked(true);
+                } else if (intent.getFlags() == Intent.FLAG_ACTIVITY_CLEAR_TASK) {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new WorkmatesFragment()).commit();
+                    binding.bottomNavigation.getMenu().findItem(R.id.nav_workmates).setChecked(true);
+                } else {
+                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, MapFragment.newInstance()).commit();
+                }
             }
         });
     }
@@ -291,7 +298,17 @@ public class MainActivity extends AppCompatActivity implements OnClickEventListe
     }
 
     @Override
-    public void onBackPressed() {
-        getSupportFragmentManager().popBackStack();
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        if (intent.getFlags() == Intent.FLAG_ACTIVITY_CLEAR_TOP) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ListRestaurantsFragment()).commit();
+            binding.bottomNavigation.getMenu().findItem(R.id.nav_restaurant).setChecked(true);
+        } else if (intent.getFlags() == Intent.FLAG_ACTIVITY_CLEAR_TASK) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new WorkmatesFragment()).commit();
+            binding.bottomNavigation.getMenu().findItem(R.id.nav_workmates).setChecked(true);
+        } else {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, MapFragment.newInstance()).commit();
+        }
     }
 }
