@@ -73,7 +73,6 @@ public class CurrentLocationRepositoryImpl implements CurrentLocationRepository 
             locationCallback = new LocationCallback() {
                 @Override
                 public void onLocationResult(@NonNull LocationResult locationResult) {
-
                     if (locationResult.getLastLocation() != null) {
                         locationMutableLiveData.setValue(new CurrentLocation(
                                 locationResult.getLastLocation().getLatitude(),

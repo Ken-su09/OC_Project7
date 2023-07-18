@@ -26,9 +26,7 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
     private static final String ALL_WORKMATES = "all_workmates";
     private static final String HAVE_CHOSEN_TODAY = "have_chosen_today";
-    private static final String NAME = "name";
-    private static final String EMAIL = "email";
-    private static final String PICTURE_URL = "pictureUrl";
+    private static final String ID = "id";
 
     @Inject
     public WorkmatesRepositoryImpl(@NonNull FirebaseFirestore firebaseFirestore) {
@@ -171,26 +169,15 @@ public class WorkmatesRepositoryImpl implements WorkmatesRepository {
 
     @Override
     public void addWorkmateToFirestore(@NonNull String id, @NonNull Workmate workmateToAdd) {
-        if (workmateToAdd.getEmail().isEmpty()) {
-            firebaseFirestore.collection(ALL_WORKMATES)
-                    .whereEqualTo(NAME, workmateToAdd.getName())
-                    .whereEqualTo(PICTURE_URL, workmateToAdd.getPictureUrl())
-                    .get()
-                    .addOnCompleteListener(task -> {
+        firebaseFirestore.collection(ALL_WORKMATES)
+            .whereEqualTo(ID, id)
+            .get()
+            .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     if (task.getResult().isEmpty()) {
                         firebaseFirestore.collection(ALL_WORKMATES).document(id).set(workmateToAdd);
                     }
                 }
             });
-        } else {
-            firebaseFirestore.collection(ALL_WORKMATES).whereEqualTo(EMAIL, workmateToAdd.getEmail()).get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    if (task.getResult().isEmpty()) {
-                        firebaseFirestore.collection(ALL_WORKMATES).document(id).set(workmateToAdd);
-                    }
-                }
-            });
-        }
     }
 }

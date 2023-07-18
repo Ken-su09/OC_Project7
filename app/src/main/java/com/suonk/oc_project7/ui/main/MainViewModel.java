@@ -98,10 +98,6 @@ public class MainViewModel extends ViewModel {
             if (restaurants != null) {
                 for (Restaurant restaurant : restaurants) {
                     CustomSpannable textToHighlight = setHighLightedText(restaurant.getRestaurantName(), input.toString());
-
-                    System.out.println("!ids.contains(restaurant.getRestaurantId()) : " + !ids.contains(restaurant.getRestaurantId()));
-                    System.out.println("restaurant.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT)) : " + restaurant.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT)));
-
                     if (restaurant.getRestaurantName().toUpperCase(Locale.ROOT).contains(input.toString().toUpperCase(Locale.ROOT)) && !ids.contains(restaurant.getRestaurantId())) {
                         mainItemViewStates.add(new MainItemViewState(restaurant.getRestaurantId(), restaurant.getRestaurantName(), restaurant.getAddress(), textToHighlight.getStart(), textToHighlight.getEnd(), restaurant.getPictureUrl()));
                     }

@@ -52,8 +52,7 @@ public class WorkmatesViewModel extends ViewModel {
             currentUserLiveData = new MutableLiveData<>();
         }
 
-        LiveData<List<Workmate>> allWorkmates = getAllWorkmatesFromFirestoreUseCase
-                .getAllWorkmatesFromFirestoreLiveData();
+        LiveData<List<Workmate>> allWorkmates = getAllWorkmatesFromFirestoreUseCase.getAllWorkmatesFromFirestoreLiveData();
         LiveData<List<Workmate>> workmatesHaveChosen = getWorkmatesHaveChosenTodayUseCase.getWorkmatesHaveChosenTodayLiveData();
         LiveData<CharSequence> currentUserSearchLiveData = currentUserSearchRepository.getCurrentUserSearchLiveData();
 

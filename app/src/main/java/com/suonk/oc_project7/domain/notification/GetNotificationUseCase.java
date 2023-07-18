@@ -96,7 +96,6 @@ public class GetNotificationUseCase {
                 });
             }
         }
-
     }
 
     private String convertListToString(@NonNull Workmate currentUser, @NonNull List<Workmate> workmates) {

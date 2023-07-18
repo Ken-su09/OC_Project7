@@ -56,7 +56,6 @@ public class NotificationWorker extends Worker {
     }
 
     private void buildNotificationWorker(@Nullable NotificationEntity notificationEntity) {
-        Log.i("GetNotification", "notificationEntity : " + notificationEntity);
         if (notificationEntity != null) {
             final NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
             String CHANNEL_ID = "CHANNEL_ID";
